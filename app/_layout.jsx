@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import '@shared/translation/i18n';
 import { AppProviders } from '@shared/providers/AppProviders';
 import { useSessionEndedRedirect } from '@shared/navigation/useSessionEndedRedirect';
+import i18n from '@shared/translation/i18n';
+import { useUiStore } from '@store/uiStore';
 import { fontAssets, useTheme } from '@theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -13,6 +15,10 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 function RootStack() {
   const { colors, isDark } = useTheme();
   useSessionEndedRedirect();
+  const language = useUiStore((s) => s.language);
+  useEffect(() => {
+    if (language && i18n.language !== language) i18n.changeLanguage(language);
+  }, [language]);
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />

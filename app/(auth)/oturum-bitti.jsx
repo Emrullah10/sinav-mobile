@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
-import { Button, EmptyState, Screen } from '@components';
 import { LogOut } from 'lucide-react-native';
+import { Button, EmptyState, Screen } from '@components';
 import { useAuthStore } from '@shared/auth/authStore';
 import { useT } from '@shared/translation/useT';
 
-/** SYS-07 (geçici ekran): oturum bitti. Gerçek giriş akışı AUTH ekranlarında gelecek. */
+/** SYS-07: oturum bitti -> giriş. */
 export default function SessionEnded() {
   const { t } = useT();
   const clear = useAuthStore((s) => s.clearSessionEnded);
@@ -19,7 +19,7 @@ export default function SessionEnded() {
         title={t('session.ended.action')}
         onPress={() => {
           clear();
-          router.replace('/');
+          router.replace('/giris');
         }}
       />
     </Screen>

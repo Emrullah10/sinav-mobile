@@ -1,7 +1,28 @@
+import auth from './keys/auth';
+import onboarding from './keys/onboarding';
+import today from './keys/today';
+import study from './keys/study';
+import session from './keys/session';
+import tutor from './keys/tutor';
+import exam from './keys/exam';
+import me from './keys/me';
+
 // Uygulamaya özgü metinler (iki platformda ortak olanlar @sinav/i18n'de). Biçim vendor ile aynı: { anahtar: { tr, en } }.
 export default {
+  ...auth,
+  ...onboarding,
+  ...today,
+  ...study,
+  ...session,
+  ...tutor,
+  ...exam,
+  ...me,
   'app.name': { tr: 'ODAK', en: 'ODAK' },
   'common.retry': { tr: 'Tekrar dene', en: 'Try again' },
+  'common.off': { tr: 'Kapat', en: 'Turn off' },
+  'common.on': { tr: 'Aç', en: 'On' },
+  'common.save': { tr: 'Kaydet', en: 'Save' },
+  'common.done': { tr: 'Bitti', en: 'Done' },
   'common.close': { tr: 'Kapat', en: 'Close' },
   'common.back': { tr: 'Geri', en: 'Back' },
   'common.continue': { tr: 'Devam et', en: 'Continue' },

@@ -49,7 +49,8 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "format": "prettier --write \"{app,src,scripts}/**/*.{js,jsx,json}\"",
-    "vendor:check": "node scripts/vendor-check.mjs"
+    "vendor:check": "node scripts/vendor-check.mjs",
+    "verify:api": "node scripts/verify-api.mjs"
   },
   "private": true,
   "devDependencies": {

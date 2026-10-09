@@ -1,8 +1,9 @@
 import { BookOpen, CalendarCheck, ClipboardCheck, GraduationCap, User } from 'lucide-react-native';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHaptics } from '@hooks/useHaptics';
+import { useAuthStore } from '@shared/auth/authStore';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
@@ -20,6 +21,10 @@ export default function TabsLayout() {
   const { t } = useT();
   const insets = useSafeAreaInsets();
   const haptics = useHaptics();
+  const status = useAuthStore((s) => s.status);
+  const isGuest = useAuthStore((s) => s.isGuest);
+  // Misafir çalışma ekranlarını kullanamaz (learning:study yalnız öğrenci): onboarding'e / girişe yönlendir.
+  if (status === 'authenticated' && isGuest) return <Redirect href="/" />;
   return (
     <Tabs
       screenListeners={{ tabPress: () => haptics.select() }}

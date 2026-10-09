@@ -23,3 +23,5 @@ export { TextField } from './TextField';
 export { ToastProvider, useToast } from './Toast';
 export { TopBar } from './TopBar';
 export { PlaceholderScreen } from './PlaceholderScreen';
+export { QueryBoundary } from './QueryBoundary';
+export { AuthShell } from './AuthShell';
