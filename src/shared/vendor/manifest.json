@@ -1,0 +1,89 @@
+{
+  "generatedBy": "scripts/sync-mobile.mjs",
+  "monorepo": {
+    "sha": "822863d6efb19e34a17e08c918ff80495eb71e66",
+    "dirty": true
+  },
+  "files": {
+    "design-tokens/tokens.js": {
+      "sha256": "1960ed62c68959caa21cf7a697f06d69843362043ce9ff9417423c1a0ab4cd19",
+      "source": "packages/design-tokens/dist/native/tokens.js",
+      "sourceSha256": "7fa15abd8606dfa043933d4e50739fb5113daa5614bf08d21e67484a2c1a433b"
+    },
+    "client-sdk/index.js": {
+      "sha256": "2727c95665fe1a0fa5a6370f3d08f9fb8a23dd390b729bdf4b274939f1bbd758",
+      "source": "packages/client-sdk/index.js",
+      "sourceSha256": "b73a9f9fdbaa4d52f4f6a264c0bc0d33de5afe2edcec4a42d33790f12c38bef8"
+    },
+    "client-sdk/src/billing.js": {
+      "sha256": "367b950c1b452049ce5d4fda7c621fb7854c4bfb1ce1f1ed9c2dfcacb6029811",
+      "source": "packages/client-sdk/src/billing.js",
+      "sourceSha256": "614208591627ddfeaed5f8121638324d141bd6a266d28af6abbd24888e3f8f20"
+    },
+    "client-sdk/src/deepLinks.js": {
+      "sha256": "480c862f8b7352818b84f8011022770853cd6d365b1c36c2f027c2c378bff257",
+      "source": "packages/client-sdk/src/deepLinks.js",
+      "sourceSha256": "b07464e19573be6ef91b8f39f5826fd21548c25caa5f919175f0bc73c8d23fe8"
+    },
+    "client-sdk/src/errors.js": {
+      "sha256": "c621f67052d3ba62f258c3388bf1706758033c97ad14cf7b8340de829359d493",
+      "source": "packages/client-sdk/src/errors.js",
+      "sourceSha256": "8494ff28ce23fa621e26218a133fc1615d227592f99ec3d81639eb70ad56ef7b"
+    },
+    "client-sdk/src/gateway.js": {
+      "sha256": "253d44aa15181333f22c3424147ae85a6440250b67bdd99d7bbca12fe07cf892",
+      "source": "packages/client-sdk/src/gateway.js",
+      "sourceSha256": "278dc1a64412e81d5301e50cfaeb766459efc5cfad4e531b96e18a0cc202e91a"
+    },
+    "client-sdk/src/identity.js": {
+      "sha256": "8289621c81d75d21a8590d661b521dceec6718f95b339773fb8a609e45fe2670",
+      "source": "packages/client-sdk/src/identity.js",
+      "sourceSha256": "bcef52069787251ccff7dd5b6db71de09ad907f284dac0063ccfd4f77192a9f5"
+    },
+    "client-sdk/src/queryKeys.js": {
+      "sha256": "68871815703cb3f90f4235fda656cbd82c9b8a48cf05258bca55c9fe6bf8bb23",
+      "source": "packages/client-sdk/src/queryKeys.js",
+      "sourceSha256": "619c0cee1a0c9f91d85cf83cbcb79c0bde9056d5df59a9a606101f674605485a"
+    },
+    "i18n/index.js": {
+      "sha256": "3e1e3ba675c6a9f841874a2dc26656ec75189d9da4a3e2a2823f1e12aa98d1ce",
+      "source": "packages/i18n/index.js",
+      "sourceSha256": "f139acf969f0a2e33f0e07d5ddc2f6dfa8294de47b0c2bf4ae35a10263711bd3"
+    },
+    "i18n/keys/apiErrorsBillingKeys.js": {
+      "sha256": "b2c4ec4488d7bda3b6e516183f8512de130d9f7daa721828570863ae275693a1",
+      "source": "packages/i18n/keys/apiErrorsBillingKeys.js",
+      "sourceSha256": "29f1bdd679ec426a86a9044f7f78cdf591571cc6ff4f32991a82ccd2039ecc50"
+    },
+    "i18n/keys/apiErrorsCommonKeys.js": {
+      "sha256": "f391897580952e152d93cb503c348dfb1002416742637b7cfc64de78aadb2c6f",
+      "source": "packages/i18n/keys/apiErrorsCommonKeys.js",
+      "sourceSha256": "04913cbf968a450a0445fd9b1a500d6c2ec1f177e7a81c782b45c272a9b199fc"
+    },
+    "i18n/keys/apiErrorsIdentityKeys.js": {
+      "sha256": "f0c3e667f94c883fc1067807f4698cf7e871b2d20acb43f630c00267b88e1257",
+      "source": "packages/i18n/keys/apiErrorsIdentityKeys.js",
+      "sourceSha256": "86c4cc338afe27b7509cda53d609be8f662636f04e22031d2c764b153bfdf6ca"
+    },
+    "i18n/keys/enumsBillingKeys.js": {
+      "sha256": "02aa26b21798f752b8d7a263e492ae82648122e46377e560b3a05a313f62beaf",
+      "source": "packages/i18n/keys/enumsBillingKeys.js",
+      "sourceSha256": "e82d8052cf5c8a856a0b407ad121f527aa33b50e34a3495f7cd745da2ce9243d"
+    },
+    "domain/index.js": {
+      "sha256": "e75afe9482130b82e735d2b01019919a52222ec7084698b50affdf80ec361e85",
+      "source": "packages/modules/shared/domain/index.js",
+      "sourceSha256": "8476e37927a653f7531de3d3e0471ddf432471405ea083e1f20193aee555357a"
+    },
+    "domain/scoring.js": {
+      "sha256": "bc995868415b4aa6b1ccbef7c5f7c70c3aa53f97683549ecc3041b994966481a",
+      "source": "packages/modules/shared/domain/scoring.js",
+      "sourceSha256": "2d70128fbd0db910c4ea64804c806e8fffa659b91c074e6fc89464f49309b94e"
+    },
+    "domain/study-day.js": {
+      "sha256": "86e7dfd142c346d7fea4df2259884b441785503e88e490e16b2ff402af0c950a",
+      "source": "packages/modules/shared/domain/study-day.js",
+      "sourceSha256": "1bd7a64f38bbd5033d343f94e4a63664c89480d9931c240888f9fc437a6c5051"
+    }
+  }
+}

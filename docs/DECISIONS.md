@@ -1,0 +1,13 @@
+# Kararlar (sinav-mobile)
+
+1. **Expo SDK 57** (kurulum anındaki güncel kararlı; `create-expo-app` blank şablonu), RN 0.86, React 19.2, yeni mimari. Managed workflow + `expo-dev-client`; `ios/` ve `android/` üretilir (gitignore), kalıcı yapılandırma `app.config.js`'te.
+2. **Fontlar** `@expo-google-fonts/*` paketlerinden (OFL) `useFonts` ile yüklenir: Figtree 400/500/600/700, Literata 400/500/600 + 400 italik, Bricolage Grotesque 600/700. PLAN'daki `assets/fonts` klasörü kullanılmadı; paketler sürüm sabitli ve `package-lock.json` ile yeniden üretilebilir. Statik ağırlık dosyaları kullanıldığı için `fontWeight` verilmez, aile adı ağırlığa göre seçilir.
+3. **Vendor kopyası** (`file:` bağımlılığı yok): iki repo bağımsız klonlanıp derlenebilir; Metro kök dışı symlink sorunu yok. `manifest.json` her dosyanın kendi ve kaynak sha256'sını ve monorepo SHA'sını tutar; `npm run vendor:check` sapmada 1 döner. `vendor/package.json` (`type: module`) node'dan import'ta uyarıyı önler. `domain` dosyalarında node bağımlılığı sync sırasında reddedilir.
+4. **Tema**: `ThemeProvider` mod `system | light | dark` (varsayılan `system`), tercih AsyncStorage'ta. Seçim `Appearance.setColorScheme` ile native bileşenlere de yansıtılır. Mobil tip ölçeği token dizilerinin 0. elemanıdır; tablet/masaüstü boyutları (1. eleman) şimdilik kullanılmıyor.
+5. **Yazı boyutu**: `allowFontScaling` açık, `maxFontSizeMultiplier=2` (Android %200 sınırı; iOS erişilebilirlik boyutları için gerekirse artırılır). Metin kutularında sabit yükseklik yok.
+6. **Oturum**: refresh token secure-store'da, access bellekte. Yenileme tek uçuşlu (`refreshInFlight`) ve çıplak axios örneğiyle yapılır (interceptor döngüsü imkânsız). İstek başına en çok bir yeniden deneme (`_retried`). Ağ/5xx kaynaklı yenileme hatası oturumu **bitirmez** (token korunur); yalnız sunucu reddi (`SESSION_ENDED_CODES`, 400/401/403) bitirir. `ensureSession()` önce kayıtlı refresh'i dener, ancak reddedilirse yeni misafir açar (yetim oturum üretmemek için).
+7. **Açılış**: `AuthBootstrap` refresh → `/me` akışını en çok 8 sn bekler; zaman aşımında `unauthenticated` olur ama refresh token silinmez.
+8. **Derin bağlantı**: şema `sinav://`; expo-router dosya yolları web ile aynı slug'lar. `openDeepLink` yalnız `deepLinks` kökleriyle eşleşen yolları açar.
+9. **Cleartext/yerel ağ** yalnız `APP_VARIANT !== 'production'` iken: iOS `NSAllowsLocalNetworking`, Android `usesCleartextTraffic`.
+10. **Bundle id / package**: `com.sinav.odak`. İkon ve açılış görseli Expo şablonundan geçici; marka varlıkları gelince değiştirilecek.
+11. **react-hook-form 7.82.0** sabitlendi (PLAN). `react-dom` yalnız expo-router'ın eş bağımlılığı için SDK sürümünde (19.2.3) kurulu.

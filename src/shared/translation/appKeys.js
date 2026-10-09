@@ -1,0 +1,57 @@
+// Uygulamaya özgü metinler (iki platformda ortak olanlar @sinav/i18n'de). Biçim vendor ile aynı: { anahtar: { tr, en } }.
+export default {
+  'app.name': { tr: 'ODAK', en: 'ODAK' },
+  'common.retry': { tr: 'Tekrar dene', en: 'Try again' },
+  'common.close': { tr: 'Kapat', en: 'Close' },
+  'common.back': { tr: 'Geri', en: 'Back' },
+  'common.continue': { tr: 'Devam et', en: 'Continue' },
+  'common.cancel': { tr: 'Vazgeç', en: 'Cancel' },
+  'common.loading': { tr: 'Yükleniyor', en: 'Loading' },
+  'common.showPassword': { tr: 'Şifreyi göster', en: 'Show password' },
+  'common.hidePassword': { tr: 'Şifreyi gizle', en: 'Hide password' },
+  'common.dismiss': { tr: 'Bildirimi kapat', en: 'Dismiss' },
+  'common.more99': { tr: '99+', en: '99+' },
+  'tabs.today': { tr: 'Bugün', en: 'Today' },
+  'tabs.study': { tr: 'Çalış', en: 'Study' },
+  'tabs.exam': { tr: 'Deneme', en: 'Exam' },
+  'tabs.tutor': { tr: 'Öğretmen', en: 'Tutor' },
+  'tabs.me': { tr: 'Ben', en: 'Me' },
+  'placeholder.title': { tr: 'Bu ekran yakında', en: 'This screen is coming soon' },
+  'placeholder.body': {
+    tr: 'Ekran içeriği sonraki adımlarda eklenecek.',
+    en: 'Screen content will be added in later steps.',
+  },
+  'state.empty.title': { tr: 'Burada henüz bir şey yok', en: 'Nothing here yet' },
+  'state.error.network.title': { tr: 'Bağlantı kurulamadı', en: 'Could not connect' },
+  'state.error.network.body': {
+    tr: 'İnternet bağlantını kontrol edip tekrar dene.',
+    en: 'Check your connection and try again.',
+  },
+  'state.error.server.title': { tr: 'Bir şeyler ters gitti', en: 'Something went wrong' },
+  'state.error.server.body': {
+    tr: 'Sorun bizde. Biraz sonra tekrar dene.',
+    en: 'It is on us. Please try again shortly.',
+  },
+  'state.error.permission.title': { tr: 'Bu içeriğe erişimin yok', en: 'You do not have access' },
+  'state.error.permission.body': {
+    tr: 'Premium ile açılır ya da hesabını kontrol et.',
+    en: 'Unlocked with Premium, or check your account.',
+  },
+  'state.error.notFound.title': {
+    tr: 'Aradığın sayfa bulunamadı',
+    en: 'We could not find that page',
+  },
+  'state.error.notFound.body': {
+    tr: 'Bağlantı eskimiş olabilir.',
+    en: 'The link may be out of date.',
+  },
+  'session.ended.title': { tr: 'Oturumun sona erdi', en: 'Your session ended' },
+  'session.ended.body': {
+    tr: 'Güvenliğin için yeniden giriş yapman gerekiyor. Çalışman kayıtlı.',
+    en: 'For your security you need to sign in again. Your progress is saved.',
+  },
+  'session.ended.action': { tr: 'Yeniden giriş yap', en: 'Sign in again' },
+  'dev.guest.start': { tr: 'Misafir oturumu aç', en: 'Start guest session' },
+  'focus.exit': { tr: 'Çık', en: 'Exit' },
+  'toast.dismiss': { tr: 'Kapat', en: 'Dismiss' },
+};

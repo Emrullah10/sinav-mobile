@@ -1,0 +1,6 @@
+src/shared/vendor
+ios
+android
+.expo
+node_modules
+package-lock.json
