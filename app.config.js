@@ -38,6 +38,7 @@ module.exports = () => ({
       },
     },
     plugins: [
+      './plugins/with-ios-scene-lifecycle',
       'expo-router',
       'expo-secure-store',
       'expo-localization',
