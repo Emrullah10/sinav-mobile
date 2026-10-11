@@ -73,3 +73,6 @@ AGENTS.md
 *.tsbuildinfo
 .cache/
 .eslintcache
+
+# Documentation & Notes
+docs/
