@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { Banner, Card, OptionBubble, Text } from '@components';
+import { TapText } from '@features/lexicon/TapText';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
@@ -11,7 +12,7 @@ function MiniQuestion({ block }) {
   const done = picked != null;
   return (
     <Card style={{ gap: 8 }}>
-      <Text variant="reading-m">{block.stem}</Text>
+      <TapText variant="reading-m" text={block.stem} sentences={done} sentenceLock="lex.lock.answerFirst" />
       {block.options.map((o) => {
         const state = !done
           ? 'default'
@@ -60,7 +61,7 @@ function SentenceXray({ block }) {
   return (
     <Card style={{ gap: 8 }}>
       <Text variant="overline" color="tertiary">{t('tutor.block.xray')}</Text>
-      <Text variant="reading-m">{block.sentence}</Text>
+      <TapText variant="reading-m" text={block.sentence} />
       {block.parts?.map((p) => (
         <View
           key={p.no}

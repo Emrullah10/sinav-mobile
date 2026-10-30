@@ -8,6 +8,7 @@ import { errorText, formatClock, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { ReportSheet } from '@features/content/ReportSheet';
 import { QuestionBody, plain } from '@features/question/QuestionBody';
+import { TapText } from '@features/lexicon/TapText';
 import { useT } from '@shared/translation/useT';
 
 const FILTERS = ['all', 'wrong', 'blank', 'correct', 'flagged'];
@@ -30,11 +31,11 @@ function ReviewItem({ code, n, onReport, onAskTutor, asking }) {
             <Text variant="caption" color="tertiary">
               {`${t('exam.review.yours', { a: v.review.selectedLabel || '–', b: correct })} · ${formatClock((v.review.timeMs || 0) / 1000)}`}
             </Text>
-            <QuestionBody question={v.question} passage={v.passage} optionStates={optionStates} disabled selectedLabel={v.review.selectedLabel} />
+            <QuestionBody question={v.question} passage={v.passage} optionStates={optionStates} disabled selectedLabel={v.review.selectedLabel} lexicon={{ sentences: true, options: true }} />
             {v.solution?.explanation ? (
               <Card style={{ gap: 6 }}>
                 <Text variant="heading-3">{t('session.solution.title')}</Text>
-                <Text variant="body-m">{plain(v.solution.explanation)}</Text>
+                <TapText variant="body-m" lang="auto" text={plain(v.solution.explanation)} />
               </Card>
             ) : null}
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>

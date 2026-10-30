@@ -4,6 +4,7 @@ import { Undo2, Layers } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Banner, Button, Card, EmptyState, ErrorState, IconButton, Screen, Skeleton, Text, TopBar } from '@components';
+import { TapText } from '@features/lexicon/TapText';
 import { api } from '@api';
 import { apiErrorCode, errorKind, errorText, newClientRef, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
@@ -230,7 +231,7 @@ export default function VocabReview() {
                 <Text variant="overline" color="tertiary">{t('vocab.review.examples')}</Text>
                 {w.examples.slice(0, 3).map((ex, i) => (
                   <View key={i}>
-                    <Text variant="reading-m" italic>{ex.en}</Text>
+                    <TapText variant="reading-m" italic text={ex.en} />
                     <Text variant="body-s" color="secondary">{ex.tr}</Text>
                   </View>
                 ))}

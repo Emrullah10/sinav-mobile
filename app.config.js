@@ -26,7 +26,7 @@ module.exports = () => ({
     splash: {
       image: './assets/splash-icon.png',
       resizeMode: 'contain',
-      backgroundColor: '#0E6A6E',
+      backgroundColor: '#F4F6F5',
     },
     ios: {
       bundleIdentifier: 'com.sinav.odak',
@@ -60,9 +60,9 @@ module.exports = () => ({
         'expo-splash-screen',
         {
           image: './assets/splash-icon.png',
-          imageWidth: 160,
+          imageWidth: 168,
           backgroundColor: '#F4F6F5',
-          dark: { backgroundColor: '#0E171B' },
+          dark: { image: './assets/splash-icon-dark.png', backgroundColor: '#0E171B' },
         },
       ],
       ['expo-build-properties', { android: { usesCleartextTraffic: !isProd } }],

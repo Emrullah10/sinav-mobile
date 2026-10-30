@@ -1,4 +1,5 @@
 export { Badge } from './Badge';
+export { BrandMark } from './BrandMark';
 export { Banner } from './Banner';
 export { BubbleLoader } from './BubbleLoader';
 export { Button } from './Button';

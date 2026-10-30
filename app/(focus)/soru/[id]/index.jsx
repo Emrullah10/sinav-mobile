@@ -11,6 +11,8 @@ import { apiErrorCode, errorKind, errorText, formatClock, newClientRef, unwrap }
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { ReportSheet } from '@features/content/ReportSheet';
 import { QuestionBody, plain } from '@features/question/QuestionBody';
+import { TapText } from '@features/lexicon/TapText';
+import { LexiconTip } from '@features/lexicon/LexiconTip';
 import { useHaptics } from '@hooks/useHaptics';
 import { useHeartbeat } from '@hooks/useHeartbeat';
 import { useItemTimer } from '@hooks/useItemTimer';
@@ -311,6 +313,7 @@ export default function SessionPlayer() {
             action={upgrade ? { label: t('today.access.upgrade'), onPress: () => router.push('/premium') } : undefined}
           />
         ) : null}
+        <LexiconTip />
         <QuestionBody
           question={view.question}
           passage={view.passage}
@@ -319,6 +322,7 @@ export default function SessionPlayer() {
           optionStates={optionStates}
           eliminated={eliminated}
           disabled={busy || finalized}
+          lexicon={{ sentences: finalized, options: finalized, sentenceLock: 'lex.lock.answerFirst' }}
         />
 
         {fb || canRetry ? (
@@ -353,9 +357,9 @@ export default function SessionPlayer() {
         {sol ? (
           <Card style={{ gap: 8 }}>
             <Text variant="heading-3">{t('session.solution.title')}</Text>
-            {sol.explanation ? <Text variant="body-m">{plain(sol.explanation)}</Text> : null}
+            {sol.explanation ? <TapText variant="body-m" lang="auto" text={plain(sol.explanation)} /> : null}
             {sol.options?.filter((o) => o.rationale).map((o) => (
-              <Text key={o.label} variant="body-s" color="secondary">{`${o.label}) ${plain(o.rationale)}`}</Text>
+              <TapText key={o.label} variant="body-s" color="secondary" lang="auto" text={`${o.label}) ${plain(o.rationale)}`} />
             ))}
             {sol.noteLink ? (
               <Button title={sol.noteLink.title} variant="secondary" size="md" onPress={() => router.push(`/not/${sol.noteLink.itemCode}`)} />

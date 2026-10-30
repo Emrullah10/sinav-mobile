@@ -9,6 +9,8 @@ export const useUiStore = create(
       hapticsEnabled: true,
       soundEnabled: false,
       language: null, // null = cihaz dili
+      lexiconTipSeen: false, // dokun-çevir ipucu bir kez gösterilir
+      setLexiconTipSeen: (lexiconTipSeen) => set({ lexiconTipSeen }),
       setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
       setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
       setLanguage: (language) => set({ language }),
@@ -17,6 +19,7 @@ export const useUiStore = create(
       hapticsEnabled: s.hapticsEnabled,
       soundEnabled: s.soundEnabled,
       language: s.language,
+      lexiconTipSeen: s.lexiconTipSeen,
     }),
   ),
 );

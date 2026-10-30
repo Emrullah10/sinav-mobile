@@ -6,6 +6,7 @@ import { api } from '@api';
 import { errorText, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
+import { TapText } from '@features/lexicon/TapText';
 
 const Chips = ({ title, items }) =>
   items?.length ? (
@@ -100,9 +101,7 @@ export default function VocabWord() {
                   </Text>
                   {w.examples.map((ex, i) => (
                     <View key={i}>
-                      <Text variant="reading-m" italic>
-                        {ex.en}
-                      </Text>
+                      <TapText variant="reading-m" italic text={ex.en} />
                       <Text variant="body-s" color="secondary">
                         {ex.tr}
                       </Text>

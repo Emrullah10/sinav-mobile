@@ -9,6 +9,7 @@ import { api } from '@api';
 import { apiErrorCode, errorKind, errorText, newClientRef, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { Blocks } from '@features/tutor/Blocks';
+import { TapText } from '@features/lexicon/TapText';
 import { sendTutorMessage } from '@shared/http/tutorStream';
 import { useHaptics } from '@hooks/useHaptics';
 import { useT } from '@shared/translation/useT';
@@ -39,7 +40,7 @@ function Waiting() {
   );
 }
 
-function Bubble({ message, onFeedback, onReport, onSource, onPreset, isLast, busy }) {
+function Bubble({ message, onFeedback, onReport, onSource, onPreset, onAsk, isLast, busy }) {
   const { t } = useT();
   const { colors, radius } = useTheme();
   const mine = message.role === 'user';
@@ -56,10 +57,13 @@ function Bubble({ message, onFeedback, onReport, onSource, onPreset, isLast, bus
           borderColor: colors.border.default,
         }}
       >
-        {message.content ? (
-          <Text variant="body-l" selectable style={{ color: mine ? colors.text['on-accent'] : colors.text.primary }}>
+        {message.content && mine ? (
+          <Text variant="body-l" selectable style={{ color: colors.text['on-accent'] }}>
             {message.content}
           </Text>
+        ) : message.content ? (
+          // Asistan cevabındaki İngilizce kelime/cümleler dokun-çevir'e açık; "Öğretmene sor" bu sohbete gönderir.
+          <TapText variant="body-l" lang="auto" text={message.content} onAsk={onAsk} words={!busy || !isLast} sentences={!busy || !isLast} />
         ) : (
           <Waiting />
         )}
@@ -302,6 +306,7 @@ function ChatBody({ code, starter, conv, initialMessages }) {
               }}
               onSource={(s) => router.push(`/not/${s.code}`)}
               onPreset={(p) => send(t(`tutor.preset.${p}`), p)}
+              onAsk={(q) => send(q)}
             />
           ))
         )}

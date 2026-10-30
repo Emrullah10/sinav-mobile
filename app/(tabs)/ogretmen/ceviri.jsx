@@ -7,6 +7,7 @@ import { api } from '@api';
 import { apiErrorCode, errorText, newClientRef, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
+import { TapText } from '@features/lexicon/TapText';
 import { useTheme } from '@theme';
 
 function Diff({ parts }) {
@@ -87,7 +88,7 @@ export default function TranslationCoach() {
                 <Text variant="caption" color="tertiary">{t('tr.usage', { n: p.usage.remaining })}</Text>
               ) : null}
               <Card elevation="e1">
-                <Text variant="reading-l">{p.sourceText}</Text>
+                <TapText variant="reading-l" lang="auto" text={p.sourceText} sentences={Boolean(result)} sentenceLock="lex.lock.translateFirst" />
               </Card>
               {result ? (
                 <View style={{ gap: 16 }}>
@@ -106,7 +107,7 @@ export default function TranslationCoach() {
                   </View>
                   <View style={{ gap: 6 }}>
                     <Text variant="heading-3">{t('tr.suggested')}</Text>
-                    <Text variant="body-l">{result.suggestedTranslation}</Text>
+                    <TapText variant="body-l" lang="auto" text={result.suggestedTranslation} />
                   </View>
                   {result.feedback?.parts?.length ? (
                     <View style={{ gap: 6 }}>

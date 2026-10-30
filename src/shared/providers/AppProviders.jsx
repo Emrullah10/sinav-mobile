@@ -6,10 +6,11 @@ import { I18nextProvider } from 'react-i18next';
 import { AuthBootstrap } from '@shared/auth/AuthBootstrap';
 import i18n from '@shared/translation/i18n';
 import { ToastProvider } from '@components/Toast';
+import { LexiconProvider } from '@features/lexicon/LexiconProvider';
 import { ThemeProvider } from '@theme';
 import { queryClient } from './queryClient';
 
-/** Sağlayıcı sırası: Theme → SafeArea/GestureHandler → Query → Auth bootstrap → i18n. */
+/** Sağlayıcı sırası: Theme → SafeArea/GestureHandler → Query → Auth bootstrap → i18n → alt sayfa → toast → dokun-çevir. */
 export function AppProviders({ children }) {
   return (
     <ThemeProvider>
@@ -19,7 +20,9 @@ export function AppProviders({ children }) {
             <AuthBootstrap>
               <I18nextProvider i18n={i18n}>
                 <BottomSheetModalProvider>
-                  <ToastProvider>{children}</ToastProvider>
+                  <ToastProvider>
+                    <LexiconProvider>{children}</LexiconProvider>
+                  </ToastProvider>
                 </BottomSheetModalProvider>
               </I18nextProvider>
             </AuthBootstrap>

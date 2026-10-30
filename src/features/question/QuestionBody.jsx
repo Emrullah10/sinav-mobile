@@ -1,13 +1,21 @@
 import { Pressable, View } from 'react-native';
 import { Card, OptionBubble, Text } from '@components';
+import { TapText } from '@features/lexicon/TapText';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
 /** Basit biçim temizliği: gövdelerde markdown vurgusu varsa işaretleri at. */
 export const plain = (s) => (s == null ? '' : String(s).replace(/\*\*|__/g, ''));
 
+/**
+ * Dokun-çevir ayarı: null → kapalı (deneme sınavı, seviye tespiti).
+ * { sentences: bool (cümle çevirisi), options: bool (şıklarda kelime), sentenceLock: i18n anahtarı (kapalıyken basılı tutma mesajı) }
+ */
+const tapProps = (lexicon, extra = {}) =>
+  lexicon ? { words: true, sentences: Boolean(lexicon.sentences), sentenceLock: lexicon.sentenceLock, ...extra } : { words: false, sentences: false };
+
 /** Okuma metni kartı (varsa). */
-export function PassageCard({ passage }) {
+export function PassageCard({ passage, lexicon = null }) {
   const { t } = useT();
   if (!passage) return null;
   return (
@@ -17,7 +25,7 @@ export function PassageCard({ passage }) {
           {passage.title}
         </Text>
       ) : null}
-      <Text variant="reading-m">{plain(passage.body)}</Text>
+      <TapText variant="reading-m" text={plain(passage.body)} {...tapProps(lexicon)} />
       {passage.terms?.length ? (
         <View style={{ gap: 4, marginTop: 4 }}>
           <Text variant="overline" color="tertiary">
@@ -49,21 +57,20 @@ export function QuestionBody({
   eliminated = [],
   disabled = false,
   showPassage = true,
+  lexicon = null,
 }) {
   const { colors, radius } = useTheme();
   const { t } = useT();
   if (!question) return null;
   return (
     <View style={{ gap: 16 }}>
-      {showPassage ? <PassageCard passage={passage} /> : null}
+      {showPassage ? <PassageCard passage={passage} lexicon={lexicon} /> : null}
       {question.questionType?.name ? (
         <Text variant="overline" color="tertiary">
           {question.questionType.name}
         </Text>
       ) : null}
-      <Text variant="reading-l" accessibilityRole="header">
-        {plain(question.stem)}
-      </Text>
+      <TapText variant="reading-l" accessibilityRole="header" text={plain(question.stem)} {...tapProps(lexicon)} />
       <View style={{ gap: 8 }}>
         {(question.options || []).map((opt) => {
           const feedback = optionStates[opt.label];
@@ -118,13 +125,13 @@ export function QuestionBody({
               }}
             >
               <OptionBubble letter={opt.label} state={state} />
-              <Text
+              <TapText
                 variant="body-l"
                 color={isEliminated ? 'disabled' : undefined}
                 style={[{ flex: 1 }, isEliminated ? { textDecorationLine: 'line-through' } : null]}
-              >
-                {plain(opt.text)}
-              </Text>
+                text={plain(opt.text)}
+                {...(lexicon?.options ? tapProps(lexicon) : { words: false, sentences: false })}
+              />
             </Pressable>
           );
         })}

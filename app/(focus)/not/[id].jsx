@@ -9,6 +9,7 @@ import { errorText, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { plain } from '@features/question/QuestionBody';
+import { TapText } from '@features/lexicon/TapText';
 import { useHeartbeat } from '@hooks/useHeartbeat';
 import { useT } from '@shared/translation/useT';
 
@@ -95,7 +96,7 @@ export default function NoteScreen() {
                 {n.ruleMd ? (
                   <Card style={{ gap: 6 }}>
                     <Text variant="overline" color="tertiary">{t('note.rule')}</Text>
-                    <Text variant="reading-m">{plain(n.ruleMd)}</Text>
+                    <TapText variant="reading-m" lang="auto" text={plain(n.ruleMd)} />
                   </Card>
                 ) : null}
                 {n.examples?.length ? (
@@ -103,7 +104,7 @@ export default function NoteScreen() {
                     <Text variant="heading-3">{t('note.examples')}</Text>
                     {n.examples.map((ex, i) => (
                       <View key={i}>
-                        <Text variant="reading-m" italic>{ex.en}</Text>
+                        <TapText variant="reading-m" italic text={ex.en} />
                         <Text variant="body-s" color="secondary">{ex.tr}</Text>
                       </View>
                     ))}
