@@ -4,7 +4,7 @@ import { ArrowUp, Flag, Square, ThumbsDown, ThumbsUp } from 'lucide-react-native
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Banner, Button, Chip, ErrorState, IconButton, Sheet, Skeleton, Text, TextField, TopBar, useToast } from '@components';
+import { Banner, BubbleLoader, Button, Chip, ErrorState, IconButton, Sheet, Skeleton, Text, TextField, TopBar, useToast } from '@components';
 import { api } from '@api';
 import { apiErrorCode, errorKind, errorText, newClientRef, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
@@ -12,6 +12,7 @@ import { Blocks } from '@features/tutor/Blocks';
 import { sendTutorMessage } from '@shared/http/tutorStream';
 import { useHaptics } from '@hooks/useHaptics';
 import { useT } from '@shared/translation/useT';
+import { report } from '@shared/monitoring/report';
 import { useTheme } from '@theme';
 
 const MODES = ['free', 'explain', 'sentence_xray'];
@@ -21,6 +22,22 @@ const toLocal = (m) => ({
   code: m.code, role: m.role, status: m.status, content: m.content, blocks: m.blocks || [], sources: m.sources || [],
   needsExpertReview: m.needsExpertReview, feedback: m.feedback ?? null, preset: m.preset || null,
 });
+
+// Cevap hazırlanırken: hareketli gösterge; 10 sn'yi aşarsa (uzun cevaplar) sakinleştirici bilgi.
+function Waiting() {
+  const { t } = useT();
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setSlow(true), 10000);
+    return () => clearTimeout(id);
+  }, []);
+  return (
+    <View style={{ gap: 6, alignItems: 'flex-start' }}>
+      <BubbleLoader count={3} size={8} label={t('tutor.chat.thinking')} />
+      {slow ? <Text variant="caption" color="tertiary">{t('tutor.chat.slow')}</Text> : null}
+    </View>
+  );
+}
 
 function Bubble({ message, onFeedback, onReport, onSource, onPreset, isLast, busy }) {
   const { t } = useT();
@@ -44,7 +61,7 @@ function Bubble({ message, onFeedback, onReport, onSource, onPreset, isLast, bus
             {message.content}
           </Text>
         ) : (
-          <Text variant="body-m" color="tertiary">{t('tutor.chat.thinking')}…</Text>
+          <Waiting />
         )}
       </View>
       {!mine ? (
@@ -92,6 +109,7 @@ function ChatBody({ code, starter, conv, initialMessages }) {
   const reportSheet = useRef(null);
   const abort = useRef(null);
   const assistantCode = useRef(null);
+  const draftRef = useRef({ text: null, clientRef: null }); // aynı metnin yeniden gönderimi aynı clientRef'i kullanır (çift mesaj olmaz)
   const sentStarter = useRef(false);
   const [messages, setMessages] = useState(initialMessages);
   const [text, setText] = useState('');
@@ -101,7 +119,26 @@ function ChatBody({ code, starter, conv, initialMessages }) {
   const [reportTarget, setReportTarget] = useState(null);
   const [reportNote, setReportNote] = useState('');
 
-  useEffect(() => () => abort.current?.abort(), []);
+  // Ekrandan çıkınca istek İPTAL EDİLMEZ: cevap sunucuda tamamlanır; geri dönünce sohbet yeniden çekilir (refetchOnMount: 'always').
+  const alive = useRef(true);
+  useEffect(() => () => { alive.current = false; }, []);
+
+  // Akış `done` olmadan koparsa sunucudaki kayıtlı hâli çek (ilk GET akıştan hemen sonra 400 dönebilir → artan aralıkla dene).
+  const resync = useCallback(async () => {
+    for (const wait of [600, 1500, 3000, 6000]) {
+      await new Promise((r) => setTimeout(r, wait));
+      if (!alive.current) return;
+      try {
+        const data = unwrap(await api.tutorConversationGet(code));
+        if (data?.messages) {
+          setMessages(data.messages.map(toLocal));
+          return;
+        }
+      } catch (err) {
+        report(err, { where: 'tutor.resync' });
+      }
+    }
+  }, [code]);
 
   const patchLast = (fn) => setMessages((cur) => (cur ? cur.map((m, i) => (i === cur.length - 1 ? fn(m) : m)) : cur));
 
@@ -117,13 +154,15 @@ function ChatBody({ code, starter, conv, initialMessages }) {
         { code: `u-${Date.now()}`, role: 'user', status: 'complete', content: body, blocks: [], sources: [] },
         { code: `a-${Date.now()}`, role: 'assistant', status: 'streaming', content: '', blocks: [], sources: [] },
       ]);
+      const draft = draftRef.current.text === body ? draftRef.current : { text: body, clientRef: newClientRef() };
+      draftRef.current = draft;
       const controller = new AbortController();
       abort.current = controller;
       assistantCode.current = null;
       try {
         const last = await sendTutorMessage(
           code,
-          { content: body, ...(mode ? { mode } : {}), ...(preset ? { preset } : {}), clientRef: newClientRef() },
+          { content: body, ...(mode ? { mode } : {}), ...(preset ? { preset } : {}), clientRef: draft.clientRef },
           {
             signal: controller.signal,
             onEvent: ({ event, data }) => {
@@ -149,24 +188,39 @@ function ChatBody({ code, starter, conv, initialMessages }) {
         if (last?.event === 'error') {
           patchLast((m) => ({ ...m, status: last.partial ? 'interrupted' : 'failed' }));
           setNotice({ tone: 'danger', message: t(`apiErrors.${last.code}`, { defaultValue: t('apiErrors.defaultErrorMessage') }) });
+        } else if (!last || last.event !== 'done') {
+          resync();
+        } else {
+          draftRef.current = { text: null, clientRef: null };
         }
         haptics.soft();
       } catch (e) {
-        if (e.name !== 'AbortError') {
+        if (e.name === 'AbortError') {
+          // Durdur: boş kalan baloncuğu kaldır, kayıtlı hâli çek.
+          if (!assistantCode.current) setMessages((cur) => (cur ? cur.slice(0, -2) : cur));
+          resync();
+        } else {
           const c = e.code || apiErrorCode(e);
-          setMessages((cur) => (cur ? cur.slice(0, -2) : cur));
-          setText(body);
+          if (c === 'TUTOR_MESSAGE_ALREADY_EXISTS') {
+            resync();
+          } else if (assistantCode.current) {
+            resync(); // mesajlar sunucuda kayıtlı; geri alıp tekrar göndermek çift mesaj yaratır
+          } else {
+            setMessages((cur) => (cur ? cur.slice(0, -2) : cur));
+            setText(body);
+          }
           if (c === 'QUOTA_EXCEEDED') setNotice({ tone: 'warning', message: t('tutor.chat.quota'), premium: true });
           else if (c === 'TUTOR_STREAM_ALREADY_RUNNING') setNotice({ tone: 'warning', message: t('tutor.chat.running') });
-          else setNotice({ tone: 'danger', message: t(`apiErrors.${c}`, { defaultValue: t('state.error.network.body') }) });
+          else if (c !== 'TUTOR_MESSAGE_ALREADY_EXISTS') setNotice({ tone: 'danger', message: t(`apiErrors.${c}`, { defaultValue: t('state.error.network.body') }) });
         }
       } finally {
         setBusy(false);
         abort.current = null;
         qc.invalidateQueries({ queryKey: queryKeys.tutor.overview() });
+        qc.invalidateQueries({ queryKey: queryKeys.tutor.conversation(code) });
       }
     },
-    [busy, code, mode, qc, t, haptics],
+    [busy, code, mode, qc, t, haptics, resync],
   );
 
   // Başlangıç önerisinden gelindiyse ilk mesajı otomatik gönder.
@@ -230,7 +284,10 @@ function ChatBody({ code, starter, conv, initialMessages }) {
         onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: true })}
       >
         {messages.length === 0 ? (
-          <Text variant="body-l" color="secondary">{t('tutor.chat.intro')}</Text>
+          <View style={{ gap: 8 }}>
+            <Text variant="body-l" color="secondary">{t('tutor.chat.intro')}</Text>
+            <Text variant="caption" color="tertiary">{t('tutor.disclosure')}</Text>
+          </View>
         ) : (
           messages.map((m, i) => (
             <Bubble
@@ -326,6 +383,7 @@ export default function TutorChat() {
     queryKey: queryKeys.tutor.conversation(code),
     queryFn: async () => unwrap(await api.tutorConversationGet(code)),
     staleTime: 0,
+    gcTime: 0, // önbellekten eski mesajlarla açılmasın; her girişte sunucudaki hâl çekilir
     refetchOnMount: 'always',
   });
   if (query.isPending || query.isError) {

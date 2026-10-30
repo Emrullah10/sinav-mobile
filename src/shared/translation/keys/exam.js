@@ -1,5 +1,6 @@
 const k = (tr, en) => ({ tr, en });
 export default {
+  'exam.run.eliminateTip': k('İpucu: bir şıkkı elemek için uzun bas.', 'Tip: long press an option to eliminate it.'),
   'exam.title': k('Deneme', 'Exam'),
   'exam.recommended': k('Önerilen', 'Recommended'),
   'exam.forms': k('Denemeler', 'Mock exams'),
@@ -75,6 +76,8 @@ export default {
   'exam.analysis.rushed': k('Acele yüzünden {{n}} yanlış', '{{n}} rushed mistakes'),
   'exam.analysis.slow': k('{{n}} doğru çok yavaş', '{{n}} correct answers were slow'),
   'exam.analysis.blank': k('Boş oranı %{{n}}', 'Blank rate {{n}}%'),
+  'exam.analysis.skills': k('Beceriler', 'Skills'),
+  'exam.analysis.skillLine': k('{{c}} doğru · {{w}} yanlış · {{b}} boş', '{{c}} correct · {{w}} wrong · {{b}} blank'),
   'exam.analysis.focus': k('Önce çalış', 'Focus on'),
   'exam.analysis.addToPlan': k('Plana ekle', 'Add to plan'),
   'exam.analysis.added': k('Plana eklendi.', 'Added to your plan.'),

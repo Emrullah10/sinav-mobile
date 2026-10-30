@@ -2,9 +2,9 @@ import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { View } from 'react-native';
-import { Banner, Button, Card, Chip, ListRow, QueryBoundary, Screen, Text, TopBar } from '@components';
+import { Banner, Button, Card, Chip, ListRow, QueryBoundary, Screen, Text, TextField, TopBar } from '@components';
 import { api } from '@api';
-import { errorText, formatDate, unwrap } from '@shared/api/helpers';
+import { errorText, formatDate, todayKey, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { onboardingRoute } from '@shared/navigation/onboardingRoute';
 import { useT } from '@shared/translation/useT';
@@ -36,7 +36,8 @@ export default function OnboardingStart() {
   const [trackKey, setTrackKey] = useState(null);
   const [score, setScore] = useState(null);
   const [reasons, setReasons] = useState([]);
-  const [dateChoice, setDateChoice] = useState('unknown'); // 'unknown' | oturum anahtarı
+  const [dateChoice, setDateChoice] = useState('unknown'); // 'unknown' | 'custom' | oturum anahtarı
+  const [customDate, setCustomDate] = useState('');
   const [error, setError] = useState(null);
 
   const exams = useQuery({
@@ -51,7 +52,9 @@ export default function OnboardingStart() {
 
   const detail = track.data;
   const presets = detail?.goalPresets || [];
-  const upcoming = (detail?.sessions || []).filter((s) => s.status !== 'held' && s.status !== 'canceled');
+  // Geçmiş oturumlar (yapıldı / sonuç açıklandı) ve iptaller seçilemez; durum gece işiyle güncellenir, tarih de denetlenir.
+  const today = todayKey();
+  const upcoming = (detail?.sessions || []).filter((s) => !['held', 'results_announced', 'cancelled'].includes(s.status) && s.examDate >= today);
   const effectiveScore = score ?? presets.find((p) => p.isDefault)?.targetScore ?? null;
 
   const save = useMutation({
@@ -59,8 +62,9 @@ export default function OnboardingStart() {
       const body = {
         trackKey,
         ...(effectiveScore ? { targetScore: effectiveScore } : {}),
-        dateMode: dateChoice === 'unknown' ? 'unknown' : 'session',
-        ...(dateChoice !== 'unknown' ? { examSessionKey: dateChoice } : {}),
+        dateMode: dateChoice === 'unknown' ? 'unknown' : dateChoice === 'custom' ? 'custom' : 'session',
+        ...(dateChoice === 'custom' ? { customExamDate: customDate } : {}),
+        ...(dateChoice !== 'unknown' && dateChoice !== 'custom' ? { examSessionKey: dateChoice } : {}),
         ...(reasons.length ? { goalReasonKeys: reasons } : {}),
       };
       return unwrap(await api.learningEnrollmentCreate(body)).enrollment;
@@ -79,7 +83,7 @@ export default function OnboardingStart() {
       footer={
         <Button
           title={t('onb.save')}
-          disabled={!trackKey || !detail}
+          disabled={!trackKey || !detail || (dateChoice === 'custom' && !(/^\d{4}-\d{2}-\d{2}$/.test(customDate) && customDate >= today))}
           loading={save.isPending}
           onPress={() => {
             setError(null);
@@ -126,6 +130,17 @@ export default function OnboardingStart() {
                   ))}
                 </View>
 
+                <TextField
+                  label={t('onb.target.custom', { max: d.scoreMax || 100 })}
+                  value={effectiveScore ? String(effectiveScore) : ''}
+                  onChangeText={(v) => {
+                    const num = Number(v.replace(/\D/g, '').slice(0, 3));
+                    setScore(num > 0 ? Math.min(num, d.scoreMax || 100) : null);
+                  }}
+                  keyboardType="number-pad"
+                  maxLength={3}
+                />
+
                 {d.goalReasons?.length ? (
                   <View style={{ gap: 8 }}>
                     <Text variant="heading-3">{t('onb.reasons.title')}</Text>
@@ -158,6 +173,25 @@ export default function OnboardingStart() {
                       divider
                     />
                   ))}
+                  <ListRow
+                    title={t('onb.date.custom')}
+                    subtitle={t('onb.date.customHint')}
+                    selected={dateChoice === 'custom'}
+                    onPress={() => setDateChoice('custom')}
+                    chevron={false}
+                    trailing={dateChoice === 'custom' ? <Text color="accent">✓</Text> : null}
+                    divider
+                  />
+                  {dateChoice === 'custom' ? (
+                    <TextField
+                      label={t('goal.customDate')}
+                      value={customDate}
+                      onChangeText={(v) => setCustomDate(v.replace(/[^\d-]/g, '').slice(0, 10))}
+                      placeholder="2027-03-28"
+                      keyboardType="numbers-and-punctuation"
+                      maxLength={10}
+                    />
+                  ) : null}
                   <ListRow
                     title={t('onb.date.unknown')}
                     subtitle={t('onb.date.unknownHint')}

@@ -5,12 +5,22 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import '@shared/translation/i18n';
 import { AppProviders } from '@shared/providers/AppProviders';
+import { initMonitoring, wrapRoot } from '@shared/monitoring/report';
+import { RemindersSync } from '@shared/notifications/RemindersSync';
+import { PurchasesIdentity } from '@shared/purchases/PurchasesIdentity';
+import { RootErrorFallback } from '@shared/RootErrorFallback';
 import { useSessionEndedRedirect } from '@shared/navigation/useSessionEndedRedirect';
 import i18n from '@shared/translation/i18n';
 import { useUiStore } from '@store/uiStore';
 import { fontAssets, useTheme } from '@theme';
 
+initMonitoring();
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// expo-router: rota ağacındaki işlenmemiş hata bu ekranı gösterir (sağlayıcılardan bağımsız).
+export function ErrorBoundary({ error, retry }) {
+  return <RootErrorFallback error={error} retry={retry} />;
+}
 
 function RootStack() {
   const { colors, isDark } = useTheme();
@@ -22,6 +32,8 @@ function RootStack() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
+      <PurchasesIdentity />
+      <RemindersSync />
       <Stack
         screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg.canvas } }}
       >
@@ -34,7 +46,7 @@ function RootStack() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(fontAssets);
   const ready = fontsLoaded || Boolean(fontError);
   useEffect(() => {
@@ -47,3 +59,5 @@ export default function RootLayout() {
     </AppProviders>
   );
 }
+
+export default wrapRoot(RootLayout);

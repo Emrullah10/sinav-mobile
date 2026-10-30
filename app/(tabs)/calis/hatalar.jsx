@@ -13,6 +13,7 @@ const FILTERS = [
   { key: 'open', params: { status: 'open', sort: 'recent' }, label: 'mistakes.filter.open' },
   { key: 'due', params: { status: 'open', due: true, sort: 'due' }, label: 'mistakes.filter.due' },
   { key: 'resolved', params: { status: 'resolved', sort: 'recent' }, label: 'mistakes.filter.resolved' },
+  { key: 'archived', params: { status: 'archived', sort: 'recent' }, label: 'mistakes.filter.archived' },
 ];
 const PAGE_SIZE = 20;
 const TYPES = ['knowledge_gap', 'attention', 'time', 'trap', 'vocabulary'];

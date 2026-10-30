@@ -1,6 +1,6 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { QueryBoundary, Screen, Text, TopBar } from '@components';
+import { Markdown, QueryBoundary, Screen, Text, TopBar } from '@components';
 import { api } from '@api';
 import { unwrap } from '@shared/api/helpers';
 import { useT } from '@shared/translation/useT';
@@ -21,7 +21,7 @@ export default function LegalDocument() {
             <Text variant="caption" color="tertiary" style={{ marginBottom: 12 }}>
               {t('legal.version', { v: doc.version })}
             </Text>
-            <Text variant="body-m">{doc.bodyMd}</Text>
+            <Markdown source={doc.bodyMd} />
           </>
         )}
       </QueryBoundary>

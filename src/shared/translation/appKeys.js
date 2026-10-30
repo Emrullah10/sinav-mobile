@@ -66,6 +66,7 @@ export default {
     tr: 'Bağlantı eskimiş olabilir.',
     en: 'The link may be out of date.',
   },
+  'state.notFound.home': { tr: 'Ana ekrana dön', en: 'Back to home' },
   'session.ended.title': { tr: 'Oturumun sona erdi', en: 'Your session ended' },
   'session.ended.body': {
     tr: 'Güvenliğin için yeniden giriş yapman gerekiyor. Çalışman kayıtlı.',

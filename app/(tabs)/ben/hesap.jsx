@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { Banner, Button, Card, Divider, QueryBoundary, Screen, Text, TextField, TopBar, useToast } from '@components';
 import { api } from '@api';
 import { errorText, formatDate, unwrap } from '@shared/api/helpers';
@@ -108,10 +108,15 @@ function DeleteCard({ account }) {
   });
   const confirm = useMutation({
     mutationFn: async () => unwrap(await api.identityAccountDeletionRequest({ code: code.replace(/\s/g, '') })),
-    onSuccess: async (res) => {
+    onSuccess: (res) => {
       setScheduled(res.scheduledFor);
-      await signOut();
-      router.replace('/giris');
+      // Silinme tarihini göster, sonra çıkış yap (30 gün içinde giriş yapılırsa silme iptal olur).
+      Alert.alert(
+        t('account.delete.doneTitle'),
+        t('account.delete.scheduled', { date: formatDate(res.scheduledFor, language, { day: 'numeric', month: 'long', year: 'numeric' }) }),
+        [{ text: t('account.delete.ok'), onPress: async () => { await signOut(); router.replace('/giris'); } }],
+        { cancelable: false },
+      );
     },
     onError: (e) => setError(errorText(t, e)),
   });
@@ -125,7 +130,13 @@ function DeleteCard({ account }) {
       {sent ? (
         <>
           <TextField label={t('account.delete.code')} value={code} onChangeText={setCode} keyboardType="number-pad" maxLength={7} />
-          <Button title={t('account.delete.confirm')} variant="destructive" size="md" fullWidth={false} loading={confirm.isPending} disabled={code.replace(/\s/g, '').length < 6} onPress={() => { setError(null); confirm.mutate(); }} />
+          <Button title={t('account.delete.confirm')} variant="destructive" size="md" fullWidth={false} loading={confirm.isPending} disabled={code.replace(/\s/g, '').length < 6} onPress={() => {
+            setError(null);
+            Alert.alert(t('account.delete.confirmTitle'), t('account.delete.warn'), [
+              { text: t('common.cancel'), style: 'cancel' },
+              { text: t('account.delete.confirm'), style: 'destructive', onPress: () => confirm.mutate() },
+            ]);
+          }} />
         </>
       ) : (
         <Button title={t('account.delete.sendCode')} variant="secondary" size="md" fullWidth={false} loading={send.isPending} onPress={() => { setError(null); send.mutate(); }} />

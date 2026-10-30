@@ -49,6 +49,23 @@ function Analysis({ code }) {
               ))}
             </View>
           ) : null}
+          {a.skills?.length ? (
+            <View style={{ gap: 8 }}>
+              <Text variant="label-m" color="secondary">{t('exam.analysis.skills')}</Text>
+              {a.skills.map((sk) => {
+                const total = (sk.correct || 0) + (sk.wrong || 0) + (sk.blank || 0);
+                return (
+                  <View key={sk.key} style={{ gap: 4 }}>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <Text variant="body-m" style={{ flex: 1 }}>{sk.name || sk.key}</Text>
+                      <Text variant="body-s" color="secondary">{t('exam.analysis.skillLine', { c: sk.correct || 0, w: sk.wrong || 0, b: sk.blank || 0 })}</Text>
+                    </View>
+                    <ProgressBar value={total ? (sk.correct || 0) / total : 0} height={4} />
+                  </View>
+                );
+              })}
+            </View>
+          ) : null}
         </View>
       )}
     </QueryBoundary>

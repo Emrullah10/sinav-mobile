@@ -11,4 +11,4 @@ export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_BAS
 export const APP_VERSION = Constants.expoConfig?.version || '0.0.0';
 export const PLATFORM = Platform.OS; // 'ios' | 'android'
 export const BOOTSTRAP_TIMEOUT_MS = 8000;
-export const REQUEST_TIMEOUT_MS = 20000;
+export const REQUEST_TIMEOUT_MS = 45000; // AI uçları (çeviri değerlendirme vb.) birkaç saniye sürebilir

@@ -37,13 +37,14 @@ export function PassageCard({ passage }) {
 /**
  * Soru gövdesi + şıklar.
  * optionStates: { A: 'correct'|'wrong'|'blank' } geri bildirimde; eliminated: elenen etiketler;
- * disabled: dokunulamaz; selectedLabel: seçili şık.
+ * disabled: dokunulamaz; selectedLabel: seçili şık; onEliminate(label): şıkka uzun basınca eleme/geri alma (denemede).
  */
 export function QuestionBody({
   question,
   passage,
   selectedLabel,
   onSelect,
+  onEliminate,
   optionStates = {},
   eliminated = [],
   disabled = false,
@@ -88,10 +89,14 @@ export function QuestionBody({
           return (
             <Pressable
               key={opt.label}
-              disabled={disabled || isEliminated}
-              onPress={() => onSelect?.(opt.label)}
+              disabled={disabled || (isEliminated && !onEliminate)}
+              onPress={() => {
+                if (!isEliminated) onSelect?.(opt.label);
+              }}
+              onLongPress={onEliminate ? () => onEliminate(opt.label) : undefined}
+              accessibilityHint={onEliminate ? t('question.eliminateHint') : undefined}
               accessibilityRole="radio"
-              accessibilityState={{ selected, disabled: disabled || isEliminated }}
+              accessibilityState={{ selected, disabled: disabled || (isEliminated && !onEliminate) }}
               accessibilityLabel={`${opt.label}. ${plain(opt.text)}${
                 feedback === 'correct'
                   ? `, ${t('question.correct')}`

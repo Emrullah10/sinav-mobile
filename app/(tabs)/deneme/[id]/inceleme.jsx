@@ -2,16 +2,17 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { View } from 'react-native';
-import { Card, Chip, EmptyState, ListRow, QueryBoundary, Screen, Sheet, Text, TopBar } from '@components';
+import { Button, Card, Chip, EmptyState, ListRow, QueryBoundary, Screen, Sheet, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
-import { formatClock, unwrap } from '@shared/api/helpers';
+import { errorText, formatClock, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
+import { ReportSheet } from '@features/content/ReportSheet';
 import { QuestionBody, plain } from '@features/question/QuestionBody';
 import { useT } from '@shared/translation/useT';
 
 const FILTERS = ['all', 'wrong', 'blank', 'correct', 'flagged'];
 
-function ReviewItem({ code, n }) {
+function ReviewItem({ code, n, onReport, onAskTutor, asking }) {
   const { t } = useT();
   const query = useQuery({
     queryKey: queryKeys.learning.examReviewItem(code, n),
@@ -36,6 +37,10 @@ function ReviewItem({ code, n }) {
                 <Text variant="body-m">{plain(v.solution.explanation)}</Text>
               </Card>
             ) : null}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+              <Button title={t('session.askTutor')} variant="secondary" size="md" fullWidth={false} loading={asking} onPress={() => onAskTutor(n)} />
+              <Button title={t('report.action')} variant="tertiary" size="md" fullWidth={false} onPress={() => onReport(v.question.itemCode, n)} />
+            </View>
             {v.hints?.length ? (
               <Card style={{ gap: 4 }}>
                 <Text variant="label-m" color="secondary">{t('exam.review.hints')}</Text>
@@ -52,9 +57,24 @@ function ReviewItem({ code, n }) {
 export default function ExamReview() {
   const { id: code } = useLocalSearchParams();
   const { t } = useT();
+  const toast = useToast();
   const sheet = useRef(null);
+  const reportSheet = useRef(null);
   const [filter, setFilter] = useState('wrong');
   const [open, setOpen] = useState(null);
+  const [asking, setAsking] = useState(false);
+  const askTutor = async (position) => {
+    setAsking(true);
+    try {
+      const conv = unwrap(await api.tutorConversationCreate({ mode: 'explain', context: { kind: 'mock_review', sessionCode: String(code), position } }));
+      sheet.current?.dismiss();
+      router.push(`/ogretmen/${conv.code}`);
+    } catch (e) {
+      toast.show({ message: errorText(t, e), tone: 'danger' });
+    } finally {
+      setAsking(false);
+    }
+  };
   const query = useQuery({
     queryKey: queryKeys.learning.examReview(code, filter),
     queryFn: async () => unwrap(await api.learningExamReviewList(code, filter)),
@@ -92,8 +112,17 @@ export default function ExamReview() {
         </QueryBoundary>
       </View>
       <Sheet ref={sheet} title={open ? t('exam.run.question', { n: open }) : ''} scrollable snapPoints={['90%']} onDismiss={() => setOpen(null)}>
-        {open ? <ReviewItem code={code} n={open} /> : null}
+        {open ? (
+          <ReviewItem
+            code={code}
+            n={open}
+            asking={asking}
+            onAskTutor={askTutor}
+            onReport={(itemCode, position) => reportSheet.current?.present({ itemCode, context: { sessionCode: Number(code), position } })}
+          />
+        ) : null}
       </Sheet>
+      <ReportSheet ref={reportSheet} />
     </Screen>
   );
 }

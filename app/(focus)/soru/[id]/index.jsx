@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bookmark, Flag } from 'lucide-react-native';
+import { Bookmark, Flag, MessageSquareWarning } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import {
@@ -9,11 +9,13 @@ import {
 import { api } from '@api';
 import { apiErrorCode, errorKind, errorText, formatClock, newClientRef, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
+import { ReportSheet } from '@features/content/ReportSheet';
 import { QuestionBody, plain } from '@features/question/QuestionBody';
 import { useHaptics } from '@hooks/useHaptics';
 import { useHeartbeat } from '@hooks/useHeartbeat';
 import { useItemTimer } from '@hooks/useItemTimer';
 import { useT } from '@shared/translation/useT';
+import { report } from '@shared/monitoring/report';
 
 const MISTAKE_TYPES = ['knowledge_gap', 'attention', 'time', 'trap', 'vocabulary'];
 
@@ -29,8 +31,10 @@ export default function SessionPlayer() {
   const [busy, setBusy] = useState(false);
   const [last, setLast] = useState(null); // son cevap yanıtı
   const [message, setMessage] = useState(null);
+  const [upgrade, setUpgrade] = useState(false);
   const [remaining, setRemaining] = useState(null);
   const clientRef = useRef(newClientRef());
+  const reportSheet = useRef(null);
 
   const session = useQuery({
     queryKey: queryKeys.learning.session(code),
@@ -38,6 +42,24 @@ export default function SessionPlayer() {
   });
   const s = session.data;
   const pos = posOverride ?? (s ? s.currentPosition || 1 : null);
+
+  useEffect(() => {
+    if (s?.status === 'completed') router.replace(`/soru/${code}/sonuc`);
+  }, [s?.status, code]);
+
+  // Duraklatılmış oturum açılınca devam ettirilir; aksi halde cevap/ipucu uçları 409 SESSION_NOT_IN_PROGRESS döner.
+  const resumed = useRef(false);
+  useEffect(() => {
+    if (s?.status !== 'paused' || resumed.current) return;
+    resumed.current = true;
+    api
+      .learningSessionResume(code)
+      .then(() => qc.invalidateQueries({ queryKey: queryKeys.learning.session(code) }))
+      .catch((err) => {
+        resumed.current = false;
+        report(err, { where: 'session.resume' });
+      });
+  }, [s?.status, code, qc]);
 
   const item = useQuery({
     queryKey: queryKeys.learning.sessionItem(code, pos),
@@ -52,15 +74,20 @@ export default function SessionPlayer() {
   // Süreli oturum geri sayımı.
   const deadline = s?.config?.deadlineAt ? new Date(s.config.deadlineAt).getTime() : null;
 
+  const finishing = useRef(false);
   const finish = useCallback(async () => {
+    if (finishing.current) return;
+    finishing.current = true;
     setBusy(true);
     try {
       await api.learningSessionComplete(code);
       qc.invalidateQueries({ queryKey: queryKeys.learning.today() });
       qc.invalidateQueries({ queryKey: queryKeys.learning.studyOverview() });
       qc.invalidateQueries({ queryKey: ['learning', 'mistakes'] });
+      qc.invalidateQueries({ queryKey: queryKeys.learning.sessionsCurrent() });
       router.replace(`/soru/${code}/sonuc`);
     } catch (e) {
+      finishing.current = false;
       setMessage(errorText(t, e));
       setBusy(false);
     }
@@ -71,7 +98,7 @@ export default function SessionPlayer() {
     const tick = () => {
       const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
       setRemaining(left);
-      if (left === 0) {
+      if (left === 0 && !finishing.current && s?.status === 'in_progress') {
         toast.show({ message: t('session.timeUp') });
         finish();
       }
@@ -80,7 +107,7 @@ export default function SessionPlayer() {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deadline]);
+  }, [deadline, s?.status]);
 
   const refreshItem = () => item.refetch();
   const act = async (fn) => {
@@ -90,6 +117,7 @@ export default function SessionPlayer() {
       return await fn();
     } catch (e) {
       const c = apiErrorCode(e);
+      setUpgrade(c === 'QUOTA_EXCEEDED' || c === 'FEATURE_LOCKED');
       setMessage(
         c === 'QUOTA_EXCEEDED' ? t('session.quota') : c === 'SESSION_EXPIRED' ? t('session.expired') : errorText(t, e),
       );
@@ -117,6 +145,7 @@ export default function SessionPlayer() {
       );
       clientRef.current = newClientRef();
       setLast(res);
+      if (res.outcome === 'wrong_retry') setChoice(null);
       if (res.outcome === 'correct' || res.outcome === 'correct_on_retry') haptics.correct();
       qc.invalidateQueries({ queryKey: queryKeys.learning.session(code) });
       if (res.feedback == null) {
@@ -154,6 +183,7 @@ export default function SessionPlayer() {
   const addBookmark = () =>
     act(async () => {
       await api.learningBookmarkCreate({ itemCode: view.question.itemCode });
+      qc.invalidateQueries({ queryKey: ['learning', 'bookmarks'] });
       toast.show({ message: t('session.bookmarked') });
       await refreshItem();
     });
@@ -179,7 +209,8 @@ export default function SessionPlayer() {
       {
         text: t('session.exit.confirm'),
         onPress: async () => {
-          await api.learningSessionPause(code).catch(() => {});
+          await api.learningSessionPause(code).catch(report);
+          qc.invalidateQueries({ queryKey: queryKeys.learning.sessionsCurrent() });
           router.back();
         },
       },
@@ -251,6 +282,12 @@ export default function SessionPlayer() {
       <View style={{ gap: 16 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 4 }}>
           <IconButton
+            icon={MessageSquareWarning}
+            size={36}
+            accessibilityLabel={t('report.action')}
+            onPress={() => reportSheet.current?.present({ itemCode: view.question.itemCode, context: { sessionCode: Number(code), position: pos } })}
+          />
+          <IconButton
             icon={Flag}
             size={36}
             variant={st.isFlagged ? 'tonal' : 'standard'}
@@ -266,7 +303,14 @@ export default function SessionPlayer() {
             onPress={addBookmark}
           />
         </View>
-        {message ? <Banner tone="danger" message={message} onClose={() => setMessage(null)} /> : null}
+        {message ? (
+          <Banner
+            tone="danger"
+            message={message}
+            onClose={() => setMessage(null)}
+            action={upgrade ? { label: t('today.access.upgrade'), onPress: () => router.push('/premium') } : undefined}
+          />
+        ) : null}
         <QuestionBody
           question={view.question}
           passage={view.passage}
@@ -373,6 +417,7 @@ export default function SessionPlayer() {
           <Button title={t('session.askTutor')} variant="tertiary" size="md" fullWidth={false} disabled={busy} onPress={askTutor} />
         ) : null}
       </View>
+      <ReportSheet ref={reportSheet} />
     </Screen>
   );
 }

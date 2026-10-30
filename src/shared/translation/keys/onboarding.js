@@ -1,6 +1,7 @@
 const k = (tr, en) => ({ tr, en });
 export default {
   'question.terms': k('Sözcükler', 'Terms'),
+  'question.eliminateHint': k('Elemek için uzun bas', 'Long press to eliminate'),
   'question.correct': k('doğru', 'correct'),
   'question.wrong': k('yanlış', 'wrong'),
   'onb.step': k('Adım {{n}} / {{total}}', 'Step {{n}} of {{total}}'),
@@ -43,9 +44,13 @@ export default {
   'diag.next': k('Sonraki', 'Next'),
   'diag.finish': k('Bitir', 'Finish'),
   'diag.counter': k('{{n}} / {{total}}', '{{n}} / {{total}}'),
+  'onb.target.custom': k('Başka bir hedef puan yaz (en çok {{max}})', 'Enter another target score (max {{max}})'),
+  'onb.date.custom': k('Kendi tarihimi gireceğim', 'I will enter my own date'),
+  'onb.date.customHint': k('Resmî oturum dışında bir hedef tarihin varsa.', 'If your target date is not an official session.'),
   'diag.halfway.title': k('Yarı yoldasın', 'You are halfway'),
   'diag.halfway.body': k('İstersen kısa bir mola ver. Hazır olunca devam et.', 'Take a short break if you like. Continue when ready.'),
   'diag.halfway.continue': k('Devam et', 'Continue'),
+  'diag.halfway.later': k('Sonra devam et', 'Continue later'),
   'diag.exit.title': k('Çıkmak istiyor musun?', 'Leave the test?'),
   'diag.exit.body': k('İlerlemen kaydedilir; sonra kaldığın yerden devam edersin.', 'Your progress is saved; you can resume later.'),
   'diag.exit.confirm': k('Çık', 'Leave'),

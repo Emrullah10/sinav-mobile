@@ -2,7 +2,8 @@ import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import { Chip, Divider, Screen, Segmented, SwitchRow, Text, TopBar, useToast } from '@components';
+import { Alert } from 'react-native';
+import { Button, Chip, Divider, Screen, Segmented, SwitchRow, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
 import { errorText, unwrap } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
@@ -11,6 +12,8 @@ import i18n from '@shared/translation/i18n';
 import { useT } from '@shared/translation/useT';
 import { useThemeStore } from '@store/themeStore';
 import { useUiStore } from '@store/uiStore';
+import { report } from '@shared/monitoring/report';
+import { ensureNotificationPermission } from '@shared/notifications/reminders';
 
 const TIMES = ['07:00', '12:30', '20:00', '21:30'];
 const MOCK_MODES = ['learning', 'quick', 'timed', 'standard', 'relaxed'];
@@ -31,7 +34,7 @@ export default function Settings() {
   const isGuest = useAuthStore((s) => s.isGuest);
   const mode = useThemeStore((s) => s.mode);
   const setMode = useThemeStore((s) => s.setMode);
-  const { hapticsEnabled, soundEnabled, language, setHapticsEnabled, setSoundEnabled, setLanguage } = useUiStore();
+  const { hapticsEnabled, language, setHapticsEnabled, setLanguage } = useUiStore();
   const account = !isGuest;
 
   const prefs = useQuery({
@@ -55,7 +58,6 @@ export default function Settings() {
     if (!prefs.data) return;
     if (prefs.data.theme && prefs.data.theme !== mode) setMode(prefs.data.theme);
     if (typeof prefs.data.hapticsEnabled === 'boolean') setHapticsEnabled(prefs.data.hapticsEnabled);
-    if (typeof prefs.data.soundEnabled === 'boolean') setSoundEnabled(prefs.data.soundEnabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefs.data]);
 
@@ -100,7 +102,7 @@ export default function Settings() {
               const next = v === 'system' ? null : v;
               setLanguage(next);
               if (next) i18n.changeLanguage(next);
-              if (account && next) api.identityAccountUpdate({ locale: next }).catch(() => {});
+              if (account && next) api.identityAccountUpdate({ locale: next }).catch(report);
             }}
             options={[
               { value: 'system', label: t('settings.language.system') },
@@ -120,20 +122,22 @@ export default function Settings() {
               syncPref({ hapticsEnabled: v });
             }}
           />
-          <Divider />
-          <SwitchRow
-            label={t('settings.sound')}
-            value={soundEnabled}
-            onValueChange={(v) => {
-              setSoundEnabled(v);
-              syncPref({ soundEnabled: v });
-            }}
-          />
         </Section>
 
         {account && n ? (
           <Section title={t('settings.notifications')}>
-            <SwitchRow label={t('settings.daily')} value={n.dailyReminderEnabled} onValueChange={(v) => patchNotif.mutate({ dailyReminderEnabled: v })} />
+            <SwitchRow
+              label={t('settings.daily')}
+              description={t('settings.dailyDesc')}
+              value={n.dailyReminderEnabled}
+              onValueChange={async (v) => {
+                if (v && !(await ensureNotificationPermission().catch(() => false))) {
+                  toast.show({ message: t('settings.notifDenied'), tone: 'warning' });
+                  return;
+                }
+                patchNotif.mutate({ dailyReminderEnabled: v });
+              }}
+            />
             {n.dailyReminderEnabled ? (
               <View style={{ gap: 8, paddingBottom: 8 }}>
                 <Text variant="label-m" color="secondary">{t('settings.dailyTime')}</Text>
@@ -144,12 +148,6 @@ export default function Settings() {
                 </View>
               </View>
             ) : null}
-            <Divider />
-            <SwitchRow label={t('settings.review')} value={n.reviewRemindersEnabled} onValueChange={(v) => patchNotif.mutate({ reviewRemindersEnabled: v })} />
-            <Divider />
-            <SwitchRow label={t('settings.mockSuggest')} value={n.mockSuggestionsEnabled} onValueChange={(v) => patchNotif.mutate({ mockSuggestionsEnabled: v })} />
-            <Divider />
-            <SwitchRow label={t('settings.weekly')} value={n.weeklyReportEmailEnabled} onValueChange={(v) => patchNotif.mutate({ weeklyReportEmailEnabled: v })} />
           </Section>
         ) : null}
 
@@ -171,6 +169,7 @@ export default function Settings() {
         ) : null}
 
         {account ? <GoalSection /> : null}
+        {account ? <PrivacySection /> : null}
       </View>
     </Screen>
   );
@@ -208,6 +207,57 @@ function GoalSection() {
           <Chip key={p.targetScore} label={String(p.targetScore)} selected={e.targetScore === p.targetScore} onPress={() => update.mutate(p.targetScore)} />
         ))}
       </View>
+      <Button title={t('goal.title')} variant="tertiary" size="md" fullWidth={false} onPress={() => router.push('/ben/hedef')} />
     </Section>
+  );
+}
+
+function PrivacySection() {
+  const { t } = useT();
+  const toast = useToast();
+  const qc = useQueryClient();
+  const consents = useQuery({
+    queryKey: queryKeys.account.consents(),
+    queryFn: async () => unwrap(await api.identityConsentsList()),
+  });
+  const list = consents.data?.items || consents.data?.consents || (Array.isArray(consents.data) ? consents.data : []);
+  const marketing = list.find((c) => (c.type || c.consentType) === 'marketing_email');
+  const setMarketing = useMutation({
+    mutationFn: async (granted) => unwrap(await api.identityConsentRecord({ type: 'marketing_email', granted })),
+    onSuccess: (data) => {
+      if (data) qc.setQueryData(queryKeys.account.consents(), data);
+      else qc.invalidateQueries({ queryKey: queryKeys.account.consents() });
+      toast.show({ message: t('settings.saved'), tone: 'success' });
+    },
+    onError: (e) => toast.show({ message: errorText(t, e), tone: 'danger' }),
+  });
+  const clear = useMutation({
+    mutationFn: async () => unwrap(await api.tutorConversationsDeleteAll()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tutor'] });
+      toast.show({ message: t('settings.historyCleared'), tone: 'success' });
+    },
+    onError: (e) => toast.show({ message: errorText(t, e), tone: 'danger' }),
+  });
+  const confirmClear = () =>
+    Alert.alert(t('settings.clearHistory'), t('settings.clearHistoryBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('settings.clearHistoryConfirm'), style: 'destructive', onPress: () => clear.mutate() },
+    ]);
+  return (
+    <View style={{ gap: 4 }}>
+      <Text variant="heading-3" style={{ marginBottom: 4 }}>{t('settings.privacy')}</Text>
+      {marketing ? (
+        <SwitchRow
+          label={t('settings.marketing')}
+          description={t('settings.marketingDesc')}
+          value={Boolean(marketing.granted)}
+          onValueChange={(v) => setMarketing.mutate(v)}
+        />
+      ) : null}
+      <Divider />
+      <Text variant="label-m" color="secondary" style={{ marginTop: 8 }}>{t('settings.tutorHistory')}</Text>
+      <Button title={t('settings.clearHistory')} variant="secondary" size="md" fullWidth={false} loading={clear.isPending} onPress={confirmClear} />
+    </View>
   );
 }

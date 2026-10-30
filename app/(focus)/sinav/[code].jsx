@@ -2,8 +2,20 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Flag, Grid3x3 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, View } from 'react-native';
-import { Banner, Button, EmptyState, ErrorState, IconButton, Screen, Sheet, Skeleton, Text, TopBar, useToast } from '@components';
+import { Alert, BackHandler, Pressable, View } from 'react-native';
+import {
+  Banner,
+  Button,
+  EmptyState,
+  ErrorState,
+  IconButton,
+  Screen,
+  Sheet,
+  Skeleton,
+  Text,
+  TopBar,
+  useToast,
+} from '@components';
 import { api } from '@api';
 import { apiErrorCode, errorKind, errorText, formatClock, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
@@ -11,6 +23,7 @@ import { QuestionBody } from '@features/question/QuestionBody';
 import { useItemTimer } from '@hooks/useItemTimer';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
+import { report } from '@shared/monitoring/report';
 
 const SLICE = 40;
 
@@ -59,21 +72,31 @@ export default function ExamRunner() {
     gcTime: 10 * 60_000,
     retry: false,
     queryFn: async () => {
-      const res = unwrap(await api.learningExamQuestionsGet(code, { from: sliceStart, to: sliceStart + SLICE - 1 }));
+      const res = unwrap(
+        await api.learningExamQuestionsGet(code, { from: sliceStart, to: sliceStart + SLICE - 1 }),
+      );
       syncClock(res.remainingSeconds);
       return res;
     },
   });
   const sliceCode = slice.error ? apiErrorCode(slice.error) : null;
   const q = slice.data?.items.find((i) => i.position === pos) || null;
-  const passage = q?.passageItemCode ? slice.data.passages?.find((p) => p.itemCode === q.passageItemCode) : null;
+  const passage = q?.passageItemCode
+    ? slice.data.passages?.find((p) => p.itemCode === q.passageItemCode)
+    : null;
 
   useEffect(() => {
-    if (s?.status === 'submitted' || sliceCode === 'EXAM_TIME_UP' || sliceCode === 'EXAM_ALREADY_SUBMITTED') goResult();
+    if (
+      s?.status === 'submitted' ||
+      sliceCode === 'EXAM_TIME_UP' ||
+      sliceCode === 'EXAM_ALREADY_SUBMITTED'
+    )
+      goResult();
   }, [s?.status, sliceCode, goResult]);
 
   // Görsel geri sayım (sunucu otorite; cevap yanıtlarında yeniden eşitlenir).
-  const clock = clockOverride ?? (s ? { remaining: s.remainingSeconds, at: sitting.dataUpdatedAt } : null);
+  const clock =
+    clockOverride ?? (s ? { remaining: s.remainingSeconds, at: sitting.dataUpdatedAt } : null);
   const timedOut = useRef(false);
   useEffect(() => {
     if (paused || !clock) return undefined;
@@ -83,16 +106,33 @@ export default function ExamRunner() {
       if (clock.remaining - Math.round((t0 - clock.at) / 1000) <= 0 && !timedOut.current) {
         timedOut.current = true;
         toast.show({ message: t('exam.run.timeUp') });
-        api.learningExamSubmit(code).catch(() => {}).finally(goResult);
+        api
+          .learningExamSubmit(code)
+          .then(goResult)
+          .catch((err) => {
+            const c = apiErrorCode(err);
+            if (c === 'EXAM_ALREADY_SUBMITTED' || c === 'EXAM_TIME_UP') goResult();
+            else {
+              report(err);
+              timedOut.current = false; // ağ yoksa bir sonraki tikte yeniden dene
+            }
+          });
       }
     }, 1000);
     return () => clearInterval(id);
   }, [paused, clock?.remaining, clock?.at, code, goResult, t, toast]); // eslint-disable-line react-hooks/exhaustive-deps
-  const remaining = clock ? Math.max(0, clock.remaining - Math.round(((now || clock.at) - clock.at) / 1000)) : null;
+  const remaining = clock
+    ? Math.max(0, clock.remaining - Math.round(((now || clock.at) - clock.at) / 1000))
+    : null;
 
   const baseOf = (n) => {
     const it = slice.data?.items.find((i) => i.position === n);
-    if (it) return { selectedLabel: it.selectedLabel, flagged: Boolean(it.isFlagged) };
+    if (it)
+      return {
+        selectedLabel: it.selectedLabel,
+        flagged: Boolean(it.isFlagged),
+        eliminatedLabels: it.eliminatedLabels || [],
+      };
     const si = s?.items?.find((i) => i.position === n);
     return { selectedLabel: si?.answered ? '?' : null, flagged: Boolean(si?.flagged) };
   };
@@ -107,6 +147,7 @@ export default function ExamRunner() {
         await api.learningExamAnswerPut(code, position, {
           selectedLabel: next.selectedLabel ?? null,
           flagged: next.flagged,
+          ...(next.eliminatedLabels ? { eliminatedLabels: next.eliminatedLabels } : {}),
           timeMs: timer.elapsed(),
         }),
       );
@@ -150,23 +191,42 @@ export default function ExamRunner() {
 
   const exit = () => {
     const canPause = true; // sunucu duraklatmaya izin vermiyorsa 409 döner ve çıkış yine yapılır
-    Alert.alert(t('exam.run.exit.title'), canPause ? t('exam.run.exit.body') : t('exam.run.exit.noPause'), [
-      { text: t('common.cancel'), style: 'cancel' },
-      {
-        text: t('exam.run.exit.pause'),
-        onPress: async () => {
-          await api.learningExamPause(code).catch(() => {});
-          router.replace('/deneme');
+    Alert.alert(
+      t('exam.run.exit.title'),
+      canPause ? t('exam.run.exit.body') : t('exam.run.exit.noPause'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('exam.run.exit.pause'),
+          onPress: async () => {
+            await api.learningExamPause(code).catch(report);
+            router.replace('/deneme');
+          },
         },
-      },
-      { text: t('exam.run.exit.leave'), style: 'destructive', onPress: () => router.replace('/deneme') },
-    ]);
+        {
+          text: t('exam.run.exit.leave'),
+          style: 'destructive',
+          onPress: () => router.replace('/deneme'),
+        },
+      ],
+    );
   };
+
+  // Android donanım geri tuşu çıkış onayından geçsin (sunucu saati akmaya devam eder).
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      exit();
+      return true;
+    });
+    return () => sub.remove();
+  });
 
   const resume = async () => {
     try {
       await api.learningExamResume(code);
-      setPausedLocal(false);
+      setClockOverride(null); // duraklama süresi geri sayıma eklenmesin
+      timedOut.current = false;
+      setPausedLocal(null);
       qc.removeQueries({ queryKey: ['learning', 'examSlice', code] });
       sitting.refetch();
     } catch (e) {
@@ -174,17 +234,28 @@ export default function ExamRunner() {
     }
   };
 
-  const fatal = sitting.error || (slice.isError && !['EXAM_PAUSED', 'EXAM_TIME_UP', 'EXAM_ALREADY_SUBMITTED'].includes(sliceCode) ? slice.error : null);
+  const fatal =
+    sitting.error ||
+    (slice.isError && !['EXAM_PAUSED', 'EXAM_TIME_UP', 'EXAM_ALREADY_SUBMITTED'].includes(sliceCode)
+      ? slice.error
+      : null);
   if (fatal) {
     return (
       <Screen header={<TopBar variant="focus" onClose={() => router.replace('/deneme')} />}>
-        <ErrorState kind={errorKind(fatal)} onRetry={() => (sitting.isError ? sitting.refetch() : slice.refetch())} />
+        <ErrorState
+          kind={errorKind(fatal)}
+          onRetry={() => (sitting.isError ? sitting.refetch() : slice.refetch())}
+        />
       </Screen>
     );
   }
   if (paused || sliceCode === 'EXAM_PAUSED') {
     return (
-      <Screen header={<TopBar variant="focus" onClose={() => router.replace('/deneme')} />} edges={['bottom']} footer={<Button title={t('exam.run.resume')} onPress={resume} />}>
+      <Screen
+        header={<TopBar variant="focus" onClose={() => router.replace('/deneme')} />}
+        edges={['bottom']}
+        footer={<Button title={t('exam.run.resume')} onPress={resume} />}
+      >
         <EmptyState title={t('exam.run.paused')} />
       </Screen>
     );
@@ -217,18 +288,46 @@ export default function ExamRunner() {
       edges={['bottom']}
       footer={
         <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-          <Button title={t('exam.run.prev')} variant="secondary" size="md" fullWidth={false} disabled={pos <= 1} onPress={() => setPos(pos - 1)} style={{ flex: 1 }} />
-          <IconButton icon={Grid3x3} variant="outlined" accessibilityLabel={t('exam.run.palette')} onPress={() => palette.current?.present()} />
+          <Button
+            title={t('exam.run.prev')}
+            variant="secondary"
+            size="md"
+            fullWidth={false}
+            disabled={pos <= 1}
+            onPress={() => setPos(pos - 1)}
+            style={{ flex: 1 }}
+          />
+          <IconButton
+            icon={Grid3x3}
+            variant="outlined"
+            accessibilityLabel={t('exam.run.palette')}
+            onPress={() => palette.current?.present()}
+          />
           {pos < total ? (
-            <Button title={t('exam.run.next')} size="md" fullWidth={false} onPress={() => setPos(pos + 1)} style={{ flex: 1 }} />
+            <Button
+              title={t('exam.run.next')}
+              size="md"
+              fullWidth={false}
+              onPress={() => setPos(pos + 1)}
+              style={{ flex: 1 }}
+            />
           ) : (
-            <Button title={t('exam.run.submit')} size="md" fullWidth={false} loading={submitting} onPress={submit} style={{ flex: 1 }} />
+            <Button
+              title={t('exam.run.submit')}
+              size="md"
+              fullWidth={false}
+              loading={submitting}
+              onPress={submit}
+              style={{ flex: 1 }}
+            />
           )}
         </View>
       }
     >
       <View style={{ gap: 12 }}>
-        {message ? <Banner tone="danger" message={message} onClose={() => setMessage(null)} /> : null}
+        {message ? (
+          <Banner tone="danger" message={message} onClose={() => setMessage(null)} />
+        ) : null}
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 4 }}>
           <Button
             title={t('exam.run.clear')}
@@ -246,11 +345,23 @@ export default function ExamRunner() {
             onPress={() => putAnswer(pos, { flagged: !a.flagged })}
           />
         </View>
+        <Text variant="caption" color="tertiary">
+          {t('exam.run.eliminateTip')}
+        </Text>
         <QuestionBody
           question={{ ...q, questionType: q.type }}
           passage={passage}
           selectedLabel={a.selectedLabel}
           onSelect={(label) => putAnswer(pos, { selectedLabel: label })}
+          eliminated={a.eliminatedLabels || []}
+          onEliminate={(label) => {
+            const cur = a.eliminatedLabels || [];
+            const next = cur.includes(label) ? cur.filter((x) => x !== label) : [...cur, label];
+            putAnswer(pos, {
+              eliminatedLabels: next,
+              ...(label === a.selectedLabel ? { selectedLabel: null } : {}),
+            });
+          }}
         />
       </View>
 
@@ -277,8 +388,14 @@ export default function ExamRunner() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderWidth: n === pos ? 2 : 1,
-                  borderColor: st.flagged ? colors.reward.default : n === pos ? colors.accent.default : colors.border.default,
-                  backgroundColor: st.selectedLabel ? colors.accent['subtle-bg'] : colors.bg.surface,
+                  borderColor: st.flagged
+                    ? colors.reward.default
+                    : n === pos
+                      ? colors.accent.default
+                      : colors.border.default,
+                  backgroundColor: st.selectedLabel
+                    ? colors.accent['subtle-bg']
+                    : colors.bg.surface,
                 }}
               >
                 <Text variant="label-m">{n}</Text>
@@ -286,7 +403,14 @@ export default function ExamRunner() {
             );
           })}
         </View>
-        <Button title={t('exam.run.submit')} style={{ marginTop: 16 }} onPress={() => { palette.current?.dismiss(); submit(); }} />
+        <Button
+          title={t('exam.run.submit')}
+          style={{ marginTop: 16 }}
+          onPress={() => {
+            palette.current?.dismiss();
+            submit();
+          }}
+        />
       </Sheet>
     </Screen>
   );

@@ -31,6 +31,14 @@ export default function Welcome() {
           variant="secondary"
           onPress={() => router.push('/giris')}
         />
+        <Text variant="caption" color="tertiary" align="center">
+          {t('auth.welcome.legal')}
+        </Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
+          <Button title={t('me.legal.terms_of_use')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/yasal/terms_of_use')} />
+          <Button title={t('me.legal.privacy_policy')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/yasal/privacy_policy')} />
+          <Button title={t('me.support')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/destek')} />
+        </View>
       </View>
     </Screen>
   );

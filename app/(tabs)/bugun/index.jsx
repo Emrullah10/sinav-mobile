@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Flame, MoreHorizontal, Settings2 } from 'lucide-react-native';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import {
   Banner, Button, Card, Chip, ErrorState, IconButton, ListRow, ProgressBar, ProgressRing,
@@ -9,6 +9,7 @@ import {
 } from '@components';
 import { api } from '@api';
 import { apiErrorCode, errorText, formatDate, unwrap } from '@shared/api/helpers';
+import { deepLinks } from '@shared/navigation/deepLinks';
 import { errorKind } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
@@ -228,10 +229,11 @@ export default function TodayScreen() {
     />
   );
 
-  if (query.isError && apiErrorCode(query.error) === 'ENROLLMENT_REQUIRED') {
-    router.replace('/baslangic');
-    return <Screen header={header} />;
-  }
+  const needsEnrollment = query.isError && apiErrorCode(query.error) === 'ENROLLMENT_REQUIRED';
+  useEffect(() => {
+    if (needsEnrollment) router.replace('/baslangic');
+  }, [needsEnrollment]);
+  if (needsEnrollment) return <Screen header={header} />;
 
   return (
     <Screen header={header} onRefresh={() => query.refetch()} refreshing={query.isRefetching && !query.isPending}>
@@ -259,6 +261,9 @@ export default function TodayScreen() {
                   message={t('today.access.free', { n: data.usage?.questionsPerDay?.remaining ?? 0 })}
                   action={{ label: t('today.access.upgrade'), onPress: () => router.push('/premium') }}
                 />
+              ) : null}
+              {tasks.length > 0 && tasks.every((x) => ['completed', 'skipped', 'postponed'].includes(x.status)) ? (
+                <Banner tone="success" message={t('today.sum.allDone')} action={{ label: t('today.sum.open'), onPress: () => router.push(deepLinks.dayDone) }} />
               ) : null}
               <GoalCard data={data} />
               <Card style={{ gap: 0 }}>

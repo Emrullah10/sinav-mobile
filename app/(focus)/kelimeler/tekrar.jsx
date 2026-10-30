@@ -9,6 +9,7 @@ import { apiErrorCode, errorKind, errorText, newClientRef, unwrap } from '@share
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useHaptics } from '@hooks/useHaptics';
 import { useHeartbeat } from '@hooks/useHeartbeat';
+import { deepLinks } from '@shared/navigation/deepLinks';
 import { useItemTimer } from '@hooks/useItemTimer';
 import { useT } from '@shared/translation/useT';
 
@@ -34,7 +35,7 @@ export default function VocabReview() {
   const [lastRated, setLastRated] = useState(false);
   const clientRef = useRef(newClientRef());
   const timer = useItemTimer(card?.code);
-  useHeartbeat(null, state.phase === 'card');
+  useHeartbeat(session?.code ?? null, state.phase === 'card');
 
   const refreshLists = useCallback(() => {
     qc.invalidateQueries({ queryKey: queryKeys.learning.vocabOverview() });
@@ -240,6 +241,9 @@ export default function VocabReview() {
             ) : null}
             {w.collocations?.length ? (
               <Text variant="body-s" color="secondary">{`${t('vocab.review.collocations')}: ${w.collocations.join(', ')}`}</Text>
+            ) : null}
+            {w.itemCode ? (
+              <Button title={t('vocab.word.details')} variant="tertiary" size="md" fullWidth={false} onPress={() => router.push(deepLinks.vocabWord(w.itemCode))} />
             ) : null}
           </View>
         ) : null}

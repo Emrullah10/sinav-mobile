@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { forwardRef, useState } from 'react';
 import { View } from 'react-native';
-import { Banner, Button, Chip, Sheet, Skeleton, Text } from '@components';
+import { Banner, Button, Chip, Sheet, Skeleton, Text, useToast } from '@components';
 import { api } from '@api';
 import { apiErrorCode, errorText, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
@@ -14,6 +14,8 @@ import { useT } from '@shared/translation/useT';
  */
 export const PracticeSheet = forwardRef(function PracticeSheet({ questionTypeKeys, skillKeys }, ref) {
   const { t } = useT();
+  const toast = useToast();
+  const qc = useQueryClient();
   const options = useQuery({
     queryKey: queryKeys.learning.practiceOptions(),
     queryFn: async () => unwrap(await api.learningPracticeOptionsGet()),
@@ -39,6 +41,8 @@ export const PracticeSheet = forwardRef(function PracticeSheet({ questionTypeKey
         }),
       );
       ref.current?.dismiss();
+      qc.invalidateQueries({ queryKey: queryKeys.learning.sessionsCurrent() });
+      if (res.cappedByQuota) toast.show({ message: t('practice.capped', { n: res.count }), tone: 'info' });
       router.push(deepLinks.question(res.code));
     } catch (e) {
       const code = apiErrorCode(e);

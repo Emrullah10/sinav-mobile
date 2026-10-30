@@ -49,7 +49,10 @@ export default function NoteScreen() {
   });
   const bookmark = useMutation({
     mutationFn: async () => unwrap(await api.learningBookmarkCreate({ itemCode: id })),
-    onSuccess: () => toast.show({ message: t('note.bookmarked'), tone: 'success' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['learning', 'bookmarks'] });
+      toast.show({ message: t('note.bookmarked'), tone: 'success' });
+    },
     onError: (e) => toast.show({ message: errorText(t, e), tone: 'danger' }),
   });
   const ask = useMutation({

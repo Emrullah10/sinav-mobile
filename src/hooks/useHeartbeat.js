@@ -3,6 +3,7 @@ import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '@api';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
+import { report } from '@shared/monitoring/report';
 
 const INTERVAL_MS = 30_000;
 
@@ -24,7 +25,7 @@ export const useHeartbeat = (sessionCode, enabled = true) => {
       api
         .learningActivityHeartbeat({ seconds, ...(sessionCode ? { sessionCode: Number(sessionCode) } : {}) })
         .then(() => qc.invalidateQueries({ queryKey: queryKeys.learning.today() }))
-        .catch(() => {});
+        .catch(report);
     };
     const id = setInterval(() => {
       if (AppState.currentState === 'active') send();

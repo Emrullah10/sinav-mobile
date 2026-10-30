@@ -1,8 +1,8 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "a410dce17273e4d2d37f63246518c42a8552ab58",
-    "dirty": true
+    "sha": "21b948f1ead8d7d593e41520e895b096a945ec7b",
+    "dirty": false
   },
   "files": {
     "design-tokens/tokens.js": {
@@ -16,19 +16,19 @@
       "sourceSha256": "315b7030c3e9d7901fdb07f514466484c3a964cf96a3208701f2303a085c8105"
     },
     "client-sdk/src/billing.js": {
-      "sha256": "367b950c1b452049ce5d4fda7c621fb7854c4bfb1ce1f1ed9c2dfcacb6029811",
+      "sha256": "bb9c370e14f2e91ab5d44f2a1fb618b884606d85377610196af1241e10a9791d",
       "source": "packages/client-sdk/src/billing.js",
-      "sourceSha256": "614208591627ddfeaed5f8121638324d141bd6a266d28af6abbd24888e3f8f20"
+      "sourceSha256": "42e03eaccd7de523eb5008343abceb8614a4a5051c58e3005b4e3a69a1694195"
     },
     "client-sdk/src/content.js": {
-      "sha256": "08c5615b13919081553891d1ea852ebdae1f37742bdcd2ef306a0f81755bf6a2",
+      "sha256": "b942e5bd8d98f1bc3ed3140c62f71a4ee02601e76536f4cc514bbc94bded7f6c",
       "source": "packages/client-sdk/src/content.js",
-      "sourceSha256": "1b40c1846a5feb493c6df09748c29a32ee69997bd5dd92b67c9f6888215bf608"
+      "sourceSha256": "e2d6bd08924d74dc55e0d4cf4706d624fd322c0fd8dc9017b5ad0b59bf2a77c3"
     },
     "client-sdk/src/deepLinks.js": {
-      "sha256": "480c862f8b7352818b84f8011022770853cd6d365b1c36c2f027c2c378bff257",
+      "sha256": "d98253d818b8a1f9eaffaef974fbc4cf477a9a395353a54aec0882e08b4f727e",
       "source": "packages/client-sdk/src/deepLinks.js",
-      "sourceSha256": "b07464e19573be6ef91b8f39f5826fd21548c25caa5f919175f0bc73c8d23fe8"
+      "sourceSha256": "2842f54334892fac7ca328ceb058c193e74e7411857b066e55760e226d5198e9"
     },
     "client-sdk/src/errors.js": {
       "sha256": "c621f67052d3ba62f258c3388bf1706758033c97ad14cf7b8340de829359d493",
@@ -66,9 +66,9 @@
       "sourceSha256": "b671fbeb93311329365750ab4e6a3265b62ea1151c2e07b49c3235378df4c9ae"
     },
     "i18n/keys/apiErrorsBillingKeys.js": {
-      "sha256": "b2c4ec4488d7bda3b6e516183f8512de130d9f7daa721828570863ae275693a1",
+      "sha256": "3345e6c4ede064cf628879dca247fbf0f779fb5caf96a85c258919eb46553aaa",
       "source": "packages/i18n/keys/apiErrorsBillingKeys.js",
-      "sourceSha256": "29f1bdd679ec426a86a9044f7f78cdf591571cc6ff4f32991a82ccd2039ecc50"
+      "sourceSha256": "90bc8c8eb91eaff6c3a11d2a96b4d447fe4c820f60acfd6db4a5b53a2cab38af"
     },
     "i18n/keys/apiErrorsCommonKeys.js": {
       "sha256": "f391897580952e152d93cb503c348dfb1002416742637b7cfc64de78aadb2c6f",
@@ -76,9 +76,9 @@
       "sourceSha256": "04913cbf968a450a0445fd9b1a500d6c2ec1f177e7a81c782b45c272a9b199fc"
     },
     "i18n/keys/apiErrorsContentKeys.js": {
-      "sha256": "96c59e78b1dbb3da469cc07200e9dcc2051e61fe5653d25c895b49c65c6897db",
+      "sha256": "f6c0b97433debd1a980452bbabbbbb4f5c378b3c5d21fb363f4140290e19d70e",
       "source": "packages/i18n/keys/apiErrorsContentKeys.js",
-      "sourceSha256": "ea1c86e13fcb8970f448bbea67485bc81dd734e46e444072fb4761578d3dc8c5"
+      "sourceSha256": "dc8fb4c33e55b588a9bff58dc7b222ed66888de77e94981b7e90260788c96e99"
     },
     "i18n/keys/apiErrorsIdentityKeys.js": {
       "sha256": "f0c3e667f94c883fc1067807f4698cf7e871b2d20acb43f630c00267b88e1257",

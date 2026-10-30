@@ -51,7 +51,8 @@ state.token = g?.auth.accessToken;
 const exams = await step('onb: exams list', async () => d(await api.contentPublicExamsList()).items);
 const trackKey = exams?.[0]?.tracks?.[0]?.key || 'yds-en';
 const track = await step('onb: track detail', async () => d(await api.contentPublicTrackGet(trackKey)));
-const upcoming = (track?.sessions || []).find((s) => s.status !== 'held');
+const todayIso = new Date().toISOString().slice(0, 10);
+const upcoming = (track?.sessions || []).find((s) => !['held', 'results_announced', 'cancelled'].includes(s.status) && s.examDate >= todayIso);
 await step('onb: enrollment create', async () => d(await api.learningEnrollmentCreate({ trackKey, targetScore: track.goalPresets.find((p) => p.isDefault)?.targetScore, dateMode: upcoming ? 'session' : 'unknown', ...(upcoming ? { examSessionKey: upcoming.key } : {}), goalReasonKeys: track.goalReasons.slice(0, 1).map((r) => r.key) })).enrollment);
 await step('onb: availability get (empty)', async () => d(await api.learningAvailabilityGet()).days);
 await step('onb: availability put', async () => api.learningAvailabilitySave([1, 2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, minutes: weekday > 5 ? 60 : 30 }))));
@@ -103,6 +104,7 @@ if (t2) await step('today: postpone task', async () => d(await api.learningPlanT
 await step('today: heartbeat', async () => d(await api.learningActivityHeartbeat({ seconds: 31 })));
 
 // ── Çalış ──
+await step('today: day summary', async () => { const r = d(await api.learningDaySummaryGet()); if (!r.activity || typeof r.activity.goalMinutes !== 'number') throw new Error('özet şekli'); return r; });
 const overview = await step('study: overview', async () => d(await api.learningStudyOverviewGet()));
 const typeKey = overview?.recommendedTypeKey || overview?.types[0].key;
 const typeDetail = await step('study: question type', async () => d(await api.learningStudyQuestionTypeGet(typeKey)));
@@ -130,7 +132,15 @@ if (prac) {
   await step('session: mistake-type', async () => d(await api.learningSessionMistakeTypeSet(code, 1, 'attention')));
   await step('session: answer skip item 2', async () => d(await api.learningSessionAnswer(code, 2, { selectedLabel: null, timeMs: 1000, clientRef: randomUUID() })));
   await step('session: heartbeat with sessionCode', async () => d(await api.learningActivityHeartbeat({ seconds: 12, sessionCode: Number(code) })));
+  if (item?.question?.itemCode) {
+    const rep1 = await step('report: create', async () => d(await api.contentReportCreate({ itemCode: item.question.itemCode, reason: 'typo', note: 'verify', context: { sessionCode: Number(code), position: 1 } })));
+    await step('report: duplicate flagged', async () => { const r2 = d(await api.contentReportCreate({ itemCode: item.question.itemCode, reason: 'typo', context: { sessionCode: Number(code), position: 1 } })); if (!r2.duplicate || r2.code !== rep1.code) throw new Error('duplicate bekleniyordu'); return r2; });
+  }
   await step('session: pause', async () => d(await api.learningSessionPause(code)));
+  await step('session: current list has paused session', async () => { const c = d(await api.learningSessionsCurrentList()); if (!c.sessions.some((x) => String(x.code) === String(code) && x.status === 'paused')) throw new Error('duraklatılmış oturum listede yok'); return c; });
+  await step('session: answer while paused (expect 409)', async () => { try { await api.learningSessionAnswer(code, 3, { selectedLabel: null, timeMs: 500, clientRef: randomUUID() }); throw new Error('409 bekleniyordu'); } catch (e) { if (e.response?.status !== 409) throw e; } });
+  await step('session: resume', async () => d(await api.learningSessionResume(code)));
+  await step('session: answer after resume', async () => d(await api.learningSessionAnswer(code, 3, { selectedLabel: null, timeMs: 500, clientRef: randomUUID() })));
   await step('session: complete', async () => d(await api.learningSessionComplete(code)));
   const res = await step('session: result', async () => d(await api.learningSessionResultGet(code)));
   if (res) console.log('     result totals', JSON.stringify(res.totals), 'nextActions', JSON.stringify(res.nextActions).slice(0, 150));
@@ -161,6 +171,12 @@ if (deck) await step('vocab: subscribe deck', async () => d(await api.learningVo
 const rs = await step('vocab: review start', async () => d(await api.learningVocabReviewStart({ limit: 20 })));
 if (rs && !rs.empty) {
   let nx = await step('vocab: next', async () => d(await api.learningVocabReviewNext(rs.session.code)));
+  if (nx?.card?.word?.itemCode) {
+    const wc = nx.card.word.itemCode;
+    await step('vocab: word detail', async () => { const w = d(await api.contentVocabGet(wc)); const e = w.entry || w; if (!e.headword) throw new Error('headword yok'); return w; });
+    await step('vocab: card by item', async () => d(await api.learningVocabCardByItemGet(wc)));
+    await step('vocab: card add (idempotent)', async () => d(await api.learningVocabCardAdd(wc)));
+  }
   let n = 0;
   while (nx && !nx.done && nx.card && n < 4) {
     const r = await step(`vocab: rate card ${n + 1}`, async () => d(await api.learningVocabCardReview(nx.card.code, { rating: n === 1 ? 'again' : 'good', durationMs: 3000, sessionCode: rs.session.code, clientRef: randomUUID() })));
@@ -266,6 +282,12 @@ await step('me: legal get', async () => d(await api.identityPublicLegalGet('kvkk
 await step('gateway: me', async () => d(await api.gatewayMe()));
 
 // ── Premium ──
+await step('settings: consents list', async () => { const c = d(await api.identityConsentsList()); if (!Array.isArray(c)) throw new Error('dizi bekleniyordu'); return c; });
+await step('settings: marketing consent on', async () => { const c = d(await api.identityConsentRecord({ type: 'marketing_email', granted: true })); if (!c.find((x) => x.type === 'marketing_email')?.granted) throw new Error('izin yazılmadı'); return c; });
+await step('settings: marketing consent off', async () => { const c = d(await api.identityConsentRecord({ type: 'marketing_email', granted: false })); if (c.find((x) => x.type === 'marketing_email')?.granted) throw new Error('izin kapanmadı'); return c; });
+await step('tutor: delete all conversations', async () => d(await api.tutorConversationsDeleteAll()));
+await step('support: contact message', async () => d(await api.identityContactSend({ email: 'destek-test@example.com', topic: 'other', body: 'verify-api deneme mesajı', platform: 'ios', appVersion: '1.0.0' })));
+await step('pay: store sync (no RevenueCat key → 503 or inactive)', async () => { try { const r = d(await api.billingStoreSync()); return r; } catch (e) { if (![502, 503].includes(e.response?.status)) throw e; return null; } });
 await step('pay: entitlements', async () => { const r = d(await api.billingEntitlementsGet()); console.log('     tier', r.tier, 'features', Object.keys(r.features).join(',')); return r; });
 await step('pay: subscription', async () => { const r = d(await api.billingSubscriptionGet()); console.log('     status', r.status, 'hasSubscription', r.hasSubscription); return r; });
 await step('pay: products', async () => d(await api.billingPublicProductsList()));

@@ -1,5 +1,6 @@
 const k = (tr, en) => ({ tr, en });
 export default {
+  'auth.welcome.legal': k('Başlayarak Kullanım Koşulları ve Gizlilik Politikası\'nı kabul etmiş olursun.', 'By starting you agree to the Terms of Use and Privacy Policy.'),
   'auth.welcome.tagline': k('Sınavına odaklan. Planını biz kuralım.', 'Focus on your exam. We build the plan.'),
   'auth.welcome.start': k('Başla', 'Get started'),
   'auth.welcome.haveAccount': k('Hesabım var', 'I have an account'),

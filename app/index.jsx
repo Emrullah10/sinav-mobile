@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { SplashView } from '@components/SplashView';
 import { api } from '@api';
 import { unwrap } from '@shared/api/helpers';
@@ -15,13 +15,20 @@ export default function Index() {
   const welcomeSeen = useOnboardingStore((s) => s.welcomeSeen);
   const status = useAuthStore((s) => s.status);
   const isGuest = useAuthStore((s) => s.isGuest);
+  const sessionEndedCode = useAuthStore((s) => s.sessionEndedCode);
   const [failed, setFailed] = useState(false);
   const [target, setTarget] = useState(null);
+  // AsyncStorage'dan gelen welcomeSeen yüklenmeden karar verilmez (aksi halde dönen kullanıcı karşılamaya düşebilir).
+  const hydrated = useSyncExternalStore(
+    (notify) => useOnboardingStore.persist.onFinishHydration(notify),
+    () => useOnboardingStore.persist.hasHydrated(),
+  );
 
   useEffect(() => {
-    if (!welcomeSeen || status === 'authenticated') return;
+    // Oturum sunucuca sonlandırıldıysa sessizce misafir açılmaz; "oturum bitti" ekranı gösterilir.
+    if (!hydrated || !welcomeSeen || status === 'authenticated' || sessionEndedCode) return;
     ensureSession().catch(() => setFailed(true));
-  }, [welcomeSeen, status]);
+  }, [hydrated, welcomeSeen, status, sessionEndedCode]);
 
   useEffect(() => {
     if (status !== 'authenticated' || !isGuest) return undefined;
@@ -29,12 +36,13 @@ export default function Index() {
     api
       .learningEnrollmentActiveGet()
       .then((res) => alive && setTarget(onboardingRoute(unwrap(res)?.enrollment)))
-      .catch(() => alive && setTarget('/baslangic'));
+      .catch(() => alive && setTarget(deepLinks.today)); // kayıt okunamadıysa yeni kayıt açtırma
     return () => {
       alive = false;
     };
   }, [status, isGuest]);
 
+  if (!hydrated || sessionEndedCode) return <SplashView />;
   if (!welcomeSeen) return <Redirect href="/karsilama" />;
   // Ağ yokken de kabuk açılır; istekler yeniden denendiğinde oturum kurulur.
   if (failed) return <Redirect href={deepLinks.today} />;

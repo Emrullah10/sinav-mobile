@@ -1,5 +1,7 @@
 const k = (tr, en) => ({ tr, en });
 export default {
+  'tutor.chat.slow': k('Cevap hazırlanıyor, biraz uzun sürebilir. Bu ekrandan çıkabilirsin; cevap kaydedilir.', 'Preparing your answer, it may take a moment. You can leave this screen; the answer will be saved.'),
+  'tutor.disclosure': k('Öğretmen yapay zekâ ile çalışır; cevapları hata içerebilir. Önemli bilgileri kontrol et, yanlış bir cevap görürsen bayrak simgesiyle bildir.', 'The tutor is powered by AI and its answers may contain mistakes. Double-check important facts and flag wrong answers with the flag icon.'),
   'tutor.title': k('Öğretmen', 'Tutor'),
   'tutor.new': k('Yeni sohbet', 'New chat'),
   'tutor.starters': k('Buradan başla', 'Start here'),

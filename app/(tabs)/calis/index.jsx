@@ -3,9 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { BookMarked, BookOpen, Bookmark, Layers, Shuffle } from 'lucide-react-native';
 import { useRef } from 'react';
 import { View } from 'react-native';
-import { Badge, Card, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar } from '@components';
+import { Badge, Banner, Card, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar } from '@components';
 import { api } from '@api';
 import { unwrap } from '@shared/api/helpers';
+import { report } from '@shared/monitoring/report';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { PracticeSheet } from '@features/study/PracticeSheet';
@@ -20,15 +21,30 @@ export default function StudyHome() {
     queryKey: queryKeys.learning.studyOverview(),
     queryFn: async () => unwrap(await api.learningStudyOverviewGet()),
   });
+  const current = useQuery({
+    queryKey: queryKeys.learning.sessionsCurrent(),
+    queryFn: async () => unwrap(await api.learningSessionsCurrentList()),
+  });
+  const unfinished = (current.data?.sessions || []).find((x) => ['practice', 'error_review', 'note_check'].includes(x.kind));
+  const continueSession = async () => {
+    if (!unfinished) return;
+    try {
+      if (unfinished.status === 'paused') await api.learningSessionResume(unfinished.code);
+    } catch (err) {
+      report(err, { where: 'study.continue' });
+    }
+    router.push(deepLinks.question(unfinished.code));
+  };
   return (
     <Screen
       header={<TopBar variant="large" title={t('study.title')} />}
-      onRefresh={() => query.refetch()}
+      onRefresh={() => { query.refetch(); current.refetch(); }}
       refreshing={query.isRefetching && !query.isPending}
     >
       <QueryBoundary query={query}>
         {(d) => (
           <View style={{ gap: 16 }}>
+            {unfinished ? <Banner tone="info" message={t('study.resume.body')} action={{ label: t('study.resume.action'), onPress: continueSession }} /> : null}
             <Card elevation="e1" onPress={() => sheet.current?.present()} accessibilityLabel={t('study.mixed')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <Shuffle size={28} color={colors.accent.default} />
               <View style={{ flex: 1 }}>

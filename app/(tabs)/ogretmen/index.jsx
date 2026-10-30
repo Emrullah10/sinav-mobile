@@ -73,6 +73,7 @@ export default function TutorHome() {
       <QueryBoundary query={query}>
         {(d) => (
           <View style={{ gap: 16 }}>
+            <Text variant="caption" color="tertiary">{t('tutor.disclosure')}</Text>
             {!d.llmAvailable ? <Banner tone="warning" message={t('tutor.unavailable')} /> : null}
             <Text variant="body-s" color="secondary">
               {d.usage?.limit == null ? t('tutor.usageUnlimited') : t('tutor.usage', { n: d.usage.remaining })}

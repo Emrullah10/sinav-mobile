@@ -46,4 +46,8 @@ export const formatDate = (value, lang = 'tr', opts = { day: 'numeric', month: '
   return d.toLocaleDateString(lang === 'en' ? 'en-GB' : 'tr-TR', opts);
 };
 
+/** Cihazın yerel bugünü 'YYYY-MM-DD' (oturum tarihleriyle dizgi karşılaştırması için). */
+export const todayKey = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 export const LETTERS = ['A', 'B', 'C', 'D', 'E'];

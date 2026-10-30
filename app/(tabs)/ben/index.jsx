@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, CreditCard, FileText, Settings, UserRound } from 'lucide-react-native';
+import { BarChart3, CreditCard, FileText, LifeBuoy, Settings, UserRound } from 'lucide-react-native';
 import { View } from 'react-native';
 import { Button, Card, ListRow, ProgressBar, Screen, Skeleton, Text, TopBar } from '@components';
 import { api } from '@api';
@@ -84,6 +84,7 @@ export default function MeScreen() {
             />
           ) : null}
           <ListRow leading={icon(Settings)} title={t('me.settings')} onPress={() => router.push('/ben/ayarlar')} divider />
+          <ListRow leading={icon(LifeBuoy)} title={t('me.support')} onPress={() => router.push('/destek')} divider />
           {!isGuest ? <ListRow leading={icon(UserRound)} title={t('me.account')} onPress={() => router.push('/ben/hesap')} divider /> : null}
           {!isGuest ? <ListRow leading={icon(BarChart3)} title={t('me.progress')} onPress={() => router.push('/ben/ilerleme')} divider /> : null}
           {['kvkk_notice', 'privacy_policy', 'terms_of_use', 'cancellation_refund'].map((type, i, arr) => (

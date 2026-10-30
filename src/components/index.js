@@ -9,6 +9,7 @@ export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';
 export { IconButton } from './IconButton';
 export { ListRow } from './ListRow';
+export { Markdown } from './Markdown';
 export { OptionBubble } from './OptionBubble';
 export { ProgressBar } from './ProgressBar';
 export { ProgressRing } from './ProgressRing';

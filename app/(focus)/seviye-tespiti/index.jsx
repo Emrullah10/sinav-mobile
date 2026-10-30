@@ -2,20 +2,32 @@ import { router } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Coffee, Target } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, View } from 'react-native';
-import { Banner, Button, EmptyState, ErrorState, Screen, Skeleton, Text, TopBar } from '@components';
+import { Alert, BackHandler, View } from 'react-native';
+import {
+  Banner,
+  Button,
+  EmptyState,
+  ErrorState,
+  Screen,
+  Skeleton,
+  Text,
+  TopBar,
+} from '@components';
 import { api } from '@api';
 import { apiErrorCode, errorText, newClientRef, unwrap } from '@shared/api/helpers';
+import { useAuthStore } from '@shared/auth/authStore';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { QuestionBody } from '@features/question/QuestionBody';
 import { useItemTimer } from '@hooks/useItemTimer';
 import { useHeartbeat } from '@hooks/useHeartbeat';
 import { useT } from '@shared/translation/useT';
+import { report } from '@shared/monitoring/report';
 
 /** Seviye tespiti: giriş -> sorular (geri bildirimsiz) -> ara durak -> sonuç. */
 export default function Diagnostic() {
   const { t } = useT();
   const qc = useQueryClient();
+  const isGuest = useAuthStore((st) => st.isGuest);
   const [phase, setPhase] = useState('intro'); // intro | loading | question | halfway | finishing
   const [session, setSession] = useState(null);
   const [view, setView] = useState(null); // itemView
@@ -67,7 +79,9 @@ export default function Diagnostic() {
       }
       await loadItem(s.code, s.currentPosition);
     } catch (e) {
-      setError(apiErrorCode(e) === 'DIAGNOSTIC_UNAVAILABLE' ? t('diag.unavailable') : errorText(t, e));
+      setError(
+        apiErrorCode(e) === 'DIAGNOSTIC_UNAVAILABLE' ? t('diag.unavailable') : errorText(t, e),
+      );
       setPhase('intro');
     }
   };
@@ -117,7 +131,7 @@ export default function Diagnostic() {
       }
     } catch (e) {
       if (apiErrorCode(e) === 'ITEM_ALREADY_ANSWERED') {
-        await loadItem(session.code);
+        await loadItem(session.code).catch((err) => setError(errorText(t, err)));
       } else setError(errorText(t, e));
     } finally {
       setBusy(false);
@@ -125,19 +139,28 @@ export default function Diagnostic() {
   };
 
   const exit = () => {
-    if (phase === 'question' && session) {
+    if ((phase === 'question' || phase === 'halfway') && session) {
       Alert.alert(t('diag.exit.title'), t('diag.exit.body'), [
         { text: t('common.cancel'), style: 'cancel' },
         {
           text: t('diag.exit.confirm'),
           onPress: async () => {
-            await api.learningDiagnosticPause(session.code).catch(() => {});
+            await api.learningDiagnosticPause(session.code).catch(report);
             router.replace('/');
           },
         },
       ]);
     } else router.replace('/');
   };
+
+  // Android donanım geri tuşu da çıkış onayından geçsin (iOS kaydırma zaten kapalı).
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      exit();
+      return true;
+    });
+    return () => sub.remove();
+  });
 
   useEffect(() => {
     // Zaten tamamlanmış/atlanmışsa girişte durma.
@@ -159,12 +182,20 @@ export default function Diagnostic() {
         edges={['bottom']}
         footer={
           <View style={{ gap: 8 }}>
-            <Button title={resumable ? t('diag.intro.resume') : t('diag.intro.start')} onPress={start} disabled={enrollment.isPending} />
+            <Button
+              title={resumable ? t('diag.intro.resume') : t('diag.intro.start')}
+              onPress={start}
+              disabled={enrollment.isPending}
+            />
             <Button title={t('diag.intro.skip')} variant="tertiary" onPress={skip} loading={busy} />
           </View>
         }
       >
-        <EmptyState icon={Target} title={t('diag.intro.title')} description={t('diag.intro.body')} />
+        <EmptyState
+          icon={Target}
+          title={t('diag.intro.title')}
+          description={t('diag.intro.body')}
+        />
         <Text variant="caption" color="tertiary" align="center">
           {t('diag.intro.skipNote')}
         </Text>
@@ -178,9 +209,42 @@ export default function Diagnostic() {
       <Screen
         header={<TopBar variant="focus" onClose={exit} />}
         edges={['bottom']}
-        footer={<Button title={t('diag.halfway.continue')} onPress={() => loadItem(session.code)} />}
+        footer={
+          <View style={{ gap: 4 }}>
+            <Button
+              title={t('diag.halfway.continue')}
+              loading={busy}
+              onPress={async () => {
+                if (busy) return;
+                setBusy(true);
+                try {
+                  await loadItem(session.code);
+                } catch (e) {
+                  setError(errorText(t, e));
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            />
+            {!isGuest ? (
+              <Button
+                title={t('diag.halfway.later')}
+                variant="tertiary"
+                size="md"
+                onPress={async () => {
+                  await api.learningDiagnosticPause(session.code).catch(report);
+                  router.replace('/');
+                }}
+              />
+            ) : null}
+          </View>
+        }
       >
-        <EmptyState icon={Coffee} title={t('diag.halfway.title')} description={t('diag.halfway.body')} />
+        <EmptyState
+          icon={Coffee}
+          title={t('diag.halfway.title')}
+          description={t('diag.halfway.body')}
+        />
       </Screen>
     );
   }
@@ -224,7 +288,13 @@ export default function Diagnostic() {
             loading={busy}
             onPress={() => answer(selected)}
           />
-          <Button title={t('diag.dontKnow')} variant="tertiary" size="md" disabled={busy} onPress={() => answer(null)} />
+          <Button
+            title={t('diag.dontKnow')}
+            variant="tertiary"
+            size="md"
+            disabled={busy}
+            onPress={() => answer(null)}
+          />
         </View>
       }
     >

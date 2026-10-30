@@ -1,11 +1,14 @@
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, X } from 'lucide-react-native';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { Banner, Button, Card, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
 import { errorText, formatDate, unwrap } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
+import { PLAN_KINDS, useOfferings, usePurchaseActions } from '@features/pay/usePurchases';
+import { purchasesEnabled } from '@shared/purchases/purchases';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
@@ -21,7 +24,7 @@ const limitText = (t, f) => {
   return t(`pay.limit.${f.period}`, { n: f.limit });
 };
 
-function Current({ ent, sub }) {
+function Current({ ent, sub, onManage }) {
   const { t, language } = useT();
   const toast = useToast();
   const qc = useQueryClient();
@@ -54,7 +57,13 @@ function Current({ ent, sub }) {
           ) : null}
         </View>
       ) : null}
-      {sub.store?.managed ? <Banner tone="info" message={t('pay.store')} /> : null}
+      {sub.store?.managed ? (
+        <View style={{ gap: 8 }}>
+          <Banner tone="info" message={t('pay.store')} />
+          <Button title={t('pay.manage')} variant="secondary" size="md" fullWidth={false} onPress={onManage} />
+        </View>
+      ) : null}
+      {sub.hasSubscription && sub.subscription?.channel === 'web' ? <Banner tone="info" message={t('pay.webManaged')} /> : null}
     </Card>
   );
 }
@@ -82,8 +91,8 @@ function Usage({ ent }) {
   );
 }
 
-function Catalog() {
-  const { t, language } = useT();
+function Benefits() {
+  const { t } = useT();
   const { colors } = useTheme();
   const query = useQuery({
     queryKey: queryKeys.billing.products(),
@@ -91,44 +100,95 @@ function Catalog() {
   });
   return (
     <QueryBoundary query={query}>
-      {(d) => (
-        <View style={{ gap: 8 }}>
-          <Text variant="heading-3">{t('pay.catalog')}</Text>
-          {d.nextExam ? (
-            <Text variant="caption" color="tertiary">
-              {t('pay.nextExam', { date: formatDate(d.nextExam.examDate, language, { day: 'numeric', month: 'long', year: 'numeric' }) })}
-            </Text>
-          ) : null}
-          {d.products.map((p) => {
-            const price = p.prices?.[0];
-            return (
-              <Card key={p.productKey} style={{ gap: 6 }} selected={p.recommended}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Text variant="title" style={{ flex: 1 }}>{p.name}</Text>
-                  {p.recommended ? <Text variant="label-s" color="accent">{t('pay.recommended')}</Text> : null}
+      {(d) => {
+        const premium = d.products.find((p) => p.productKey === 'premium-annual') || d.products.find((p) => p.prices?.[0]?.amount > 0);
+        const free = d.products.find((p) => p.prices?.[0]?.amount === 0);
+        return (
+          <View style={{ gap: 8 }}>
+            <Text variant="heading-3">{t('pay.benefits')}</Text>
+            {FEATURE_ORDER.map((k) => ({ p: premium?.features?.find((f) => f.feature === k), f: free?.features?.find((f) => f.feature === k) }))
+              .filter((x) => x.p)
+              .map(({ p, f }) => (
+                <View key={p.feature} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                  {p.enabled ? <Check size={16} color={colors.success.fg} /> : <X size={16} color={colors.text.tertiary} />}
+                  <Text variant="body-s" style={{ flex: 1 }}>{t(`pay.feature.${p.feature}`)}</Text>
+                  <Text variant="caption" color="secondary">{limitText(t, p)}</Text>
+                  {f ? <Text variant="caption" color="tertiary">{`(${t('pay.tier.free')}: ${limitText(t, f)})`}</Text> : null}
                 </View>
-                <Text variant="body-s" color="secondary">{p.description}</Text>
-                {price ? (
-                  <Text variant="numeric-m">
-                    {price.amount === 0 ? t('pay.tier.free') : t('pay.price', { amount: price.amount })}
-                  </Text>
-                ) : null}
-                {price?.amount > 0 && price.monthlyEquivalent ? (
-                  <Text variant="caption" color="tertiary">{t('pay.perMonth', { n: price.monthlyEquivalent })}</Text>
-                ) : null}
-                {FEATURE_ORDER.map((k) => p.features?.find((f) => f.feature === k)).filter(Boolean).map((f) => (
-                  <View key={f.feature} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                    {f.enabled ? <Check size={14} color={colors.success.fg} /> : <X size={14} color={colors.text.tertiary} />}
-                    <Text variant="body-s" style={{ flex: 1 }}>{t(`pay.feature.${f.feature}`)}</Text>
-                    <Text variant="caption" color="secondary">{limitText(t, f)}</Text>
-                  </View>
-                ))}
-              </Card>
-            );
-          })}
-        </View>
-      )}
+              ))}
+          </View>
+        );
+      }}
     </QueryBoundary>
+  );
+}
+
+const PERIOD_KEY = { monthly: 'pay.plan.monthlyPeriod', annual: 'pay.plan.annualPeriod', exam: 'pay.plan.examPeriod' };
+
+function Paywall() {
+  const { t } = useT();
+  const toast = useToast();
+  const offerings = useOfferings();
+  const [picked, setPicked] = useState(null);
+  const { purchase, restore } = usePurchaseActions();
+  const plans = offerings.data || [];
+  const current = plans.find((p) => p.kind === picked) || plans.find((p) => p.kind === 'exam') || plans[0];
+  const busy = purchase.isPending || restore.isPending;
+
+  const buy = async () => {
+    if (!current) return;
+    const r = await purchase.mutateAsync(current.pkg).catch(() => null);
+    if (r?.synced?.active) toast.show({ message: t('pay.purchased'), tone: 'success' });
+  };
+  const doRestore = async () => {
+    const r = await restore.mutateAsync().catch(() => null);
+    if (r?.synced?.active) toast.show({ message: t('pay.restored'), tone: 'success' });
+    else if (r) toast.show({ message: t('pay.restoreNone'), tone: 'info' });
+  };
+  const err = purchase.error || restore.error;
+  const errMessage = err ? (err.response ? errorText(t, err) : t('pay.error.purchase')) : null;
+  const processing = purchase.data?.synced && !purchase.data.synced.active;
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Text variant="heading-3">{t('pay.choose')}</Text>
+      <QueryBoundary query={offerings}>
+        {() =>
+          plans.length === 0 ? (
+            <Banner tone="warning" message={t('pay.unavailable')} />
+          ) : (
+            <View style={{ gap: 8 }}>
+              {PLAN_KINDS.map((kind) => plans.find((p) => p.kind === kind)).filter(Boolean).map((p) => (
+                <Card key={p.kind} selected={current?.kind === p.kind} onPress={() => setPicked(p.kind)} accessibilityLabel={t(`pay.plan.${p.kind}`)} style={{ gap: 4 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Text variant="title" style={{ flex: 1 }}>{t(`pay.plan.${p.kind}`)}</Text>
+                    {p.kind === 'exam' ? <Text variant="label-s" color="accent">{t('pay.recommended')}</Text> : null}
+                    {p.kind === 'monthly' && p.trial ? <Text variant="label-s" color="accent">{t('pay.trialBadge', { n: p.trialDays || 7 })}</Text> : null}
+                  </View>
+                  <Text variant="numeric-m">{p.priceString}</Text>
+                  <Text variant="caption" color="tertiary">{t(PERIOD_KEY[p.kind])}</Text>
+                </Card>
+              ))}
+              {errMessage ? <Banner tone="danger" message={errMessage} /> : null}
+              {purchase.data?.pending ? <Banner tone="info" message={t('pay.pending')} /> : null}
+              {processing ? <Banner tone="info" message={t('pay.processing')} /> : null}
+              <Button
+                title={current?.kind === 'monthly' && current.trial ? t('pay.cta.trial', { n: current.trialDays || 7 }) : t('pay.cta.continue')}
+                loading={purchase.isPending}
+                disabled={busy || !current}
+                onPress={buy}
+              />
+              <Text variant="caption" color="tertiary">{current?.kind === 'exam' ? t('pay.legal.exam') : t('pay.legal.renew', { store: t('pay.storeName') })}</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
+                <Button title={t('pay.restore')} variant="tertiary" size="sm" fullWidth={false} loading={restore.isPending} disabled={busy} onPress={doRestore} />
+                <Button title={t('me.legal.terms_of_use')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/yasal/terms_of_use')} />
+                <Button title={t('me.legal.privacy_policy')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/yasal/privacy_policy')} />
+              </View>
+            </View>
+          )
+        }
+      </QueryBoundary>
+    </View>
   );
 }
 
@@ -169,6 +229,7 @@ export default function Premium() {
     enabled: !isGuest,
     queryFn: async () => unwrap(await api.billingSubscriptionGet()),
   });
+  const { manage } = usePurchaseActions();
   return (
     <Screen
       header={<TopBar title={t('pay.title')} onBack={() => (router.canGoBack() ? router.back() : router.replace('/bugun'))} />}
@@ -180,7 +241,7 @@ export default function Premium() {
         {isGuest ? (
           <>
             <Banner tone="info" message={t('pay.guest')} action={{ label: t('me.createAccount'), onPress: () => router.push('/kayit') }} />
-            <Catalog />
+            <Benefits />
           </>
         ) : (
           <>
@@ -189,18 +250,17 @@ export default function Premium() {
                 <QueryBoundary query={sub}>
                   {(s) => (
                     <View style={{ gap: 16 }}>
-                      <Current ent={e} sub={s} />
-                      {e.trial?.eligible && e.trial.trialDays ? (
-                        <Banner tone="info" message={t('pay.trialEligible', { n: e.trial.trialDays })} />
-                      ) : null}
+                      <Current ent={e} sub={s} onManage={manage} />
                       <Usage ent={e} />
+                      {s.tier !== 'premium' ? (
+                        purchasesEnabled ? <Paywall /> : <Banner tone="warning" message={t('pay.unavailable')} />
+                      ) : null}
                     </View>
                   )}
                 </QueryBoundary>
               )}
             </QueryBoundary>
-            <Catalog />
-            <Banner tone="info" message={t('pay.webOnly')} />
+            <Benefits />
             <Invoices />
           </>
         )}
