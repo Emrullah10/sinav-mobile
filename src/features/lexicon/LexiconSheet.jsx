@@ -13,7 +13,8 @@ import { useHaptics } from '@hooks/useHaptics';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
-const NO_RETRY = ['CONTENT_LEXICON_LIMIT', 'CONTENT_LEXICON_WORD_INVALID', 'CONTENT_LEXICON_SENTENCE_INVALID'];
+// UNAVAILABLE da yeniden denenmez: her deneme yeni bir AI çağrısı (birkaç sn + ücret); kullanıcıda "Tekrar dene" düğmesi var.
+const NO_RETRY = ['CONTENT_LEXICON_LIMIT', 'CONTENT_LEXICON_WORD_INVALID', 'CONTENT_LEXICON_SENTENCE_INVALID', 'CONTENT_LEXICON_UNAVAILABLE'];
 const retry = (n, e) => n < 1 && !NO_RETRY.includes(apiErrorCode(e));
 const speak = (text) => {
   Speech.stop();
