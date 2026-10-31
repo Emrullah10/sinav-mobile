@@ -10,6 +10,8 @@ export const useUiStore = create(
       soundEnabled: false,
       language: null, // null = cihaz dili
       lexiconTipSeen: false, // dokun-çevir ipucu bir kez gösterilir
+      shakeToFeedback: true, // telefonu sallayınca geri bildirim (ekran görüntüsüyle)
+      setShakeToFeedback: (shakeToFeedback) => set({ shakeToFeedback }),
       setLexiconTipSeen: (lexiconTipSeen) => set({ lexiconTipSeen }),
       setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
       setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
@@ -20,6 +22,7 @@ export const useUiStore = create(
       soundEnabled: s.soundEnabled,
       language: s.language,
       lexiconTipSeen: s.lexiconTipSeen,
+      shakeToFeedback: s.shakeToFeedback,
     }),
   ),
 );

@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, CreditCard, FileText, LifeBuoy, Settings, UserRound } from 'lucide-react-native';
+import { BarChart3, CreditCard, FileText, LifeBuoy, MessageSquareWarning, Settings, UserRound } from 'lucide-react-native';
 import { View } from 'react-native';
 import { Button, Card, ListRow, ProgressBar, Screen, Skeleton, Text, TopBar } from '@components';
 import { api } from '@api';
 import { unwrap } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
 import { signOut } from '@shared/auth/session';
+import { deepLinks } from '@shared/navigation/deepLinks';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { APP_VERSION } from '@shared/constant/config';
 import { useT } from '@shared/translation/useT';
@@ -84,6 +85,7 @@ export default function MeScreen() {
             />
           ) : null}
           <ListRow leading={icon(Settings)} title={t('me.settings')} onPress={() => router.push('/ben/ayarlar')} divider />
+          <ListRow leading={icon(MessageSquareWarning)} title={t('feedback.title')} subtitle={t('feedback.open')} onPress={() => router.push(deepLinks.feedback)} divider />
           <ListRow leading={icon(LifeBuoy)} title={t('me.support')} onPress={() => router.push('/destek')} divider />
           {!isGuest ? <ListRow leading={icon(UserRound)} title={t('me.account')} onPress={() => router.push('/ben/hesap')} divider /> : null}
           {!isGuest ? <ListRow leading={icon(BarChart3)} title={t('me.progress')} onPress={() => router.push('/ben/ilerleme')} divider /> : null}

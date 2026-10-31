@@ -34,7 +34,7 @@ export default function Settings() {
   const isGuest = useAuthStore((s) => s.isGuest);
   const mode = useThemeStore((s) => s.mode);
   const setMode = useThemeStore((s) => s.setMode);
-  const { hapticsEnabled, language, setHapticsEnabled, setLanguage } = useUiStore();
+  const { hapticsEnabled, language, setHapticsEnabled, setLanguage, shakeToFeedback, setShakeToFeedback } = useUiStore();
   const account = !isGuest;
 
   const prefs = useQuery({
@@ -121,6 +121,12 @@ export default function Settings() {
               setHapticsEnabled(v);
               syncPref({ hapticsEnabled: v });
             }}
+          />
+          <SwitchRow
+            label={t('feedback.shake.title')}
+            description={t('feedback.shake.body')}
+            value={shakeToFeedback}
+            onValueChange={setShakeToFeedback}
           />
         </Section>
 

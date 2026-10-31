@@ -40,7 +40,8 @@ module.exports = () => ({
     android: {
       package: 'com.sinav.odak',
       permissions: ['POST_NOTIFICATIONS'],
-      blockedPermissions: ['RECORD_AUDIO', 'CAMERA', 'ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION'],
+      // Mikrofon ve kamera yalnız geri bildirimde (sesli anlatım, fotoğraf) kullanıcı istediğinde açılır.
+      blockedPermissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION'],
       adaptiveIcon: {
         backgroundColor: '#0E6A6E',
         foregroundImage: './assets/android-icon-foreground.png',
@@ -63,6 +64,18 @@ module.exports = () => ({
           imageWidth: 168,
           backgroundColor: '#F4F6F5',
           dark: { image: './assets/splash-icon-dark.png', backgroundColor: '#0E171B' },
+        },
+      ],
+      [
+        'expo-audio',
+        { microphonePermission: 'Hata ya da önerini sesli anlatmak istediğinde mikrofon kullanılır. Kayıt yalnız sen gönderirsen bize ulaşır.' },
+      ],
+      [
+        'expo-image-picker',
+        {
+          photosPermission: 'Hata ya da önerine fotoğraf eklemek istediğinde galerine erişilir.',
+          cameraPermission: 'Hata ya da önerine fotoğraf çekip eklemek istediğinde kamera kullanılır.',
+          microphonePermission: false,
         },
       ],
       ['expo-build-properties', { android: { usesCleartextTraffic: !isProd } }],

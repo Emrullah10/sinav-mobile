@@ -1,33 +1,53 @@
 {
-  "cli": { "version": ">= 16.0.0", "appVersionSource": "remote" },
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
   "build": {
     "base": {
       "node": "24.0.0",
-      "env": { "EXPO_PUBLIC_API_BASE_URL": "https://odak.emrullahbozkurt.com" }
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://odak.emrullahbozkurt.com",
+        "EXPO_PUBLIC_RC_IOS_KEY": "appl_kqmuwSGXzWixjgjFKyTNHjvjSXh",
+        "EXPO_PUBLIC_RC_ANDROID_KEY": "goog_VhnrrotWeGydooYgFdiqnLNxhpb"
+      }
     },
     "development": {
       "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
-      "env": { "APP_VARIANT": "development" }
+      "env": {
+        "APP_VARIANT": "development"
+      }
     },
     "preview": {
       "extends": "base",
       "distribution": "internal",
       "channel": "preview",
-      "env": { "APP_VARIANT": "production", "EXPO_PUBLIC_APP_ENV": "preview" }
+      "env": {
+        "APP_VARIANT": "production",
+        "EXPO_PUBLIC_APP_ENV": "preview"
+      }
     },
     "production": {
       "extends": "base",
       "autoIncrement": true,
       "channel": "production",
-      "env": { "APP_VARIANT": "production", "EXPO_PUBLIC_APP_ENV": "production" }
+      "env": {
+        "APP_VARIANT": "production",
+        "EXPO_PUBLIC_APP_ENV": "production"
+      }
     }
   },
   "submit": {
     "production": {
-      "ios": { "ascAppId": "BURAYA_APP_STORE_CONNECT_UYGULAMA_ID" },
-      "android": { "track": "internal", "releaseStatus": "draft" }
+      "ios": {
+        "ascAppId": "BURAYA_APP_STORE_CONNECT_UYGULAMA_ID"
+      },
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      }
     }
   }
 }
