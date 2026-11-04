@@ -1,6 +1,8 @@
-import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@theme';
+
+const CONTENT_MAX = 720;
 
 /**
  * Ekran iskeleti: güvenli alan + kaydırma + klavyeden kaçınma.
@@ -27,7 +29,10 @@ export function Screen({
   const insets = useSafeAreaInsets();
   const top = edges.includes('top') && !header ? insets.top : 0;
   const bottom = edges.includes('bottom') && !footer ? insets.bottom : 0;
-  const px = padded ? space[5] : 0;
+  const { width } = useWindowDimensions();
+  // Tablette satırlar ekran boyunca uzamasın: içerik en fazla CONTENT_MAX genişlikte, ortada.
+  const gutter = Math.max(0, (width - CONTENT_MAX) / 2);
+  const px = (padded ? space[5] : 0) + gutter;
   const body = scroll ? (
     <ScrollView
       style={{ flex: 1 }}
@@ -75,7 +80,7 @@ export function Screen({
       {footer ? (
         <View
           style={{
-            paddingHorizontal: space[5],
+            paddingHorizontal: space[5] + gutter,
             paddingTop: space[4],
             paddingBottom: Math.max(insets.bottom, space[4]),
             backgroundColor: colors.bg.canvas,

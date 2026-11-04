@@ -30,7 +30,10 @@ module.exports = () => ({
     },
     ios: {
       bundleIdentifier: 'com.sinav.odak',
-      supportsTablet: false,
+      supportsTablet: true,
+      buildNumber: '2',
+      // Uygulama dikey kilitli; iPad'de Split View için tüm yönler gerekir, yoksa yükleme reddedilir.
+      requireFullScreen: true,
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         CFBundleAllowMixedLocalizations: true,
