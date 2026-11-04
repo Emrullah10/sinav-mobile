@@ -75,7 +75,8 @@ module.exports = () => ({
         {
           photosPermission: 'Hata ya da önerine fotoğraf eklemek istediğinde galerine erişilir.',
           cameraPermission: 'Hata ya da önerine fotoğraf çekip eklemek istediğinde kamera kullanılır.',
-          microphonePermission: false,
+          // false verilirse Android'de RECORD_AUDIO silinir ve expo-audio'nun sesli kaydı bozulur.
+          microphonePermission: 'Hata ya da önerini sesli anlatmak istediğinde mikrofon kullanılır. Kayıt yalnız sen gönderirsen bize ulaşır.',
         },
       ],
       ['expo-build-properties', { android: { usesCleartextTraffic: !isProd } }],

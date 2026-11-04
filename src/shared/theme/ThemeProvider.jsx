@@ -15,7 +15,8 @@ export function ThemeProvider({ children }) {
 
   // Yerel bileşenlerin (alt sayfa, klavye, uyarılar) da seçilen görünümü izlemesi için.
   useEffect(() => {
-    Appearance.setColorScheme(mode === 'system' ? null : mode);
+    // null Android'de açılışta çöker (AppearanceModule non-null bekler).
+    Appearance.setColorScheme(mode === 'system' ? 'unspecified' : mode);
   }, [mode]);
 
   const scheme = mode === 'system' ? (system === 'dark' ? 'dark' : 'light') : mode;
