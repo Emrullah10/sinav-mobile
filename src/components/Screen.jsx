@@ -4,6 +4,12 @@ import { useTheme } from '@theme';
 
 const CONTENT_MAX = 720;
 
+/** Tablette içeriği CONTENT_MAX genişliğe ortalayan ek yatay boşluk (telefonda 0). Büyük başlık da bunu kullanır. */
+export function useContentGutter() {
+  const { width } = useWindowDimensions();
+  return Math.max(0, (width - CONTENT_MAX) / 2);
+}
+
 /**
  * Ekran iskeleti: güvenli alan + kaydırma + klavyeden kaçınma.
  * Props: header (ör. <TopBar/>; üst güvenli alanı o üstlenir), footer (alt sabit eylem, örn. birincil Button),
@@ -29,9 +35,8 @@ export function Screen({
   const insets = useSafeAreaInsets();
   const top = edges.includes('top') && !header ? insets.top : 0;
   const bottom = edges.includes('bottom') && !footer ? insets.bottom : 0;
-  const { width } = useWindowDimensions();
   // Tablette satırlar ekran boyunca uzamasın: içerik en fazla CONTENT_MAX genişlikte, ortada.
-  const gutter = Math.max(0, (width - CONTENT_MAX) / 2);
+  const gutter = useContentGutter();
   const px = (padded ? space[5] : 0) + gutter;
   const body = scroll ? (
     <ScrollView

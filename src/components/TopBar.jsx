@@ -5,6 +5,7 @@ import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 import { IconButton } from './IconButton';
 import { ProgressBar } from './ProgressBar';
+import { useContentGutter } from './Screen';
 import { Text } from './Text';
 
 /**
@@ -28,6 +29,7 @@ export function TopBar({
   const { colors, space } = useTheme();
   const { t } = useT();
   const insets = useSafeAreaInsets();
+  const gutter = useContentGutter();
   const wrap = {
     paddingTop: insets.top,
     backgroundColor: colors.bg.canvas,
@@ -78,12 +80,12 @@ export function TopBar({
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'flex-end',
-            paddingHorizontal: space[3],
+            paddingHorizontal: space[3] + gutter,
           }}
         >
           {right}
         </View>
-        <View style={{ paddingHorizontal: space[5], paddingBottom: space[4], gap: 2 }}>
+        <View style={{ paddingHorizontal: space[5] + gutter, paddingBottom: space[4], gap: 2 }}>
           <Text variant="heading-1" accessibilityRole="header">
             {title}
           </Text>
