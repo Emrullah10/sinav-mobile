@@ -41,7 +41,10 @@ module.exports = () => ({
       package: 'com.sinav.odak',
       permissions: ['POST_NOTIFICATIONS'],
       // Mikrofon ve kamera yalnız geri bildirimde (sesli anlatım, fotoğraf) kullanıcı istediğinde açılır.
-      blockedPermissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION'],
+      // ACTIVITY_RECOGNITION expo-sensors'tan (Pedometer) gelir; yalnız Accelerometer kullanılıyor.
+      // İzin kalırsa Play uygulamayı sağlık uygulaması sayıp sürümü engeller.
+      blockedPermissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'android.permission.ACTIVITY_RECOGNITION'],
+      versionCode: 2,
       adaptiveIcon: {
         backgroundColor: '#0E6A6E',
         foregroundImage: './assets/android-icon-foreground.png',
