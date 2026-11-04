@@ -32,9 +32,10 @@ const parseRuns = (parts, lang) => {
  * lang: 'en' (içerik metni; her cümle İngilizce) | 'auto' (karışık: yalnız İngilizce görünen cümleler dokunulur).
  * words / sentences: kelime ve cümle çevirisi açık mı. sentences kapalıyken basılı tutunca `sentenceLock` (i18n anahtarı) gösterilir.
  * onAsk(metin): "Öğretmene sor" bunu çağırır (sohbet ekranında aynı sohbete gönderir).
+ * bookCode: kitap okuyucudan; kişisel kitabın cümle çevirileri kitaba bağlı saklanır.
  * Diğer özellikler (variant, color, style, …) dış Text'e gider.
  */
-export function TapText({ text, runs, lang = 'en', words = true, sentences = true, sentenceLock, onAsk, ...rest }) {
+export function TapText({ text, runs, lang = 'en', words = true, sentences = true, sentenceLock, onAsk, bookCode, ...rest }) {
   const lex = useLexicon();
   const owner = useId();
   const { colors } = useTheme();
@@ -57,7 +58,7 @@ export function TapText({ text, runs, lang = 'en', words = true, sentences = tru
   };
   const openWord = (key, tok) => {
     haptics.select();
-    lex.open({ kind: 'word', word: tok.text, owner, token: key, sentence: tok.sentence, ...payload(tok.sentence), allowSentence: sentences, onAsk });
+    lex.open({ kind: 'word', word: tok.text, owner, token: key, sentence: tok.sentence, ...payload(tok.sentence), allowSentence: sentences, onAsk, bookCode });
   };
   const openSentence = (tok) => {
     if (!sentences) {
@@ -70,7 +71,7 @@ export function TapText({ text, runs, lang = 'en', words = true, sentences = tru
       return;
     }
     haptics.soft();
-    lex.open({ kind: 'sentence', owner, sentence: tok.sentence, ...p, onAsk });
+    lex.open({ kind: 'sentence', owner, sentence: tok.sentence, ...p, onAsk, bookCode });
   };
 
   const renderTokens = (tokens, prefix) =>

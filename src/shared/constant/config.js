@@ -8,6 +8,8 @@ export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_BAS
   /\/+$/,
   '',
 );
+/** Web uygulaması kökü (orijinal PDF görüntüleyici WebView'da buradan açılır). Boşsa gateway ile aynı alan adı. */
+export const WEB_BASE_URL = (process.env.EXPO_PUBLIC_WEB_BASE_URL || API_BASE_URL).replace(/\/+$/, '');
 export const APP_VERSION = Constants.expoConfig?.version || '0.0.0';
 export const PLATFORM = Platform.OS; // 'ios' | 'android'
 export const BOOTSTRAP_TIMEOUT_MS = 8000;

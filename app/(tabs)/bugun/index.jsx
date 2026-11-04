@@ -16,6 +16,7 @@ import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { routeForTaskStart } from '@features/today/taskRouting';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
+import { ContinueCard } from '@features/reading/ContinueCard';
 
 const WEEKDAY_FORMAT = { weekday: 'short' };
 
@@ -296,6 +297,7 @@ export default function TodayScreen() {
                   ))
                 )}
               </Card>
+              <ContinueCard compact />
               <StreakCard streak={data.streak} />
               <EstimateCard data={data} />
               {data.due.cards > 0 || data.due.mistakes > 0 ? (

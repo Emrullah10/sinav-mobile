@@ -210,7 +210,7 @@ function SentencePanel({ req, onClose }) {
   const q = useQuery({
     queryKey: sentenceKey(text),
     queryFn: async () => {
-      const r = unwrap(await api.contentLexiconSentence(req.sentences, req.index));
+      const r = unwrap(await api.contentLexiconSentence(req.sentences, req.index, req.bookCode));
       for (const x of r.translations) if (x.index !== req.index) qc.setQueryData(sentenceKey(req.sentences[x.index]), x.text);
       return r.translation;
     },

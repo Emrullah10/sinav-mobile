@@ -10,6 +10,7 @@ import { report } from '@shared/monitoring/report';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { PracticeSheet } from '@features/study/PracticeSheet';
+import { ContinueCard } from '@features/reading/ContinueCard';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
@@ -52,6 +53,7 @@ export default function StudyHome() {
                 <Text variant="body-s" color="secondary">{t('study.mixedHint')}</Text>
               </View>
             </Card>
+            <ContinueCard />
 
             <View>
               <Text variant="heading-3" style={{ marginBottom: 4 }}>{t('study.shortcuts')}</Text>
