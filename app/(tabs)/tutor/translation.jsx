@@ -35,8 +35,10 @@ function Diff({ parts }) {
 }
 
 // Seviye → sunucudaki zorluk bandı (kolay 1–2, orta 3, zor 4–5).
-const LEVELS = ['easy', 'medium', 'hard'];
-const levelOfDifficulty = (d) => (d <= 2 ? 'easy' : d === 3 ? 'medium' : 'hard');
+// CEFR seviyeleri (kitaplıkla aynı); sunucu: A2=1, B1=2, B2=3, C1=4–5.
+const LEVELS = ['a2', 'b1', 'b2', 'c1'];
+const OLD_LEVELS = { easy: 'b1', medium: 'b2', hard: 'c1' };
+const levelOfDifficulty = (d) => (d <= 1 ? 'a2' : d === 2 ? 'b1' : d === 3 ? 'b2' : 'c1');
 
 export default function TranslationCoach() {
   const { t } = useT();
@@ -44,7 +46,8 @@ export default function TranslationCoach() {
   const [direction, setDirection] = useState('en_tr');
   const storedLevel = useUiStore((s) => s.translationLevel);
   const setStoredLevel = useUiStore((s) => s.setTranslationLevel);
-  const level = LEVELS.includes(storedLevel) ? storedLevel : 'medium';
+  const mapped = OLD_LEVELS[storedLevel] || storedLevel;
+  const level = LEVELS.includes(mapped) ? mapped : 'b2';
   const [answer, setAnswer] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -85,10 +88,10 @@ export default function TranslationCoach() {
             <Chip key={d} label={t(`tr.direction.${d}`)} selected={direction === d} onPress={() => { setDirection(d); setResult(null); setAnswer(''); }} />
           ))}
         </View>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }} accessibilityLabel={t('tr.levelLabel')}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }} accessibilityLabel={t('tr.levelLabel')} accessibilityHint={t('tr.levelHint')}>
           <Text variant="label-m" color="secondary">{t('tr.levelLabel')}</Text>
           {LEVELS.map((l) => (
-            <Chip key={l} label={t(`tr.levels.${l}`)} selected={level === l} onPress={() => { setStoredLevel(l); setResult(null); setAnswer(''); setError(null); clientRef.current = newClientRef(); }} />
+            <Chip key={l} label={l.toUpperCase()} selected={level === l} onPress={() => { setStoredLevel(l); setResult(null); setAnswer(''); setError(null); clientRef.current = newClientRef(); }} />
           ))}
         </View>
         {error ? <Banner tone="danger" message={error} onClose={() => setError(null)} /> : null}
@@ -99,7 +102,7 @@ export default function TranslationCoach() {
           {(p) => (
             <View style={{ gap: 16 }}>
               <Text variant="caption" color="tertiary">
-                {t('tr.sentenceLevel', { level: t(`tr.levels.${levelOfDifficulty(p.difficulty)}`) })}
+                {t('tr.sentenceLevel', { level: levelOfDifficulty(p.difficulty).toUpperCase() })}
                 {p.usage?.limit != null ? ` · ${t('tr.usage', { n: p.usage.remaining })}` : ''}
               </Text>
               <Card elevation="e1">

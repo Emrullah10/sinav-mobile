@@ -4,7 +4,7 @@ import { Check, Flame, MoreHorizontal, Settings2 } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import {
-  Banner, Button, Card, Chip, ErrorState, IconButton, ListRow, ProgressBar, ProgressRing,
+  Banner, Button, Card, Chip, ErrorState, IconButton, IconTile, ListRow, ProgressBar, ProgressRing,
   Screen, Sheet, Skeleton, Text, TopBar, useToast,
 } from '@components';
 import { api } from '@api';
@@ -13,6 +13,8 @@ import { deepLinks } from '@shared/navigation/deepLinks';
 import { errorKind } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
+import { taskHue } from '@shared/vendor/domain/index.js';
+import { taskIcon } from '@shared/ui/studyIcons';
 import { routeForTaskStart } from '@features/today/taskRouting';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
@@ -137,7 +139,13 @@ function TaskRow({ task, onStart, onMore, starting, isNext }) {
     task.status === 'completed' ? t('today.task.done') : task.status === 'skipped' ? t('today.task.skipped') : task.status === 'postponed' ? t('today.task.postponed') : null;
   return (
     <View style={{ gap: 8, paddingVertical: 12 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <IconTile
+          icon={task.status === 'completed' ? Check : taskIcon(task)}
+          hue={taskHue(task)}
+          done={task.status === 'completed'}
+          muted={!open && task.status !== 'completed'}
+        />
         <View style={{ flex: 1, gap: 2 }}>
           <Text variant="title" color={open ? 'primary' : 'tertiary'}>
             {title}

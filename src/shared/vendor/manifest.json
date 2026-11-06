@@ -1,14 +1,14 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "380faceda93077dd1690b6d76397afcbdf89ac4f",
-    "dirty": false
+    "sha": "23892e777e4593a731a1b0c9ed31751c865c88d8",
+    "dirty": true
   },
   "files": {
     "design-tokens/tokens.js": {
-      "sha256": "1960ed62c68959caa21cf7a697f06d69843362043ce9ff9417423c1a0ab4cd19",
+      "sha256": "6aace9acb1a44052d385a266cf5b3af8a674042ea7bfebed0eccb7a70fe99d80",
       "source": "packages/design-tokens/dist/native/tokens.js",
-      "sourceSha256": "7fa15abd8606dfa043933d4e50739fb5113daa5614bf08d21e67484a2c1a433b"
+      "sourceSha256": "cd3f6bd0baddf8c438e723febe0c5436871440d60dae15d1904b80ee7e76ddf8"
     },
     "client-sdk/index.js": {
       "sha256": "cb7c7f332cad9b79c8f0e7ac449d1660002afdf55af413f97a5e732b6efaf5dd",
@@ -145,10 +145,15 @@
       "source": "packages/modules/shared/domain/backgrounds.js",
       "sourceSha256": "3ecbeaeb760d588dc5a9049af2dfd5dc7ca87bd26dcb568d7de7634d8f190d25"
     },
+    "domain/hues.js": {
+      "sha256": "50776c6150c201f24be6cb3d331de20dfc26af9face0401878555d80be0e714e",
+      "source": "packages/modules/shared/domain/hues.js",
+      "sourceSha256": "216373b72be5c201cc1b1c96f13e327c591c9cbb595baf843a6e4e02a49be2d2"
+    },
     "domain/index.js": {
-      "sha256": "288422a5c079c4df587a15bf1450236dd5198288e8c41e1629a5e546abb714d0",
+      "sha256": "d4d108c9a8e9f0d01557bd46c327ad592ee0f1c0502e2cf21b61e0bd9189fc7f",
       "source": "packages/modules/shared/domain/index.js",
-      "sourceSha256": "c608956f11151c0d45d64e0428813bb0ba99b794368ace503c93a27f0b9bfa5b"
+      "sourceSha256": "acbf817c8b7ddf903d556cabbb778924b7ed33f042e1df60cb8524b55ed67481"
     },
     "domain/lexicon-text.js": {
       "sha256": "b2682974d3123fdebcc35f941164074bad44790ff7482c17a7ef077dc3260599",

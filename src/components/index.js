@@ -9,6 +9,7 @@ export { Divider } from './Divider';
 export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';
 export { IconButton } from './IconButton';
+export { IconTile } from './IconTile';
 export { ListRow } from './ListRow';
 export { Markdown } from './Markdown';
 export { OptionBubble } from './OptionBubble';

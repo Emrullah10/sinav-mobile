@@ -66,6 +66,16 @@ export const tokens = {
       "paper": "#FFFFFF",
       "ink": "#000000"
     },
+    "tint": {
+      "teal": "#0B756B",
+      "teal-bg": "#DCF1EC",
+      "indigo": "#4D56C4",
+      "indigo-bg": "#E7E8FA",
+      "amber": "#93650B",
+      "amber-bg": "#FBEFD2",
+      "plum": "#9A3F77",
+      "plum-bg": "#F7E4EF"
+    },
     "chart": {
       "series-1": "#0F9485",
       "series-2": "#505AC8",
@@ -147,6 +157,16 @@ export const tokens = {
     "exam": {
       "paper": "#FFFFFF",
       "ink": "#000000"
+    },
+    "tint": {
+      "teal": "#3CC2B4",
+      "teal-bg": "#11312E",
+      "indigo": "#9AA4F0",
+      "indigo-bg": "#23284A",
+      "amber": "#F0B43A",
+      "amber-bg": "#3A2E12",
+      "plum": "#E08DBF",
+      "plum-bg": "#3B1E31"
     },
     "chart": {
       "series-1": "#04A19B",

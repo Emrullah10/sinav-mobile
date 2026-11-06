@@ -4,11 +4,12 @@ import { Languages, MessageSquarePlus, MoreVertical, Pin } from 'lucide-react-na
 import { useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import {
-  Banner, Button, Card, EmptyState, IconButton, ListRow, QueryBoundary, Screen, Sheet, Text, TopBar, useToast,
+  Banner, Button, Card, EmptyState, IconButton, IconTile, ListRow, QueryBoundary, Screen, Sheet, Text, TopBar, useToast,
 } from '@components';
 import { api } from '@api';
 import { apiErrorCode, errorText, formatDate, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
+import { FEATURE_HUE } from '@shared/vendor/domain/index.js';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
@@ -80,7 +81,7 @@ export default function TutorHome() {
             </Text>
             <Button title={t('tutor.new')} onPress={() => create.mutate(null)} loading={create.isPending && !create.variables} disabled={!d.llmAvailable} />
             <Card onPress={() => router.push('/tutor/translation')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }} accessibilityLabel={t('tutor.translation')}>
-              <Languages size={24} color={colors.accent.default} />
+              <IconTile icon={Languages} hue={FEATURE_HUE.translation} size={44} />
               <View style={{ flex: 1 }}>
                 <Text variant="title">{t('tutor.translation')}</Text>
                 <Text variant="body-s" color="secondary">{t('tutor.translationHint')}</Text>

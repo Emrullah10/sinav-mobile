@@ -11,7 +11,7 @@ export const useUiStore = create(
       language: null, // null = cihaz dili
       lexiconTipSeen: false, // dokun-çevir ipucu bir kez gösterilir
       shakeToFeedback: true, // telefonu sallayınca geri bildirim (ekran görüntüsüyle)
-      translationLevel: 'medium', // çeviri koçu seviyesi: easy | medium | hard (son seçim)
+      translationLevel: 'b2', // çeviri koçu seviyesi: a2 | b1 | b2 | c1 (son seçim; eski easy|medium|hard ekranda çevrilir)
       setShakeToFeedback: (shakeToFeedback) => set({ shakeToFeedback }),
       setLexiconTipSeen: (lexiconTipSeen) => set({ lexiconTipSeen }),
       setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),

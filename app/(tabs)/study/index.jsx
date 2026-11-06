@@ -1,22 +1,22 @@
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { BookMarked, BookOpen, Bookmark, Layers, Shuffle } from 'lucide-react-native';
+import { BookMarked, Bookmark, Layers, Shuffle } from 'lucide-react-native';
 import { useRef } from 'react';
 import { View } from 'react-native';
-import { Badge, Banner, Card, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar } from '@components';
+import { Badge, Banner, Card, IconTile, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar } from '@components';
 import { api } from '@api';
 import { unwrap } from '@shared/api/helpers';
 import { report } from '@shared/monitoring/report';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
+import { FEATURE_HUE, typeHue } from '@shared/vendor/domain/index.js';
+import { typeIcon } from '@shared/ui/studyIcons';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { PracticeSheet } from '@features/study/PracticeSheet';
 import { ContinueCard } from '@features/reading/ContinueCard';
 import { useT } from '@shared/translation/useT';
-import { useTheme } from '@theme';
 
 export default function StudyHome() {
   const { t } = useT();
-  const { colors } = useTheme();
   const sheet = useRef(null);
   const query = useQuery({
     queryKey: queryKeys.learning.studyOverview(),
@@ -47,7 +47,7 @@ export default function StudyHome() {
           <View style={{ gap: 16 }}>
             {unfinished ? <Banner tone="info" message={t('study.resume.body')} action={{ label: t('study.resume.action'), onPress: continueSession }} /> : null}
             <Card elevation="e1" onPress={() => sheet.current?.present()} accessibilityLabel={t('study.mixed')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Shuffle size={28} color={colors.accent.default} />
+              <IconTile icon={Shuffle} hue={FEATURE_HUE.practice} size={44} />
               <View style={{ flex: 1 }}>
                 <Text variant="title">{t('study.mixed')}</Text>
                 <Text variant="body-s" color="secondary">{t('study.mixedHint')}</Text>
@@ -58,7 +58,7 @@ export default function StudyHome() {
             <View>
               <Text variant="heading-3" style={{ marginBottom: 4 }}>{t('study.shortcuts')}</Text>
               <ListRow
-                leading={<Layers size={22} color={colors.text.secondary} />}
+                leading={<IconTile icon={Layers} hue={FEATURE_HUE.vocab} size={36} />}
                 title={t('study.vocab')}
                 subtitle={t('study.vocabDue', { n: d.vocab.dueCards })}
                 trailing={<Badge count={d.vocab.dueCards} tone="accent" />}
@@ -66,7 +66,7 @@ export default function StudyHome() {
                 divider
               />
               <ListRow
-                leading={<BookMarked size={22} color={colors.text.secondary} />}
+                leading={<IconTile icon={BookMarked} hue={FEATURE_HUE.mistakes} size={36} />}
                 title={t('study.mistakes')}
                 subtitle={t('study.mistakesDue', { open: d.mistakes.open, due: d.mistakes.due })}
                 trailing={<Badge count={d.mistakes.due} />}
@@ -74,7 +74,7 @@ export default function StudyHome() {
                 divider
               />
               <ListRow
-                leading={<Bookmark size={22} color={colors.text.secondary} />}
+                leading={<IconTile icon={Bookmark} hue={FEATURE_HUE.bookmarks} size={36} />}
                 title={t('study.bookmarks')}
                 onPress={() => router.push('/study/bookmarks')}
               />
@@ -84,8 +84,8 @@ export default function StudyHome() {
               <Text variant="heading-3">{t('study.types')}</Text>
               {d.types.map((ty) => (
                 <Card key={ty.key} onPress={() => router.push(deepLinks.studyType(ty.key))} accessibilityLabel={ty.name} style={{ gap: 8 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <BookOpen size={20} color={colors.accent.default} />
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <IconTile icon={typeIcon(ty.key)} hue={typeHue(ty.key)} size={36} />
                     <Text variant="title" style={{ flex: 1 }}>{ty.name}</Text>
                     {ty.key === d.recommendedTypeKey ? (
                       <Text variant="label-s" color="accent">{t('study.recommended')}</Text>
