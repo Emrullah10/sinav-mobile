@@ -3,7 +3,7 @@ import { useHaptics } from '@hooks/useHaptics';
 import { useTheme } from '@theme';
 import { Text } from './Text';
 
-/** Segment kontrol (2–4 seçenek, 36). options: [{ value, label }]. Uzun etiketler iki satıra iner. */
+/** Segment kontrol (2–4 seçenek, 36). options: [{ value, label, accessibilityLabel? }]. Uzun etiketler iki satıra iner. */
 export function Segmented({ options, value, onChange, accessibilityLabel, style }) {
   const { colors, radius } = useTheme();
   const haptics = useHaptics();
@@ -30,7 +30,7 @@ export function Segmented({ options, value, onChange, accessibilityLabel, style 
             key={o.value}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
-            accessibilityLabel={o.label}
+            accessibilityLabel={o.accessibilityLabel || o.label}
             hitSlop={{ top: 4, bottom: 4 }}
             onPress={() => {
               if (!selected) haptics.select();

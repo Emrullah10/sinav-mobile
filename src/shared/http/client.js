@@ -1,4 +1,5 @@
 import axios from 'axios';
+import i18n from 'i18next';
 import { API_BASE_URL, APP_VERSION, PLATFORM, REQUEST_TIMEOUT_MS } from '@shared/constant/config';
 import { authState } from '@shared/auth/authStore';
 import { getAccessToken, getRefreshToken } from '@shared/auth/tokenStorage';
@@ -18,6 +19,7 @@ export const http = axios.create({
 
 http.interceptors.request.use(async (config) => {
   config.headers['X-Device-Id'] = await getDeviceId();
+  config.headers['Accept-Language'] = (i18n.language || 'tr').slice(0, 2); // sunucu veri adlarını bu dile çevirir
   const token = getAccessToken();
   if (token && !config.headers.Authorization) config.headers.Authorization = `Bearer ${token}`;
   return config;

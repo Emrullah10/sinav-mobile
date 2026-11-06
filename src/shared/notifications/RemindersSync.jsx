@@ -45,7 +45,7 @@ export function RemindersSync() {
     const open = (response) => {
       const link = response?.notification?.request?.content?.data?.link;
       if (link) openDeepLink(link);
-      else router.push('/bugun');
+      else router.push('/today');
     };
     // Uygulama bildirime dokunularak soğuk açıldıysa son yanıtı da işle.
     Notifications.getLastNotificationResponseAsync()

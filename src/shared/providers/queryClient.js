@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import i18n from 'i18next';
 import { apiErrorCode } from '@shared/vendor/client-sdk/index.js';
 
 const NO_RETRY = new Set(['VALIDATION_ERROR', 'PERMISSION_DENIED', 'NOT_FOUND', 'QUOTA_EXCEEDED']);
@@ -19,3 +20,6 @@ export const queryClient = new QueryClient({
     mutations: { retry: false },
   },
 });
+
+// Veri adları sunucuda dile göre çevrilir: dil değişince önbellekteki yanıtlar eskir.
+i18n.on('languageChanged', () => queryClient.invalidateQueries());

@@ -1,6 +1,14 @@
-import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, View, useWindowDimensions } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@theme';
+import { AppBackground } from '@features/background/AppBackground';
 
 const CONTENT_MAX = 720;
 
@@ -80,6 +88,7 @@ export function Screen({
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       enabled={keyboardAvoiding}
     >
+      {background ? null : <AppBackground />}
       {header}
       {body}
       {footer ? (

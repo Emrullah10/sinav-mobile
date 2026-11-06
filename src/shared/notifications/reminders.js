@@ -46,7 +46,7 @@ export const scheduleDailyReminder = async ({ time, title, body }) => {
   }
   await Notifications.scheduleNotificationAsync({
     identifier: ID,
-    content: { title, body, data: { link: '/bugun' } },
+    content: { title, body, data: { link: '/today' } },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,

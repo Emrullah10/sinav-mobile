@@ -18,9 +18,9 @@ export const routeForTaskStart = (res) => {
     case 'note':
       return res.note?.itemCode ? deepLinks.note(res.note.itemCode) : null;
     case 'mock_exam':
-      return res.exam?.formCode ? `/deneme/form/${res.exam.formCode}` : '/deneme';
+      return res.exam?.formCode ? `/exams/form/${res.exam.formCode}` : '/exams';
     case 'translation':
-      return '/ogretmen/ceviri';
+      return '/tutor/translation';
     default:
       return null;
   }

@@ -45,7 +45,7 @@ function useAskTutor(onClose) {
     onSuccess: (r) => {
       onClose();
       if (r.local) r.onAsk(r.text);
-      else router.push({ pathname: `/ogretmen/${r.conv.code}`, params: { starter: r.text } });
+      else router.push({ pathname: `/tutor/${r.conv.code}`, params: { starter: r.text } });
     },
   });
 }
@@ -160,7 +160,7 @@ function WordPanel({ req, onSwitch, onClose }) {
                   fullWidth={false}
                   onPress={() => {
                     onClose();
-                    router.push(`/kelimeler/${entry.itemCode || add.data}`);
+                    router.push(`/vocabulary/${entry.itemCode || add.data}`);
                   }}
                 />
               ) : null}

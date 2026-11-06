@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import { deepLinks } from '@shared/vendor/client-sdk/index.js';
+import { mapLegacyPath } from './legacyPaths';
 
 export { deepLinks };
 
@@ -13,5 +14,6 @@ export const isDeepLinkPath = (path) =>
 
 /** Bilinen bir derin bağlantıya gider; bilinmiyorsa Bugün'e düşer. Örn. openDeepLink(deepLinks.studyType('okuma')) */
 export const openDeepLink = (path) => {
-  router.push(isDeepLinkPath(path) ? path : deepLinks.today);
+  const p = mapLegacyPath(path);
+  router.push(isDeepLinkPath(p) ? p : deepLinks.today);
 };

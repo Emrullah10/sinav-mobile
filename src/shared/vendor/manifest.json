@@ -1,8 +1,8 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "6f1db905f766ce0cbb8b039c204f4c947f3ce793",
-    "dirty": true
+    "sha": "380faceda93077dd1690b6d76397afcbdf89ac4f",
+    "dirty": false
   },
   "files": {
     "design-tokens/tokens.js": {
@@ -26,9 +26,9 @@
       "sourceSha256": "b8e06fd569bf3b25c7e4d2b3457566fc11f88bcb958e8fd7e7450349908fd6e9"
     },
     "client-sdk/src/deepLinks.js": {
-      "sha256": "542ebe796c4345b059e8266edec71e0a7fae80a1ff71c1883297e0885366d469",
+      "sha256": "b9b7c3690001f860b49414cbb19ffab3107821fe05aa9e1ff3bf03cd9280b331",
       "source": "packages/client-sdk/src/deepLinks.js",
-      "sourceSha256": "1bb07992a597a97fcc7e87b1cdc93c18166e39dfa149176576e2a72a83502ba7"
+      "sourceSha256": "f2b42304fcbc1cb6d3284aa13c45ff754040eb0d658e5c32344de868818b6efb"
     },
     "client-sdk/src/errors.js": {
       "sha256": "c621f67052d3ba62f258c3388bf1706758033c97ad14cf7b8340de829359d493",
@@ -51,9 +51,9 @@
       "sourceSha256": "bc1c82eaedb75451ac7040c8c217512efb574d00731321e155a85cdaf496fadd"
     },
     "client-sdk/src/queryKeys.js": {
-      "sha256": "ca7ca443ef52acebe5bb51596783388b5aa5e531aa2958b2940e145807b66e1a",
+      "sha256": "17fa091c1f6b3271617f1f1ae7c7b95fd19fcb123cd0b770ad8e048bf3347671",
       "source": "packages/client-sdk/src/queryKeys.js",
-      "sourceSha256": "527d9d5455a25a496c24c52ab8a4c5f67de63347ac4dbde01abef605ddfe27f5"
+      "sourceSha256": "5580c460fc123a24cdb6f8a0eae3c78a7963f87627e94fea5b5887c99c2288c3"
     },
     "client-sdk/src/tutor.js": {
       "sha256": "f392a1bccf045bca83374ffa8352931781e11e1b69b657eb3ab1c937fe070907",
@@ -61,9 +61,9 @@
       "sourceSha256": "9211f9956f4c1b1fe65ac3bfb55b8ffb733fd91744c6c4ea777f8bd9aa6f9a71"
     },
     "i18n/index.js": {
-      "sha256": "b7f304edbcd55ba08919beb5c7eb8ce37db527f9bbe217e801d2e711a65c207f",
+      "sha256": "eda8a5b6737e5cfa0e2702ab55b0db731c58689f71d9a33a9e5467bc2f79849f",
       "source": "packages/i18n/index.js",
-      "sourceSha256": "b11458cde6ab49ddf901f324a767fa195dbf5bbc1f88e24f19a52367c256c060"
+      "sourceSha256": "a14f25804ea341c36a5db8d030138ad2a488f0b5edd9ff1bafd6623c98bc006d"
     },
     "i18n/keys/apiErrorsBillingKeys.js": {
       "sha256": "3345e6c4ede064cf628879dca247fbf0f779fb5caf96a85c258919eb46553aaa",
@@ -95,6 +95,11 @@
       "source": "packages/i18n/keys/apiErrorsTutorKeys.js",
       "sourceSha256": "20b28e6d560d0fea802d0d63d8a60236a1347689d3cf57a3fdb02a429d54d276"
     },
+    "i18n/keys/backgroundKeys.js": {
+      "sha256": "c0861dc44327461aa4f7ac3c526d9e19a13b861d872aa0481274b0dfd7907ba8",
+      "source": "packages/i18n/keys/backgroundKeys.js",
+      "sourceSha256": "2b1d896ed5ca8debdbe40b4fddb6e27fbea4235789da57a5dc3dc8c0b40390ae"
+    },
     "i18n/keys/enumsBillingKeys.js": {
       "sha256": "02aa26b21798f752b8d7a263e492ae82648122e46377e560b3a05a313f62beaf",
       "source": "packages/i18n/keys/enumsBillingKeys.js",
@@ -120,6 +125,11 @@
       "source": "packages/i18n/keys/feedbackKeys.js",
       "sourceSha256": "5a5b15e9ddaec90d925deb50f1c38bf8a9d19e0636d40fe9c951bab4fbc725be"
     },
+    "i18n/keys/helpKeys.js": {
+      "sha256": "c5ca030c782bc578ab5b5f151fbafc197dec06eef600e9e025b93bb2539178b1",
+      "source": "packages/i18n/keys/helpKeys.js",
+      "sourceSha256": "2bedfefb0baabc60da5138d334ede1a170eb39aea3ab77de5902c8ad9d2c050e"
+    },
     "i18n/keys/lexiconKeys.js": {
       "sha256": "98d95e02ad2405c2c83189337aa705fc1996d3930290b7766c5c2253ba22dc2e",
       "source": "packages/i18n/keys/lexiconKeys.js",
@@ -130,10 +140,15 @@
       "source": "packages/i18n/keys/readingKeys.js",
       "sourceSha256": "35691b57d46b5df7cc82345a04532a71282738fcf54a6bf51f011f59cb1f8fe2"
     },
+    "domain/backgrounds.js": {
+      "sha256": "28d96211197258c7cdf3e1b1771624b5b44553059b1668f69953526d54e02410",
+      "source": "packages/modules/shared/domain/backgrounds.js",
+      "sourceSha256": "3ecbeaeb760d588dc5a9049af2dfd5dc7ca87bd26dcb568d7de7634d8f190d25"
+    },
     "domain/index.js": {
-      "sha256": "7985c0dce6b976ec2bfcc52d29d5118f4442b95ba30c59341f0be18f32949465",
+      "sha256": "288422a5c079c4df587a15bf1450236dd5198288e8c41e1629a5e546abb714d0",
       "source": "packages/modules/shared/domain/index.js",
-      "sourceSha256": "532f719efcaa2d0193234fc412dc8c2e29cedb4701ceb999ef245cb364091a10"
+      "sourceSha256": "c608956f11151c0d45d64e0428813bb0ba99b794368ace503c93a27f0b9bfa5b"
     },
     "domain/lexicon-text.js": {
       "sha256": "b2682974d3123fdebcc35f941164074bad44790ff7482c17a7ef077dc3260599",
@@ -144,6 +159,11 @@
       "sha256": "bc995868415b4aa6b1ccbef7c5f7c70c3aa53f97683549ecc3041b994966481a",
       "source": "packages/modules/shared/domain/scoring.js",
       "sourceSha256": "2d70128fbd0db910c4ea64804c806e8fffa659b91c074e6fc89464f49309b94e"
+    },
+    "domain/search-snippet.js": {
+      "sha256": "d258b08648a888c3707fa662a100a75c229a1aefcfac67b3528b845ede398c06",
+      "source": "packages/modules/shared/domain/search-snippet.js",
+      "sourceSha256": "f2ef25ed8fbaf2830f60719c9229b1955368d918d6bd0481e0979bf6bf533163"
     },
     "domain/study-day.js": {
       "sha256": "86e7dfd142c346d7fea4df2259884b441785503e88e490e16b2ff402af0c950a",

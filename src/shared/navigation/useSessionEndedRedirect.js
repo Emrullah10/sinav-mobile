@@ -6,6 +6,6 @@ import { useAuthStore } from '@shared/auth/authStore';
 export const useSessionEndedRedirect = () => {
   const code = useAuthStore((s) => s.sessionEndedCode);
   useEffect(() => {
-    if (code) router.replace('/oturum-bitti');
+    if (code) router.replace('/session-ended');
   }, [code]);
 };

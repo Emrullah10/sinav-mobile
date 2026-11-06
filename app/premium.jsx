@@ -181,8 +181,8 @@ function Paywall() {
               <Text variant="caption" color="tertiary">{current?.kind === 'exam' ? t('pay.legal.exam') : t('pay.legal.renew', { store: t('pay.storeName') })}</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
                 <Button title={t('pay.restore')} variant="tertiary" size="sm" fullWidth={false} loading={restore.isPending} disabled={busy} onPress={doRestore} />
-                <Button title={t('me.legal.terms_of_use')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/yasal/terms_of_use')} />
-                <Button title={t('me.legal.privacy_policy')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/yasal/privacy_policy')} />
+                <Button title={t('me.legal.terms_of_use')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/legal/terms_of_use')} />
+                <Button title={t('me.legal.privacy_policy')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/legal/privacy_policy')} />
               </View>
             </View>
           )
@@ -232,7 +232,7 @@ export default function Premium() {
   const { manage } = usePurchaseActions();
   return (
     <Screen
-      header={<TopBar title={t('pay.title')} onBack={() => (router.canGoBack() ? router.back() : router.replace('/bugun'))} />}
+      header={<TopBar title={t('pay.title')} onBack={() => (router.canGoBack() ? router.back() : router.replace('/today'))} />}
       edges={['bottom']}
       onRefresh={() => { ent.refetch(); sub.refetch(); }}
       refreshing={(ent.isRefetching || sub.isRefetching) && !ent.isPending}
@@ -240,7 +240,7 @@ export default function Premium() {
       <View style={{ gap: 16 }}>
         {isGuest ? (
           <>
-            <Banner tone="info" message={t('pay.guest')} action={{ label: t('me.createAccount'), onPress: () => router.push('/kayit') }} />
+            <Banner tone="info" message={t('pay.guest')} action={{ label: t('me.createAccount'), onPress: () => router.push('/sign-up') }} />
             <Benefits />
           </>
         ) : (

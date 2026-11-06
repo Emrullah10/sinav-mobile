@@ -43,7 +43,7 @@ export default function Index() {
   }, [status, isGuest]);
 
   if (!hydrated || sessionEndedCode) return <SplashView />;
-  if (!welcomeSeen) return <Redirect href="/karsilama" />;
+  if (!welcomeSeen) return <Redirect href="/welcome" />;
   // Ağ yokken de kabuk açılır; istekler yeniden denendiğinde oturum kurulur.
   if (failed) return <Redirect href={deepLinks.today} />;
   if (status === 'authenticated') {

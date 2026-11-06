@@ -1,0 +1,355 @@
+import { router } from 'expo-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
+import { View } from 'react-native';
+import { Alert } from 'react-native';
+import {
+  Button,
+  Chip,
+  Divider,
+  Screen,
+  Segmented,
+  SwitchRow,
+  Text,
+  TopBar,
+  useToast,
+} from '@components';
+import { api } from '@api';
+import { errorText, unwrap } from '@shared/api/helpers';
+import { useAuthStore } from '@shared/auth/authStore';
+import { queryKeys } from '@shared/vendor/client-sdk/index.js';
+import { LANGUAGE_OPTIONS, chooseLanguage } from '@shared/translation/language';
+import { useT } from '@shared/translation/useT';
+import { useSwitchTheme } from '@theme';
+import { useThemeStore } from '@store/themeStore';
+import { useUiStore } from '@store/uiStore';
+import { ensureNotificationPermission } from '@shared/notifications/reminders';
+import { BackgroundPicker } from '@features/background/BackgroundPicker';
+
+const TIMES = ['07:00', '12:30', '20:00', '21:30'];
+const MOCK_MODES = ['learning', 'quick', 'timed', 'standard', 'relaxed'];
+
+function Section({ title, children }) {
+  return (
+    <View style={{ gap: 4 }}>
+      <Text variant="heading-3" style={{ marginBottom: 4 }}>
+        {title}
+      </Text>
+      {children}
+    </View>
+  );
+}
+
+export default function Settings() {
+  const { t } = useT();
+  const toast = useToast();
+  const qc = useQueryClient();
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const mode = useThemeStore((s) => s.mode);
+  const setMode = useThemeStore((s) => s.setMode);
+  const switchTheme = useSwitchTheme();
+  const themeTouch = useRef(null); // dokunulan nokta: yeni tema buradan açılır
+  const { hapticsEnabled, language, setHapticsEnabled, shakeToFeedback, setShakeToFeedback } =
+    useUiStore();
+  const account = !isGuest;
+
+  const prefs = useQuery({
+    queryKey: queryKeys.account.prefs(),
+    enabled: account,
+    queryFn: async () => unwrap(await api.identityPreferencesGet()),
+  });
+  const notif = useQuery({
+    queryKey: queryKeys.account.notif(),
+    enabled: account,
+    queryFn: async () => unwrap(await api.identityNotificationPrefsGet()),
+  });
+  const learner = useQuery({
+    queryKey: queryKeys.learning.settings(),
+    enabled: account,
+    queryFn: async () => unwrap(await api.learningSettingsGet()),
+  });
+
+  // Sunucudaki tercih cihazlar arası ilk değerdir; yerelde değişiklik yapılana kadar uygula.
+  useEffect(() => {
+    if (!prefs.data) return;
+    if (prefs.data.theme && prefs.data.theme !== mode) setMode(prefs.data.theme);
+    if (typeof prefs.data.hapticsEnabled === 'boolean')
+      setHapticsEnabled(prefs.data.hapticsEnabled);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefs.data]);
+
+  const patchPrefs = useMutation({
+    mutationFn: async (body) => unwrap(await api.identityPreferencesUpdate(body)),
+    onSuccess: (data) => qc.setQueryData(queryKeys.account.prefs(), data),
+    onError: (e) => toast.show({ message: errorText(t, e), tone: 'danger' }),
+  });
+  const patchNotif = useMutation({
+    mutationFn: async (body) => unwrap(await api.identityNotificationPrefsUpdate(body)),
+    onSuccess: (data) => qc.setQueryData(queryKeys.account.notif(), data),
+    onError: (e) => toast.show({ message: errorText(t, e), tone: 'danger' }),
+  });
+  const patchLearner = useMutation({
+    mutationFn: async (body) => unwrap(await api.learningSettingsUpdate(body)),
+    onSuccess: (data) => qc.setQueryData(queryKeys.learning.settings(), data),
+    onError: (e) => toast.show({ message: errorText(t, e), tone: 'danger' }),
+  });
+
+  const syncPref = (body) => {
+    if (account) patchPrefs.mutate(body);
+  };
+  const n = notif.data;
+
+  return (
+    <Screen
+      header={<TopBar title={t('settings.title')} onBack={() => router.back()} />}
+      edges={['bottom']}
+    >
+      <View style={{ gap: 24 }}>
+        <Section title={t('settings.appearance')}>
+          <Text variant="label-m" color="secondary">
+            {t('settings.theme')}
+          </Text>
+          <View
+            onTouchStart={(e) =>
+              (themeTouch.current = { x: e.nativeEvent.pageX, y: e.nativeEvent.pageY })
+            }
+          >
+            <Segmented
+              value={mode}
+              onChange={(v) => {
+                switchTheme(v, themeTouch.current);
+                syncPref({ theme: v });
+              }}
+              options={['system', 'light', 'dark'].map((v) => ({
+                value: v,
+                label: t(`settings.theme.${v}`),
+              }))}
+            />
+          </View>
+          <Text variant="label-m" color="secondary" style={{ marginTop: 12 }}>
+            {t('settings.language')}
+          </Text>
+          <Segmented
+            value={language || 'system'}
+            onChange={(v) => chooseLanguage(v === 'system' ? null : v)}
+            options={[
+              { value: 'system', label: t('settings.language.system') },
+              ...LANGUAGE_OPTIONS,
+            ]}
+          />
+        </Section>
+
+        <Section title={t('bg.title')}>
+          <BackgroundPicker />
+        </Section>
+
+        <Section title={t('settings.feedback')}>
+          <SwitchRow
+            label={t('settings.haptics')}
+            description={t('settings.hapticsDesc')}
+            value={hapticsEnabled}
+            onValueChange={(v) => {
+              setHapticsEnabled(v);
+              syncPref({ hapticsEnabled: v });
+            }}
+          />
+          <SwitchRow
+            label={t('feedback.shake.title')}
+            description={t('feedback.shake.body')}
+            value={shakeToFeedback}
+            onValueChange={setShakeToFeedback}
+          />
+        </Section>
+
+        {account && n ? (
+          <Section title={t('settings.notifications')}>
+            <SwitchRow
+              label={t('settings.daily')}
+              description={t('settings.dailyDesc')}
+              value={n.dailyReminderEnabled}
+              onValueChange={async (v) => {
+                if (v && !(await ensureNotificationPermission().catch(() => false))) {
+                  toast.show({ message: t('settings.notifDenied'), tone: 'warning' });
+                  return;
+                }
+                patchNotif.mutate({ dailyReminderEnabled: v });
+              }}
+            />
+            {n.dailyReminderEnabled ? (
+              <View style={{ gap: 8, paddingBottom: 8 }}>
+                <Text variant="label-m" color="secondary">
+                  {t('settings.dailyTime')}
+                </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {TIMES.map((tm) => (
+                    <Chip
+                      key={tm}
+                      label={tm}
+                      selected={n.dailyReminderTime === tm}
+                      onPress={() => patchNotif.mutate({ dailyReminderTime: tm })}
+                    />
+                  ))}
+                </View>
+              </View>
+            ) : null}
+          </Section>
+        ) : null}
+
+        {account && learner.data ? (
+          <Section title={t('settings.exam')}>
+            <Text variant="label-m" color="secondary">
+              {t('settings.mockMode')}
+            </Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {MOCK_MODES.map((m) => (
+                <Chip
+                  key={m}
+                  label={t(`enums.study_mode.${m}`)}
+                  selected={learner.data.defaultMockMode === m}
+                  onPress={() => patchLearner.mutate({ defaultMockMode: m })}
+                />
+              ))}
+            </View>
+            <Text variant="label-m" color="secondary" style={{ marginTop: 12 }}>
+              {t('settings.extraTime')}
+            </Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {[0, 25, 50].map((p) => (
+                <Chip
+                  key={p}
+                  label={t(`settings.extraTime.${p}`)}
+                  selected={learner.data.extraTimePercent === p}
+                  onPress={() => patchLearner.mutate({ extraTimePercent: p })}
+                />
+              ))}
+            </View>
+          </Section>
+        ) : null}
+
+        {account ? <GoalSection /> : null}
+        {account ? <PrivacySection /> : null}
+      </View>
+    </Screen>
+  );
+}
+
+function GoalSection() {
+  const { t } = useT();
+  const toast = useToast();
+  const qc = useQueryClient();
+  const enrollment = useQuery({
+    queryKey: queryKeys.learning.enrollment(),
+    queryFn: async () => unwrap(await api.learningEnrollmentActiveGet()).enrollment,
+  });
+  const e = enrollment.data;
+  const track = useQuery({
+    queryKey: queryKeys.content.track(e?.track?.key),
+    enabled: Boolean(e?.track?.key),
+    queryFn: async () => unwrap(await api.contentPublicTrackGet(e.track.key)),
+  });
+  const update = useMutation({
+    mutationFn: async (targetScore) =>
+      unwrap(await api.learningEnrollmentUpdate(e.code, { targetScore })),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.learning.enrollment() });
+      qc.invalidateQueries({ queryKey: queryKeys.learning.today() });
+      toast.show({ message: t('settings.saved'), tone: 'success' });
+    },
+    onError: (err) => toast.show({ message: errorText(t, err), tone: 'danger' }),
+  });
+  if (!e || !track.data) return null;
+  return (
+    <Section title={t('settings.goal')}>
+      <Text
+        variant="body-m"
+        color="secondary"
+      >{`${e.track.name} · ${t('settings.goalScore')}`}</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {track.data.goalPresets.map((p) => (
+          <Chip
+            key={p.targetScore}
+            label={String(p.targetScore)}
+            selected={e.targetScore === p.targetScore}
+            onPress={() => update.mutate(p.targetScore)}
+          />
+        ))}
+      </View>
+      <Button
+        title={t('goal.title')}
+        variant="tertiary"
+        size="md"
+        fullWidth={false}
+        onPress={() => router.push('/me/goal')}
+      />
+    </Section>
+  );
+}
+
+function PrivacySection() {
+  const { t } = useT();
+  const toast = useToast();
+  const qc = useQueryClient();
+  const consents = useQuery({
+    queryKey: queryKeys.account.consents(),
+    queryFn: async () => unwrap(await api.identityConsentsList()),
+  });
+  const list =
+    consents.data?.items ||
+    consents.data?.consents ||
+    (Array.isArray(consents.data) ? consents.data : []);
+  const marketing = list.find((c) => (c.type || c.consentType) === 'marketing_email');
+  const setMarketing = useMutation({
+    mutationFn: async (granted) =>
+      unwrap(await api.identityConsentRecord({ type: 'marketing_email', granted })),
+    onSuccess: (data) => {
+      if (data) qc.setQueryData(queryKeys.account.consents(), data);
+      else qc.invalidateQueries({ queryKey: queryKeys.account.consents() });
+      toast.show({ message: t('settings.saved'), tone: 'success' });
+    },
+    onError: (e) => toast.show({ message: errorText(t, e), tone: 'danger' }),
+  });
+  const clear = useMutation({
+    mutationFn: async () => unwrap(await api.tutorConversationsDeleteAll()),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tutor'] });
+      toast.show({ message: t('settings.historyCleared'), tone: 'success' });
+    },
+    onError: (e) => toast.show({ message: errorText(t, e), tone: 'danger' }),
+  });
+  const confirmClear = () =>
+    Alert.alert(t('settings.clearHistory'), t('settings.clearHistoryBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('settings.clearHistoryConfirm'),
+        style: 'destructive',
+        onPress: () => clear.mutate(),
+      },
+    ]);
+  return (
+    <View style={{ gap: 4 }}>
+      <Text variant="heading-3" style={{ marginBottom: 4 }}>
+        {t('settings.privacy')}
+      </Text>
+      {marketing ? (
+        <SwitchRow
+          label={t('settings.marketing')}
+          description={t('settings.marketingDesc')}
+          value={Boolean(marketing.granted)}
+          onValueChange={(v) => setMarketing.mutate(v)}
+        />
+      ) : null}
+      <Divider />
+      <Text variant="label-m" color="secondary" style={{ marginTop: 8 }}>
+        {t('settings.tutorHistory')}
+      </Text>
+      <Button
+        title={t('settings.clearHistory')}
+        variant="secondary"
+        size="md"
+        fullWidth={false}
+        loading={clear.isPending}
+        onPress={confirmClear}
+      />
+    </View>
+  );
+}

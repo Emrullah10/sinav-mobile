@@ -1,3 +1,4 @@
+import i18n from 'i18next';
 import { api } from '@api';
 import { BOOTSTRAP_TIMEOUT_MS } from '@shared/constant/config';
 import { SessionEndedError, endSession, refreshSession } from '@shared/http/refresh';
@@ -78,7 +79,7 @@ export const ensureSession = () => {
           if (!(err instanceof SessionEndedError)) throw err; // geçici hata: misafir açıp oturumu yetim bırakma
         }
       }
-      const res = await api.identityAuthGuest({});
+      const res = await api.identityAuthGuest({ locale: (i18n.language || 'tr').slice(0, 2) });
       return applyAuthResponse(res.data?.data);
     })().finally(() => {
       ensuring = null;
