@@ -7,6 +7,7 @@ import { api } from '@api';
 import { apiErrorCode, errorText, newClientRef, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
+import { useUiStore } from '@store/uiStore';
 import { TapText } from '@features/lexicon/TapText';
 import { useTheme } from '@theme';
 
@@ -33,20 +34,27 @@ function Diff({ parts }) {
   );
 }
 
+// Seviye → sunucudaki zorluk bandı (kolay 1–2, orta 3, zor 4–5).
+const LEVELS = ['easy', 'medium', 'hard'];
+const levelOfDifficulty = (d) => (d <= 2 ? 'easy' : d === 3 ? 'medium' : 'hard');
+
 export default function TranslationCoach() {
   const { t } = useT();
   const qc = useQueryClient();
   const [direction, setDirection] = useState('en_tr');
+  const storedLevel = useUiStore((s) => s.translationLevel);
+  const setStoredLevel = useUiStore((s) => s.setTranslationLevel);
+  const level = LEVELS.includes(storedLevel) ? storedLevel : 'medium';
   const [answer, setAnswer] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const clientRef = useRef(newClientRef());
 
   const prompt = useQuery({
-    queryKey: queryKeys.tutor.translationPrompt({ direction }),
+    queryKey: queryKeys.tutor.translationPrompt({ direction, level }),
     staleTime: 0,
     gcTime: 0,
-    queryFn: async () => unwrap(await api.tutorTranslationPromptNext({ direction })),
+    queryFn: async () => unwrap(await api.tutorTranslationPromptNext({ direction, difficulty: level })),
   });
 
   const evaluate = useMutation({
@@ -77,6 +85,12 @@ export default function TranslationCoach() {
             <Chip key={d} label={t(`tr.direction.${d}`)} selected={direction === d} onPress={() => { setDirection(d); setResult(null); setAnswer(''); }} />
           ))}
         </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }} accessibilityLabel={t('tr.levelLabel')}>
+          <Text variant="label-m" color="secondary">{t('tr.levelLabel')}</Text>
+          {LEVELS.map((l) => (
+            <Chip key={l} label={t(`tr.levels.${l}`)} selected={level === l} onPress={() => { setStoredLevel(l); setResult(null); setAnswer(''); setError(null); clientRef.current = newClientRef(); }} />
+          ))}
+        </View>
         {error ? <Banner tone="danger" message={error} onClose={() => setError(null)} /> : null}
         <QueryBoundary
           query={prompt}
@@ -84,9 +98,10 @@ export default function TranslationCoach() {
         >
           {(p) => (
             <View style={{ gap: 16 }}>
-              {p.usage?.limit != null ? (
-                <Text variant="caption" color="tertiary">{t('tr.usage', { n: p.usage.remaining })}</Text>
-              ) : null}
+              <Text variant="caption" color="tertiary">
+                {t('tr.sentenceLevel', { level: t(`tr.levels.${levelOfDifficulty(p.difficulty)}`) })}
+                {p.usage?.limit != null ? ` · ${t('tr.usage', { n: p.usage.remaining })}` : ''}
+              </Text>
               <Card elevation="e1">
                 <TapText variant="reading-l" lang="auto" text={p.sourceText} sentences={Boolean(result)} sentenceLock="lex.lock.translateFirst" />
               </Card>
