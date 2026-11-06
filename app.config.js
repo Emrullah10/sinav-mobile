@@ -31,7 +31,7 @@ module.exports = () => ({
     ios: {
       bundleIdentifier: 'com.sinav.odak',
       supportsTablet: true,
-      buildNumber: '2',
+      buildNumber: '3',
       // Uygulama dikey kilitli; iPad'de Split View için tüm yönler gerekir, yoksa yükleme reddedilir.
       requireFullScreen: true,
       infoPlist: {
@@ -47,7 +47,7 @@ module.exports = () => ({
       // ACTIVITY_RECOGNITION expo-sensors'tan (Pedometer) gelir; yalnız Accelerometer kullanılıyor.
       // İzin kalırsa Play uygulamayı sağlık uygulaması sayıp sürümü engeller.
       blockedPermissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'android.permission.ACTIVITY_RECOGNITION'],
-      versionCode: 2,
+      versionCode: 3,
       adaptiveIcon: {
         backgroundColor: '#0E6A6E',
         foregroundImage: './assets/android-icon-foreground.png',
