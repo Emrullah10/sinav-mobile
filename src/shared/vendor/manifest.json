@@ -1,8 +1,8 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "23892e777e4593a731a1b0c9ed31751c865c88d8",
-    "dirty": true
+    "sha": "359b09ea046ef691c97bad7b961813801099369a",
+    "dirty": false
   },
   "files": {
     "design-tokens/tokens.js": {
