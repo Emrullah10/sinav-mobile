@@ -1,7 +1,7 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "ca11c5f1ace0933a6077352b44cdf77ce4dbd6e6",
+    "sha": "ebf3bf97e458d0459e8d6ba956e41635e432ef9d",
     "dirty": false
   },
   "files": {
@@ -46,14 +46,14 @@
       "sourceSha256": "c9893c24a06310cb89893d0425fead621de7f3d3e7c56e6c1dabc4e3f4a6dcf9"
     },
     "client-sdk/src/learning.js": {
-      "sha256": "9fe4dc46ffd1d9e7db465de6a672f73f4d8c25bde0875b5bf58adf8752ba8e64",
+      "sha256": "d3de65cc6d3e96b5aecbbf92e13d2cc9efce111ba3ab83a4179b15c5c0d49a08",
       "source": "packages/client-sdk/src/learning.js",
-      "sourceSha256": "bc1c82eaedb75451ac7040c8c217512efb574d00731321e155a85cdaf496fadd"
+      "sourceSha256": "11cbd1076a0304a645d7b4f027bc2aabc6e287ca9426bc7b77ada5d234517153"
     },
     "client-sdk/src/queryKeys.js": {
-      "sha256": "17fa091c1f6b3271617f1f1ae7c7b95fd19fcb123cd0b770ad8e048bf3347671",
+      "sha256": "6ee98fb0d60020d4b46c552f5d6f1aef355a5307aaf2a8b18c6140155c10834b",
       "source": "packages/client-sdk/src/queryKeys.js",
-      "sourceSha256": "5580c460fc123a24cdb6f8a0eae3c78a7963f87627e94fea5b5887c99c2288c3"
+      "sourceSha256": "9a111a175d2181614e578fa5e46100efe7b237151cfb4e6f7ab4854981efdba5"
     },
     "client-sdk/src/tutor.js": {
       "sha256": "f392a1bccf045bca83374ffa8352931781e11e1b69b657eb3ab1c937fe070907",
@@ -131,14 +131,14 @@
       "sourceSha256": "2bedfefb0baabc60da5138d334ede1a170eb39aea3ab77de5902c8ad9d2c050e"
     },
     "i18n/keys/lexiconKeys.js": {
-      "sha256": "98d95e02ad2405c2c83189337aa705fc1996d3930290b7766c5c2253ba22dc2e",
+      "sha256": "5135a497f037e573e26121d3ad6d2a913b8535fd346d75e36f173737496d0f22",
       "source": "packages/i18n/keys/lexiconKeys.js",
-      "sourceSha256": "d8c1351bfa21acd950307d2f79760af8588ff0212ba01d422581df1c585435d6"
+      "sourceSha256": "1a2284afca3ee577ae9d6c83101358d873e6429588815c2f5a693cfd6a2bce48"
     },
     "i18n/keys/readingKeys.js": {
-      "sha256": "b23e4c9ba5c8346f912f0edbcdd20da483074f8ca61f3efcecd9cfac142f88ea",
+      "sha256": "f1dfd368c1e0e9d9e3b1e140cb0077ecceb53dae3a8f0a5c44e264d44d7bb0fe",
       "source": "packages/i18n/keys/readingKeys.js",
-      "sourceSha256": "1aa8b3184c5181d464f198a0d0d3e56d5b4b5bafd43039e72ef5313dca1b4d0f"
+      "sourceSha256": "2029dd111a129129391aedac89d83fed60f8836a53d44170f28e1e4b9659a2c4"
     },
     "domain/backgrounds.js": {
       "sha256": "28d96211197258c7cdf3e1b1771624b5b44553059b1668f69953526d54e02410",

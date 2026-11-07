@@ -2,12 +2,12 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Button, ErrorState, Screen, Skeleton, TopBar } from '@components';
 import { api } from '@api';
 import { errorKind, unwrap } from '@shared/api/helpers';
-import { WEB_BASE_URL } from '@shared/constant/config';
+import { API_BASE_URL, WEB_BASE_URL } from '@shared/constant/config';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { useT } from '@shared/translation/useT';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
@@ -60,7 +60,15 @@ export default function PdfScreen() {
       }
     >
       {urlQ.isError || failed ? (
-        <ErrorState kind={urlQ.isError ? errorKind(urlQ.error) : 'server'} onRetry={() => { setFailed(false); urlQ.refetch(); }} />
+        <View style={{ gap: 8 }}>
+          <ErrorState kind={urlQ.isError ? errorKind(urlQ.error) : 'server'} onRetry={() => { setFailed(false); urlQ.refetch(); }} />
+          {/* Son çare: telefonun kendi PDF görüntüleyicisi (süreli bağlantı oturum istemez). */}
+          {urlQ.data ? (
+            <View style={{ paddingHorizontal: 24 }}>
+              <Button title={t('read.pdf.openExternal')} variant="secondary" onPress={() => Linking.openURL(`${API_BASE_URL}${urlQ.data.url}`).catch(() => {})} />
+            </View>
+          ) : null}
+        </View>
       ) : uri ? (
         <WebView
           source={{ uri }}

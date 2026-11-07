@@ -80,6 +80,7 @@ function WordPanel({ req, onSwitch, onClose }) {
       qc.setQueryData(queryKeys.content.lexiconWord(form), (old) => (old ? { ...old, itemCode } : old));
       qc.invalidateQueries({ queryKey: queryKeys.learning.vocabCardByItem(itemCode) });
       qc.invalidateQueries({ queryKey: queryKeys.learning.vocabOverview() });
+      qc.invalidateQueries({ queryKey: queryKeys.learning.vocabMyWords() });
       qc.invalidateQueries({ queryKey: queryKeys.learning.today() });
     },
   });
@@ -164,6 +165,16 @@ function WordPanel({ req, onSwitch, onClose }) {
                   }}
                 />
               ) : null}
+              <Button
+                title={t('lex.myWords')}
+                variant="tertiary"
+                size="md"
+                fullWidth={false}
+                onPress={() => {
+                  onClose();
+                  router.push('/study/vocabulary');
+                }}
+              />
             </View>
           ) : (
             <Button title={t('lex.add')} leftIcon={Plus} loading={add.isPending || card.isFetching} onPress={() => add.mutate()} />

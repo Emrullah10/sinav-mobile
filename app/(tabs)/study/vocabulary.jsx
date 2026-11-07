@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Lock } from 'lucide-react-native';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Button, Card, Chip, QueryBoundary, Screen, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
 import { errorText, unwrap } from '@shared/api/helpers';
@@ -11,6 +11,62 @@ import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
 const PER_DAY = [5, 10, 20];
+
+/** Dokun-çeviriden kaydedilen kelimeler (en yeni önce, sayfa sayfa); dokununca kelimenin ayrıntısı. */
+function SavedWords() {
+  const { t } = useT();
+  const { colors } = useTheme();
+  const q = useInfiniteQuery({
+    queryKey: [...queryKeys.learning.vocabMyWords(), 'list'],
+    queryFn: async ({ pageParam }) => unwrap(await api.learningVocabMyWords({ limit: 30, before: pageParam || undefined })),
+    initialPageParam: null,
+    getNextPageParam: (last) => last?.nextBefore || undefined,
+  });
+  const items = q.data?.pages.flatMap((p) => p?.items || []) || [];
+  const total = q.data?.pages[0]?.total ?? 0;
+  return (
+    <View style={{ gap: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <Text variant="heading-3">{t('vocab.saved.title')}</Text>
+        {total > 0 ? <Text variant="caption" color="tertiary">{t('vocab.saved.count', { n: total })}</Text> : null}
+      </View>
+      {q.isPending ? null : !items.length ? (
+        <Text variant="body-s" color="secondary">{t('vocab.saved.empty')}</Text>
+      ) : (
+        <>
+          <Text variant="body-s" color="secondary">{t('vocab.saved.body')}</Text>
+          <Card style={{ paddingVertical: 4 }}>
+            {items.map((w, i) => (
+              <Pressable
+                key={w.cardCode}
+                accessibilityRole="button"
+                accessibilityLabel={`${w.headword}${w.meaning ? `, ${w.meaning}` : ''}`}
+                onPress={() => router.push(deepLinks.vocabWord(w.itemCode))}
+                style={({ pressed }) => ({
+                  minHeight: 48,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                  paddingVertical: 8,
+                  borderTopWidth: i ? 1 : 0,
+                  borderTopColor: colors.border.default,
+                  opacity: pressed ? 0.6 : 1,
+                })}
+              >
+                <Text variant="body-m" style={{ flex: 1 }} numberOfLines={2}>
+                  <Text variant="label-l">{w.headword}</Text>
+                  {w.meaning ? <Text variant="body-m" color="secondary">{` — ${w.meaning}`}</Text> : null}
+                </Text>
+                {w.state === 'new' ? <Chip size="sm" label={t('vocab.saved.new')} /> : null}
+              </Pressable>
+            ))}
+          </Card>
+          {q.hasNextPage ? <Button title={t('vocab.saved.more')} variant="secondary" size="md" loading={q.isFetchingNextPage} onPress={() => q.fetchNextPage()} /> : null}
+        </>
+      )}
+    </View>
+  );
+}
 
 export default function VocabHome() {
   const { t } = useT();
@@ -48,6 +104,7 @@ export default function VocabHome() {
                 <Text variant="caption" color="tertiary">{t('vocab.nothingDue')}</Text>
               ) : null}
             </Card>
+            <SavedWords />
             <Text variant="heading-3">{t('vocab.decks')}</Text>
             {d.decks.map((deck) => (
               <Card key={deck.key} style={{ gap: 8 }}>
