@@ -15,7 +15,7 @@ import { useTheme } from '@theme';
 
 const FEATURE_ORDER = [
   'questions_per_day', 'tutor_messages_per_day', 'flashcard_reviews_per_day', 'translation_evals_per_day',
-  'mini_exams_per_month', 'full_exams_per_month', 'detailed_analysis', 'score_estimate',
+  'mini_exams_per_month', 'full_exams_per_month', 'detailed_analysis', 'score_estimate', 'read_aloud',
 ];
 
 const limitText = (t, f) => {

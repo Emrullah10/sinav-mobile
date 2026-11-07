@@ -33,9 +33,10 @@ const parseRuns = (parts, lang) => {
  * words / sentences: kelime ve cümle çevirisi açık mı. sentences kapalıyken basılı tutunca `sentenceLock` (i18n anahtarı) gösterilir.
  * onAsk(metin): "Öğretmene sor" bunu çağırır (sohbet ekranında aynı sohbete gönderir).
  * bookCode: kitap okuyucudan; kişisel kitabın cümle çevirileri kitaba bağlı saklanır.
+ * speaking: sesli okunan cümlenin sırası (splitSentences(metin) ile aynı sıra) → vurgulanır.
  * Diğer özellikler (variant, color, style, …) dış Text'e gider.
  */
-export function TapText({ text, runs, lang = 'en', words = true, sentences = true, sentenceLock, onAsk, bookCode, ...rest }) {
+export function TapText({ text, runs, lang = 'en', words = true, sentences = true, sentenceLock, onAsk, bookCode, speaking = null, ...rest }) {
   const lex = useLexicon();
   const owner = useId();
   const { colors } = useTheme();
@@ -83,7 +84,9 @@ export function TapText({ text, runs, lang = 'en', words = true, sentences = tru
           ? { backgroundColor: colors.accent['subtle-bg'], color: colors.accent['subtle-fg'] }
           : active?.kind === 'sentence' && active.sentence === tok.sentence
             ? { backgroundColor: colors.bg.selected }
-            : null;
+            : speaking != null && tok.sentence === speaking
+              ? { backgroundColor: colors.accent['subtle-bg'] }
+              : null;
       if (!tok.word || !en) return hl ? <Span key={key} style={hl}>{tok.text}</Span> : tok.text;
       return (
         <Span

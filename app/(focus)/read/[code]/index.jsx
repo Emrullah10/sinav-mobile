@@ -1,37 +1,41 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, FileText, Languages, List, Type } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, FileText, Headphones, Languages, List, Type } from 'lucide-react-native';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, FlatList, Pressable, View } from 'react-native';
 import { Button, ErrorState, IconButton, ProgressBar, QueryBoundary, Screen, Sheet, Skeleton, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
 import { errorKind, unwrap } from '@shared/api/helpers';
+import { useAuthStore } from '@shared/auth/authStore';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { useT } from '@shared/translation/useT';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useTheme } from '@theme';
 import { TapText } from '@features/lexicon/TapText';
+import { useLexicon } from '@features/lexicon/LexiconProvider';
 import { ParagraphTranslation } from '@features/reading/ParagraphTranslation';
+import { ReadAloudBar } from '@features/reading/ReadAloudBar';
 import { ReaderSettingsSheet } from '@features/reading/ReaderSettingsSheet';
 import { sectionTitle } from '@features/reading/helpers';
+import { useReadAloud } from '@features/reading/useReadAloud';
 import { useReaderPrefs } from '@features/reading/useReaderPrefs';
 import { useHeartbeat } from '@hooks/useHeartbeat';
 
 const SAVE_EVERY_MS = 4000;
 const VIEWABILITY = { itemVisiblePercentThreshold: 10 };
 
-const Block = memo(function Block({ block, lang, bookCode, textStyle }) {
+const Block = memo(function Block({ block, lang, bookCode, textStyle, speaking }) {
   const { t } = useT();
   const { colors } = useTheme();
   const [open, setOpen] = useState(false);
   if (block.t === 'h') {
     return (
-      <TapText variant="heading-3" accessibilityRole="header" text={block.x} lang={lang} bookCode={bookCode} style={{ marginTop: 16, marginBottom: 10 }} />
+      <TapText variant="heading-3" accessibilityRole="header" text={block.x} lang={lang} bookCode={bookCode} speaking={speaking} style={{ marginTop: 16, marginBottom: 10 }} />
     );
   }
   return (
     <View style={{ marginBottom: 16 }}>
-      <TapText variant="reading-l" text={block.x} lang={lang} bookCode={bookCode} style={textStyle} />
+      <TapText variant="reading-l" text={block.x} lang={lang} bookCode={bookCode} speaking={speaking} style={textStyle} />
       {open ? (
         <ParagraphTranslation text={block.x} lang={lang} bookCode={bookCode} onClose={() => setOpen(false)} />
       ) : (
@@ -129,9 +133,54 @@ export default function ReaderScreen() {
     };
   }, [save]);
 
+  // Sesli okuma (abonelik): cihazın konuşma motoru. Bölüm bitince sonraki bölüme geçip sürer.
+  const authed = useAuthStore((s) => s.status === 'authenticated');
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const entQ = useQuery({ queryKey: queryKeys.billing.entitlements(), enabled: authed && !isGuest, queryFn: async () => unwrap(await api.billingEntitlementsGet()) });
+  const canListen = Boolean(entQ.data?.features?.read_aloud?.enabled);
+  const continueNext = useRef(false);
+  // Bölüm sesli okunarak bitti: okuma kaydedilir, sonraki bölüme geçilir; yüklenince baştan sürer.
+  const onAloudEnd = useCallback(() => {
+    const secs = book?.sections || [];
+    const at = secs.findIndex((x) => x.position === position);
+    const n = at >= 0 ? secs[at + 1] : null;
+    if (!n) return;
+    save();
+    continueNext.current = true;
+    setVisible(0);
+    setPicked(n.position);
+  }, [book, position, save]);
+  const aloud = useReadAloud({ blocks: section?.blocks, lang, onEnd: onAloudEnd });
+  const lex = useLexicon();
+  // Sözlük/çeviri açılınca okuma duraklar (kullanıcı kelimeye bakıyor).
+  useEffect(() => {
+    if (lex?.active && aloud.status === 'playing') aloud.pause();
+  }, [lex?.active]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Yeni bölüm yüklendi ve önceki bölüm sesli okunarak bittiyse baştan sürer.
+  useEffect(() => {
+    if (!section || !continueNext.current) return;
+    continueNext.current = false;
+    aloud.playFrom(0);
+  }, [section]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Okunan blok ekranda kalsın.
+  const speakingBlock = aloud.current?.block ?? null;
+  useEffect(() => {
+    if (speakingBlock == null || aloud.status !== 'playing') return;
+    list.current?.scrollToIndex({ index: speakingBlock, animated: true, viewPosition: 0.2 });
+  }, [speakingBlock]); // eslint-disable-line react-hooks/exhaustive-deps
+  const listen = () => {
+    if (!canListen) {
+      toast.show({ message: t('read.aloud.locked'), actionLabel: t('read.aloud.upgrade'), onAction: () => router.push(deepLinks.premium) });
+      return;
+    }
+    if (aloud.status === 'idle') aloud.playFrom(visible);
+    else aloud.toggle();
+  };
+
   const goSection = (n) => {
     save();
     toc.current?.dismiss();
+    aloud.stop();
     setVisible(0);
     setPicked(n);
   };
@@ -159,6 +208,12 @@ export default function ReaderScreen() {
         onBack={() => router.back()}
         right={
           <View style={{ flexDirection: 'row' }}>
+            <IconButton
+              icon={Headphones}
+              variant={aloud.status === 'idle' ? 'standard' : 'tonal'}
+              accessibilityLabel={t('read.aloud.listen')}
+              onPress={listen}
+            />
             <IconButton icon={List} accessibilityLabel={t('read.reader.toc')} onPress={() => toc.current?.present()} />
             <IconButton icon={Type} accessibilityLabel={t('read.reader.settings')} onPress={() => settings.current?.present()} />
             {book?.hasFile ? (
@@ -176,7 +231,14 @@ export default function ReaderScreen() {
   );
 
   return (
-    <Screen header={header} scroll={false} padded={false} keyboardAvoiding={false} edges={[]}>
+    <Screen
+      header={header}
+      footer={aloud.status !== 'idle' ? <ReadAloudBar aloud={aloud} /> : undefined}
+      scroll={false}
+      padded={false}
+      keyboardAvoiding={false}
+      edges={[]}
+    >
       <QueryBoundary query={bookQ} skeleton={<View style={{ padding: 16, gap: 12 }}><Skeleton height={32} /><Skeleton height={240} /></View>}>
         {() =>
           sectionQ.isError ? (
@@ -189,8 +251,10 @@ export default function ReaderScreen() {
               key={`section-${position}`}
               data={section.blocks}
               keyExtractor={(_b, i) => `${position}.${i}`}
-              renderItem={({ item }) => <Block block={item} lang={lang} bookCode={book.code} textStyle={textStyle} />}
-              extraData={textStyle}
+              renderItem={({ item, index }) => (
+                <Block block={item} lang={lang} bookCode={book.code} textStyle={textStyle} speaking={speakingBlock === index ? aloud.current.sentence : null} />
+              )}
+              extraData={[textStyle, aloud.current]}
               initialNumToRender={14}
               maxToRenderPerBatch={10}
               windowSize={9}

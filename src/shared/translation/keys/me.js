@@ -143,6 +143,7 @@ export default {
   'pay.feature.full_exams_per_month': k('Aylık tam deneme', 'Monthly full exams'),
   'pay.feature.detailed_analysis': k('Ayrıntılı deneme analizi', 'Detailed exam analysis'),
   'pay.feature.score_estimate': k('Puan tahmini', 'Score estimate'),
+  'pay.feature.read_aloud': k('Kitapları sesli okuma', 'Read books aloud'),
   'pay.unlimited': k('Sınırsız', 'Unlimited'),
   'pay.included': k('Dahil', 'Included'),
   'pay.notIncluded': k('Yok', 'Not included'),
