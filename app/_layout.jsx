@@ -7,6 +7,7 @@ import '@shared/translation/i18n';
 import { AppProviders } from '@shared/providers/AppProviders';
 import { initMonitoring, wrapRoot } from '@shared/monitoring/report';
 import { RemindersSync } from '@shared/notifications/RemindersSync';
+import { UpdateBanner } from '@features/update/UpdateBanner';
 import { PreferencesSync } from '@features/background/PreferencesSync';
 import { PurchasesIdentity } from '@shared/purchases/PurchasesIdentity';
 import { RootErrorFallback } from '@shared/RootErrorFallback';
@@ -47,6 +48,7 @@ function RootStack() {
         <Stack.Screen name="(focus)" options={{ gestureEnabled: false, animation: 'fade' }} />
         <Stack.Screen name="feedback" options={{ presentation: 'modal' }} />
       </Stack>
+      <UpdateBanner />
       <ThemeTransitionLayer />
     </>
   );

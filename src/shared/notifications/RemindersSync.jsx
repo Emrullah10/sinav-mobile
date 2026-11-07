@@ -10,6 +10,12 @@ import { openDeepLink } from '@shared/navigation/deepLinks';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
 import { cancelDailyReminder, scheduleDailyReminder } from './reminders';
+import { cancelWordOfDay, scheduleWordOfDay } from './wordOfDay';
+
+const localDay = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
 /** Kayıtlı kullanıcının tercihine göre günlük yerel hatırlatmayı kurar/iptal eder; bildirime dokunma Bugün'e götürür. Görünmez. */
 export function RemindersSync() {
@@ -24,6 +30,29 @@ export function RemindersSync() {
     queryFn: async () => unwrap(await api.identityNotificationPrefsGet()),
   });
   const p = prefs.data;
+  // Günün kelimesi: tercihi açıksa önümüzdeki 7 günün kelimeleri (günde bir kez yenilenir).
+  const wotdOn = authed && p != null && p.wordOfDayEnabled !== false;
+  const today = localDay();
+  const daily = useQuery({
+    queryKey: ['content', 'vocabDaily', today],
+    enabled: wotdOn,
+    staleTime: 6 * 60 * 60 * 1000,
+    queryFn: async () => unwrap(await api.contentVocabDaily({ from: today, days: 7 })),
+  });
+
+  useEffect(() => {
+    if (status === 'unauthenticated' || isGuest || (p && p.wordOfDayEnabled === false)) {
+      cancelWordOfDay();
+      return;
+    }
+    if (!wotdOn || !daily.data) return;
+    scheduleWordOfDay({
+      items: daily.data,
+      channelName: t('wotd.channel'),
+      titleOf: (w) => t(`wotd.title.${w.kind}`, { w: w.headword }),
+      bodyOf: (w) => [w.meaning, w.example?.en ? `“${w.example.en}”` : null].filter(Boolean).join(' · '),
+    }).catch((err) => report(err, { where: 'wordOfDay.schedule' }));
+  }, [status, isGuest, wotdOn, p?.wordOfDayEnabled, daily.data, language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (status === 'unauthenticated' || isGuest) {

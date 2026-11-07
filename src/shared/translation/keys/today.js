@@ -1,6 +1,16 @@
 const k = (tr, en) => ({ tr, en });
 export default {
   'reminder.title': k('Bugünkü çalışman seni bekliyor', 'Your study session is waiting'),
+  'wotd.channel': k('Günün kelimesi', 'Word of the day'),
+  'update.title': k('Yeni sürüm var', 'A new version is available'),
+  'update.body': k('Son yenilikler için uygulamayı güncelle.', 'Update the app to get the latest changes.'),
+  'update.cta': k('Güncelle', 'Update'),
+  'update.later': k('Sonra', 'Later'),
+  'wotd.title.word': k('Günün kelimesi: {{w}}', 'Word of the day: {{w}}'),
+  'wotd.title.conjunction': k('Günün bağlacı: {{w}}', 'Connector of the day: {{w}}'),
+  'wotd.title.preposition': k('Günün edatı: {{w}}', 'Preposition of the day: {{w}}'),
+  'wotd.title.connector': k('Günün geçiş ifadesi: {{w}}', 'Linking phrase of the day: {{w}}'),
+  'wotd.title.phrasal': k("Günün phrasal verb'ü: {{w}}", 'Phrasal verb of the day: {{w}}'),
   'reminder.body': k('Birkaç dakikanı ayır; serini koru.', 'Take a few minutes and keep your streak going.'),
   'today.sum.title': k('Günün özeti', "Today's summary"),
   'today.sum.allDone': k('Bugünkü görevlerin tamam. Tebrikler!', "Today's tasks are done. Well done!"),

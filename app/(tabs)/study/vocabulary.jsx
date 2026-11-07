@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Lock } from 'lucide-react-native';
-import { Pressable, View } from 'react-native';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowRight, Bookmark, Layers, Lock } from 'lucide-react-native';
+import { View } from 'react-native';
 import { Button, Card, Chip, QueryBoundary, Screen, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
 import { errorText, unwrap } from '@shared/api/helpers';
@@ -12,59 +12,60 @@ import { useTheme } from '@theme';
 
 const PER_DAY = [5, 10, 20];
 
-/** Dokun-çeviriden kaydedilen kelimeler (en yeni önce, sayfa sayfa); dokununca kelimenin ayrıntısı. */
-function SavedWords() {
+/** Desteler arasında "Kaydettiğin kelimeler" kartı: sayılar + son eklenenler + "Tümünü gör" (tam liste ayrı ekranda). */
+function SavedWordsCard() {
   const { t } = useT();
-  const { colors } = useTheme();
-  const q = useInfiniteQuery({
-    queryKey: [...queryKeys.learning.vocabMyWords(), 'list'],
-    queryFn: async ({ pageParam }) => unwrap(await api.learningVocabMyWords({ limit: 30, before: pageParam || undefined })),
-    initialPageParam: null,
-    getNextPageParam: (last) => last?.nextBefore || undefined,
+  const { colors, radius } = useTheme();
+  const q = useQuery({
+    queryKey: [...queryKeys.learning.vocabMyWords(), 'preview'],
+    queryFn: async () => unwrap(await api.learningVocabMyWords({ limit: 6 })),
   });
-  const items = q.data?.pages.flatMap((p) => p?.items || []) || [];
-  const total = q.data?.pages[0]?.total ?? 0;
+  const d = q.data;
+  const total = d?.total || 0;
+  const c = d?.counts || {};
+  const parts = [
+    c.due ? t('vocab.saved.n.due', { n: c.due }) : null,
+    c.new ? t('vocab.saved.n.new', { n: c.new }) : null,
+    c.learning ? t('vocab.saved.n.learning', { n: c.learning }) : null,
+    c.review ? t('vocab.saved.n.review', { n: c.review }) : null,
+  ].filter(Boolean);
   return (
-    <View style={{ gap: 8 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
-        <Text variant="heading-3">{t('vocab.saved.title')}</Text>
-        {total > 0 ? <Text variant="caption" color="tertiary">{t('vocab.saved.count', { n: total })}</Text> : null}
+    <Card style={{ gap: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <View style={{ width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.accent['subtle-bg'] }}>
+          <Bookmark size={18} color={colors.accent.default} />
+        </View>
+        <Text variant="title" style={{ flex: 1 }}>{t('vocab.saved.title')}</Text>
+        {total > 0 ? <Text variant="caption" color="secondary">{t('vocab.saved.count', { n: total })}</Text> : null}
       </View>
-      {q.isPending ? null : !items.length ? (
-        <Text variant="body-s" color="secondary">{t('vocab.saved.empty')}</Text>
+      {q.isPending ? null : !total ? (
+        <>
+          <Text variant="body-s" color="secondary">{t('vocab.saved.empty')}</Text>
+          <Button title={t('vocab.saved.toLibrary')} variant="secondary" size="md" fullWidth={false} onPress={() => router.push(deepLinks.library)} />
+        </>
       ) : (
         <>
-          <Text variant="body-s" color="secondary">{t('vocab.saved.body')}</Text>
-          <Card style={{ paddingVertical: 4 }}>
-            {items.map((w, i) => (
-              <Pressable
-                key={w.cardCode}
-                accessibilityRole="button"
-                accessibilityLabel={`${w.headword}${w.meaning ? `, ${w.meaning}` : ''}`}
-                onPress={() => router.push(deepLinks.vocabWord(w.itemCode))}
-                style={({ pressed }) => ({
-                  minHeight: 48,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 8,
-                  paddingVertical: 8,
-                  borderTopWidth: i ? 1 : 0,
-                  borderTopColor: colors.border.default,
-                  opacity: pressed ? 0.6 : 1,
-                })}
-              >
-                <Text variant="body-m" style={{ flex: 1 }} numberOfLines={2}>
-                  <Text variant="label-l">{w.headword}</Text>
-                  {w.meaning ? <Text variant="body-m" color="secondary">{` — ${w.meaning}`}</Text> : null}
-                </Text>
-                {w.state === 'new' ? <Chip size="sm" label={t('vocab.saved.new')} /> : null}
-              </Pressable>
+          <Text variant="body-s" color="secondary">{t('vocab.saved.short')}</Text>
+          {parts.length ? <Text variant="caption" color="tertiary">{parts.join(' · ')}</Text> : null}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            {d.items.map((w) => (
+              <View key={w.cardCode} style={{ paddingHorizontal: 10, paddingVertical: 3, borderRadius: radius.full, backgroundColor: colors.bg.pressed }}>
+                <Text variant="label-m" numberOfLines={1}>{w.headword}</Text>
+              </View>
             ))}
-          </Card>
-          {q.hasNextPage ? <Button title={t('vocab.saved.more')} variant="secondary" size="md" loading={q.isFetchingNextPage} onPress={() => q.fetchNextPage()} /> : null}
+            {total > d.items.length ? (
+              <View style={{ paddingHorizontal: 10, paddingVertical: 3, borderRadius: radius.full, borderWidth: 1, borderStyle: 'dashed', borderColor: colors.border.strong }}>
+                <Text variant="label-m" color="secondary">{`+${total - d.items.length}`}</Text>
+              </View>
+            ) : null}
+          </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            <Button title={t('vocab.saved.study')} size="md" fullWidth={false} leftIcon={Layers} onPress={() => router.push({ pathname: deepLinks.vocabReview, params: { source: 'saved' } })} />
+            <Button title={t('vocab.saved.all')} variant="secondary" size="md" fullWidth={false} rightIcon={ArrowRight} onPress={() => router.push('/study/saved-words')} />
+          </View>
         </>
       )}
-    </View>
+    </Card>
   );
 }
 
@@ -104,8 +105,8 @@ export default function VocabHome() {
                 <Text variant="caption" color="tertiary">{t('vocab.nothingDue')}</Text>
               ) : null}
             </Card>
-            <SavedWords />
             <Text variant="heading-3">{t('vocab.decks')}</Text>
+            <SavedWordsCard />
             {d.decks.map((deck) => (
               <Card key={deck.key} style={{ gap: 8 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

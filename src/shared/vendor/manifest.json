@@ -1,7 +1,7 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "ebf3bf97e458d0459e8d6ba956e41635e432ef9d",
+    "sha": "445bee2d2a4b00ffbb3e47e4223129fcec43ee3d",
     "dirty": false
   },
   "files": {
@@ -21,9 +21,9 @@
       "sourceSha256": "42e03eaccd7de523eb5008343abceb8614a4a5051c58e3005b4e3a69a1694195"
     },
     "client-sdk/src/content.js": {
-      "sha256": "35ed74914e8b0806ff165d7d4ad24dcdf66c7378b7b74f575dc07208d50934cd",
+      "sha256": "81bb6b53df11d7e8d76ee8780bd611154c01ef90c1997906307aebc53d3564ca",
       "source": "packages/client-sdk/src/content.js",
-      "sourceSha256": "71a1c91b3c716a2c45687b01b43fbe607a129e4106fb2782d53e2fb5ac54f11b"
+      "sourceSha256": "73607503b807126b3fa1c770e115cd9de4e8f3afce47663bb81a299973dcbb74"
     },
     "client-sdk/src/deepLinks.js": {
       "sha256": "1b9b179dc087ee32ff494ca8a8583ac45da588380cae5cf56e23c2ab2f4ed2a7",
@@ -41,9 +41,9 @@
       "sourceSha256": "278dc1a64412e81d5301e50cfaeb766459efc5cfad4e531b96e18a0cc202e91a"
     },
     "client-sdk/src/identity.js": {
-      "sha256": "252fed0cc21948b171a0946fe6c4d3d736d4c0741ca7ad58d9d33b9a2711966b",
+      "sha256": "9585ca2a995c38a8cf8352d8468a59e35ce15ea5ee549f3a4700b9bec510775e",
       "source": "packages/client-sdk/src/identity.js",
-      "sourceSha256": "c9893c24a06310cb89893d0425fead621de7f3d3e7c56e6c1dabc4e3f4a6dcf9"
+      "sourceSha256": "49e1f1d9da0552f6adfa0c75eb8ef0d4beb58d6927c90af23db17acafa8ede59"
     },
     "client-sdk/src/learning.js": {
       "sha256": "d3de65cc6d3e96b5aecbbf92e13d2cc9efce111ba3ab83a4179b15c5c0d49a08",

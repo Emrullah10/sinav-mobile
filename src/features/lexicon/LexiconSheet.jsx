@@ -172,7 +172,7 @@ function WordPanel({ req, onSwitch, onClose }) {
                 fullWidth={false}
                 onPress={() => {
                   onClose();
-                  router.push('/study/vocabulary');
+                  router.push('/study/saved-words');
                 }}
               />
             </View>

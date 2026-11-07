@@ -192,6 +192,18 @@ export default function Settings() {
                 </View>
               </View>
             ) : null}
+            <SwitchRow
+              label={t('settings.wordOfDay')}
+              description={t('settings.wordOfDayDesc')}
+              value={n.wordOfDayEnabled !== false}
+              onValueChange={async (v) => {
+                if (v && !(await ensureNotificationPermission().catch(() => false))) {
+                  toast.show({ message: t('settings.notifDenied'), tone: 'warning' });
+                  return;
+                }
+                patchNotif.mutate({ wordOfDayEnabled: v });
+              }}
+            />
           </Section>
         ) : null}
 

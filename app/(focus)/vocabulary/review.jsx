@@ -71,7 +71,8 @@ export default function VocabReview() {
       try {
         let code = params.session ? Number(params.session) : null;
         if (!code) {
-          const res = unwrap(await api.learningVocabReviewStart({ limit: 20 }));
+          // source=saved: yalnız kaydedilen kelimeler (vadesi gelmemişler de sıraya girer).
+          const res = unwrap(await api.learningVocabReviewStart(params.source === 'saved' ? { limit: 20, source: 'dictionary', ahead: true } : { limit: 20 }));
           if (res.empty || !res.session) return alive && setState({ phase: 'empty' });
           code = res.session.code;
         }
@@ -89,7 +90,7 @@ export default function VocabReview() {
     return () => {
       alive = false;
     };
-  }, [params.session, complete, showCard]);
+  }, [params.session, params.source, complete, showCard]);
 
   const rate = async (rating) => {
     if (!card || !session) return;
@@ -140,7 +141,7 @@ export default function VocabReview() {
   if (state.phase === 'error') {
     return (
       <Screen header={<TopBar variant="focus" onClose={close} />}>
-        <ErrorState kind={errorKind(state.error)} onRetry={() => router.replace('/vocabulary/review')} />
+        <ErrorState kind={errorKind(state.error)} onRetry={() => router.replace({ pathname: '/vocabulary/review', params: params.source ? { source: params.source } : {} })} />
       </Screen>
     );
   }

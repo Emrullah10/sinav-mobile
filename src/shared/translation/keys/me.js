@@ -86,6 +86,8 @@ export default {
   'settings.historyCleared': k('Sohbet geçmişin silindi.', 'Your chat history was deleted.'),
   'settings.notifications': k('Hatırlatmalar', 'Reminders'),
   'settings.daily': k('Günlük hatırlatma', 'Daily reminder'),
+  'settings.wordOfDay': k('Günün kelimesi', 'Word of the day'),
+  'settings.wordOfDayDesc': k('Her gün öğlen bir kelime, bağlaç ya da phrasal verb; anlamı ve örnek cümlesiyle.', 'Every noon, a word, connector or phrasal verb with its meaning and an example.'),
   'settings.dailyTime': k('Hatırlatma saati', 'Reminder time'),
   'settings.exam': k('Deneme tercihleri', 'Exam preferences'),
   'settings.mockMode': k('Varsayılan deneme modu', 'Default exam mode'),
