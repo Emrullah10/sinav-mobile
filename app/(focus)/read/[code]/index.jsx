@@ -150,7 +150,7 @@ export default function ReaderScreen() {
     setVisible(0);
     setPicked(n.position);
   }, [book, position, save]);
-  const aloud = useReadAloud({ blocks: section?.blocks, lang, onEnd: onAloudEnd });
+  const aloud = useReadAloud({ blocks: section?.blocks, lang, onEnd: onAloudEnd, code: book?.code, position: section?.position, title: book?.title });
   const lex = useLexicon();
   // Sözlük/çeviri açılınca okuma duraklar (kullanıcı kelimeye bakıyor).
   useEffect(() => {

@@ -10,12 +10,9 @@ export function ReadAloudBar({ aloud }) {
   const { t } = useT();
   const { colors, radius } = useTheme();
   const playing = aloud.status === 'playing';
-  const at = Math.max(
-    0,
-    READ_RATES.findIndex((r) => r.value === aloud.rate),
-  );
+  const at = READ_RATES[aloud.rate] ? aloud.rate : 1;
   const rate = READ_RATES[at];
-  const nextRate = READ_RATES[(at + 1) % READ_RATES.length];
+  const next = (at + 1) % READ_RATES.length;
   return (
     <View style={{ gap: 10 }}>
       {aloud.showVoiceTip ? (
@@ -42,7 +39,7 @@ export function ReadAloudBar({ aloud }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('read.aloud.speed', { n: rate.label })}
-          onPress={() => aloud.setRate(nextRate.value)}
+          onPress={() => aloud.setRate(next)}
           style={({ pressed }) => ({
             minWidth: 52,
             minHeight: 44,

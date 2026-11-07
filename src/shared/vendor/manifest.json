@@ -1,7 +1,7 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "0972e9ffb26f41a7bd384493cf7bc1960638542f",
+    "sha": "5d15678439f17e57e51fe52027ab6d92d9d986d3",
     "dirty": false
   },
   "files": {
@@ -21,9 +21,9 @@
       "sourceSha256": "42e03eaccd7de523eb5008343abceb8614a4a5051c58e3005b4e3a69a1694195"
     },
     "client-sdk/src/content.js": {
-      "sha256": "68b2d8f191d7c90abb612c91bf96564b395fc08272386132adb8244553ccb17e",
+      "sha256": "ecc40f0a18dab9ac2316c7b3d0c9cf07ec8f3d43577cf01786ea52cb0110216e",
       "source": "packages/client-sdk/src/content.js",
-      "sourceSha256": "b8e06fd569bf3b25c7e4d2b3457566fc11f88bcb958e8fd7e7450349908fd6e9"
+      "sourceSha256": "9eba8ec300a2bf37fb060ddfce6a1f7f247ce4e716aa9db5e0ab68e47c6f74ee"
     },
     "client-sdk/src/deepLinks.js": {
       "sha256": "b9b7c3690001f860b49414cbb19ffab3107821fe05aa9e1ff3bf03cd9280b331",
@@ -136,9 +136,9 @@
       "sourceSha256": "d8c1351bfa21acd950307d2f79760af8588ff0212ba01d422581df1c585435d6"
     },
     "i18n/keys/readingKeys.js": {
-      "sha256": "fa3cc86820f9130576006cf7d57ff695d85a8a3af9ff2ee68bca7dace456f9ad",
+      "sha256": "bc3c72d300d2242575be0e903c5db056921ea13c33ee3131877d846f64e71c18",
       "source": "packages/i18n/keys/readingKeys.js",
-      "sourceSha256": "999d045815534c4a73c6e1fb94e3273f2f96a4a0f0468c93fa8ec753da0403c0"
+      "sourceSha256": "93cdf348dcfe3f74ee4eb1fdc26183ca3e655d3f5eeba957fc697438d720c597"
     },
     "domain/backgrounds.js": {
       "sha256": "28d96211197258c7cdf3e1b1771624b5b44553059b1668f69953526d54e02410",
