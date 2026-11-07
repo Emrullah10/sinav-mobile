@@ -144,6 +144,7 @@ export default {
   'pay.feature.detailed_analysis': k('Ayrıntılı deneme analizi', 'Detailed exam analysis'),
   'pay.feature.score_estimate': k('Puan tahmini', 'Score estimate'),
   'pay.feature.read_aloud': k('Kitapları sesli okuma', 'Read books aloud'),
+  'pay.feature.book_quiz': k('Kitaptan soru çözme', 'Questions on each book'),
   'pay.unlimited': k('Sınırsız', 'Unlimited'),
   'pay.included': k('Dahil', 'Included'),
   'pay.notIncluded': k('Yok', 'Not included'),

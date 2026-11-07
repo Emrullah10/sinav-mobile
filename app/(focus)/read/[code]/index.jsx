@@ -1,6 +1,6 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, FileText, Headphones, Languages, List, Type } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, FileText, Headphones, Languages, List, ListChecks, Type } from 'lucide-react-native';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, FlatList, Pressable, View } from 'react-native';
 import { Button, ErrorState, IconButton, ProgressBar, QueryBoundary, Screen, Sheet, Skeleton, Text, TopBar, useToast } from '@components';
@@ -272,6 +272,14 @@ export default function ReaderScreen() {
                 </View>
               }
               ListFooterComponent={
+                <View>
+                {!next ? (
+                  <View style={{ gap: 8, marginTop: 24, padding: 16, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border.default, backgroundColor: colors.bg.surface }}>
+                    <Text variant="title">{t('read.quiz.ctaBook')}</Text>
+                    <Text variant="body-s" color="secondary">{t('read.quiz.ctaBody')}</Text>
+                    <Button title={t('read.quiz.cta')} variant="secondary" size="md" leftIcon={ListChecks} onPress={() => router.push(deepLinks.readerQuiz(book.code))} />
+                  </View>
+                ) : null}
                 <View style={{ flexDirection: 'row', gap: 8, marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.border.default }}>
                   {prev ? <Button title={t('read.reader.prev')} leftIcon={ChevronLeft} variant="secondary" size="md" style={{ flex: 1 }} onPress={() => goSection(prev.position)} /> : null}
                   {next ? (
@@ -279,6 +287,7 @@ export default function ReaderScreen() {
                   ) : (
                     <Button title={t('read.reader.finish')} size="md" style={{ flex: 1 }} onPress={finish} />
                   )}
+                </View>
                 </View>
               }
             />

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, Check, FileText, Pencil, ScanLine, Trash2 } from 'lucide-react-native';
+import { BookOpen, Check, FileText, ListChecks, Pencil, ScanLine, Trash2 } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { Banner, Button, Chip, IconButton, ProgressBar, QueryBoundary, Screen, Sheet, Text, TextField, TopBar, useToast } from '@components';
@@ -147,6 +147,7 @@ export default function BookDetailScreen() {
                 <View style={{ gap: 8 }}>
                   <Button title={book.progress ? t('read.detail.continue') : t('read.detail.start')} leftIcon={BookOpen} onPress={() => router.push(deepLinks.reader(book.code))} />
                   {book.hasFile ? <Button title={t('read.detail.original')} variant="secondary" leftIcon={FileText} onPress={() => router.push(deepLinks.readerPdf(book.code))} /> : null}
+                  <Button title={t('read.quiz.cta')} variant="secondary" leftIcon={ListChecks} onPress={() => router.push(deepLinks.readerQuiz(book.code))} />
                 </View>
               ) : null}
 
