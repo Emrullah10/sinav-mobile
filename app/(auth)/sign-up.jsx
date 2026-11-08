@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { AuthShell, Banner, Button, TextField, Text } from '@components';
 import { api } from '@api';
-import { errorText, unwrap } from '@shared/api/helpers';
+import { apiErrorCode, errorText, unwrap } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
 import { ensureSession } from '@shared/auth/session';
 import { finishAuth } from '@shared/auth/finishAuth';
 import { useCooldown } from '@hooks/useCooldown';
 import { useT } from '@shared/translation/useT';
+import { SocialButtons } from '@features/auth/SocialButtons';
+import { takePendingSocial } from '@features/auth/pendingSocial';
 import { useTheme } from '@theme';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,6 +74,11 @@ export default function SignUp() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [fieldError, setFieldError] = useState({});
+  // Google / Apple jetonu onay bekliyorsa (girişten "kayıt yok" ile gelindiyse ya da burada seçildiyse) onay adımı gösterilir.
+  const [social, setSocial] = useState(() => {
+    const tok = takePendingSocial();
+    return tok ? { ...tok, fromSignIn: true } : null;
+  });
   const cooldown = useCooldown();
 
   const run = async (fn) => {
@@ -84,6 +91,34 @@ export default function SignUp() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const consents = () => [
+    { type: 'kvkk_notice', granted: kvkk },
+    { type: 'terms_of_use', granted: terms },
+    { type: 'marketing_email', granted: marketing },
+  ];
+  // Önce onaysız denenir: hesap zaten varsa giriş yapar; misafir yükseltmesi onay isterse onay adımına geçilir.
+  const socialRegister = async (tok, withConsents) => {
+    if (status !== 'authenticated') await ensureSession();
+    try {
+      const res = await api.identityAuthSocialRegister({
+        provider: tok.provider,
+        idToken: tok.idToken,
+        nonce: tok.nonce,
+        displayName: name.trim() || tok.name || undefined,
+        consents: withConsents ? consents() : [],
+      });
+      await finishAuth(unwrap(res));
+    } catch (e) {
+      if (apiErrorCode(e) !== 'AUTH_CONSENT_REQUIRED') throw e;
+      setSocial(tok);
+    }
+  };
+  const onSocial = (tok) => run(() => socialRegister(tok, false));
+  const submitSocial = () => {
+    if (!kvkk || !terms) return setError(t('auth.consent.required'));
+    run(() => socialRegister(social, true));
   };
 
   const sendCode = () => {
@@ -117,6 +152,41 @@ export default function SignUp() {
       await finishAuth(unwrap(res));
     });
   };
+
+  if (social) {
+    return (
+      <AuthShell title={t('auth.social.consentTitle')}>
+        {error ? <Banner tone="danger" message={error} /> : null}
+        {social.fromSignIn ? (
+          <Text variant="body-m" color="secondary">
+            {t('auth.social.notRegistered')}
+          </Text>
+        ) : null}
+        <TextField
+          label={t('auth.signUp.name')}
+          value={name}
+          onChangeText={setName}
+          placeholder={social.name || undefined}
+          autoComplete="name"
+          textContentType="name"
+          maxLength={60}
+        />
+        <Consent label={t('auth.consent.kvkk')} checked={kvkk} onChange={setKvkk} legal="kvkk_notice" required />
+        <Consent label={t('auth.consent.terms')} checked={terms} onChange={setTerms} legal="terms_of_use" required />
+        <Consent label={t('auth.consent.marketing')} checked={marketing} onChange={setMarketing} />
+        <Button title={t('auth.signUp.submit')} onPress={submitSocial} loading={busy} />
+        <Button
+          title={t('common.back')}
+          variant="tertiary"
+          size="md"
+          onPress={() => {
+            setError(null);
+            setSocial(null);
+          }}
+        />
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell title={t('auth.signUp.title')} subtitle={t('auth.signUp.subtitle')}>
@@ -171,6 +241,9 @@ export default function SignUp() {
       ) : (
         <Button title={t('auth.sendCode')} onPress={sendCode} loading={busy} />
       )}
+      {!codeSent ? (
+        <SocialButtons mode="signup" disabled={busy} onToken={onSocial} onError={() => setError(t('auth.social.failed'))} />
+      ) : null}
       {!isGuest || status !== 'authenticated' ? (
         <View style={{ alignItems: 'center' }}>
           <Button

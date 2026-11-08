@@ -7,6 +7,10 @@ const isProd =
 
 // EAS: `eas init` projectId'yi üretir; EAS_PROJECT_ID/EXPO_OWNER ile (eas.json env) ya da buraya yazılır.
 const projectId = process.env.EAS_PROJECT_ID;
+// Google ile giriş (Google Cloud projesi odak-514117). Kimlikler gizli değil; ID token sunucuda doğrulanır.
+const GOOGLE_WEB_CLIENT_ID = '741005012341-k7ro436cf266i6jq105kbii8jm88p3pk.apps.googleusercontent.com';
+const GOOGLE_IOS_CLIENT_ID = '741005012341-59oo9h8okdacu7rmfqek4em23rd6n28p.apps.googleusercontent.com';
+const GOOGLE_IOS_URL_SCHEME = `com.googleusercontent.apps.${GOOGLE_IOS_CLIENT_ID.replace('.apps.googleusercontent.com', '')}`;
 // Sentry kaynak haritası yüklemesi yalnız organizasyon/proje verilmişse (derleme ortamında) etkinleşir.
 const sentry = process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
   ? [['@sentry/react-native/expo', { organization: process.env.SENTRY_ORG, project: process.env.SENTRY_PROJECT }]]
@@ -34,6 +38,7 @@ module.exports = () => ({
       buildNumber: '9',
       // Uygulama dikey kilitli; iPad'de Split View için tüm yönler gerekir, yoksa yükleme reddedilir.
       requireFullScreen: true,
+      usesAppleSignIn: true,
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
         CFBundleAllowMixedLocalizations: true,
@@ -85,12 +90,16 @@ module.exports = () => ({
           microphonePermission: 'Hata ya da önerini sesli anlatmak istediğinde mikrofon kullanılır. Kayıt yalnız sen gönderirsen bize ulaşır.',
         },
       ],
+      'expo-apple-authentication',
+      ['@react-native-google-signin/google-signin', { iosUrlScheme: GOOGLE_IOS_URL_SCHEME }],
       ['expo-build-properties', { android: { usesCleartextTraffic: !isProd } }],
       ...sentry,
     ],
     experiments: { typedRoutes: false },
     extra: {
       appVariant: isProd ? 'production' : 'development',
+      googleWebClientId: GOOGLE_WEB_CLIENT_ID,
+      googleIosClientId: GOOGLE_IOS_CLIENT_ID,
       ...(projectId ? { eas: { projectId } } : {}),
     },
   },

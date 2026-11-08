@@ -1,5 +1,11 @@
 // ÜRETİLDİ — elle düzenleme. Kaynak: sinav-mono-repo (npm run sync:mobile).
 export default {
+  'apiErrors.AUTH_SOCIAL_NOT_REGISTERED': { tr: 'Bu hesapla kayıtlı bir kullanıcı yok. Önce kayıt ol.', en: 'No account is linked to this sign-in. Sign up first.' },
+  'apiErrors.AUTH_SOCIAL_TOKEN_INVALID': { tr: 'Giriş doğrulanamadı. Tekrar dene.', en: 'Sign-in could not be verified. Try again.' },
+  'apiErrors.AUTH_PROVIDER_NOT_CONFIGURED': { tr: 'Bu giriş yöntemi şu an kullanılamıyor.', en: 'This sign-in method is not available right now.' },
+  'apiErrors.AUTH_PROVIDER_UNAVAILABLE': { tr: 'Giriş hizmetine ulaşılamadı. Biraz sonra tekrar dene.', en: 'Sign-in service is unreachable. Try again later.' },
+  'apiErrors.AUTH_PROVIDER_INVALID': { tr: 'Geçersiz giriş yöntemi.', en: 'Invalid sign-in method.' },
+  'apiErrors.AUTH_CONSENT_REQUIRED': { tr: 'Devam etmek için aydınlatma metnini ve kullanım koşullarını onayla.', en: 'Accept the privacy notice and terms to continue.' },
   'apiErrors.AUTH_EMAIL_INVALID': { tr: 'E-posta adresinde bir hata var. Kontrol et.', en: 'The email address looks invalid.' },
   'apiErrors.AUTH_PURPOSE_INVALID': { tr: 'İstek geçersiz.', en: 'Invalid request.' },
   'apiErrors.AUTH_CODE_RATE_LIMITED': { tr: 'Çok sık kod istedin. Biraz bekleyip tekrar dene.', en: 'Too many codes requested. Wait a moment.' },

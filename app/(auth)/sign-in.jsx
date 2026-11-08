@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { AuthShell, Banner, Button, Segmented, TextField, Text } from '@components';
 import { api } from '@api';
-import { errorText, unwrap } from '@shared/api/helpers';
+import { apiErrorCode, errorText, unwrap } from '@shared/api/helpers';
 import { finishAuth } from '@shared/auth/finishAuth';
 import { useCooldown } from '@hooks/useCooldown';
 import { useT } from '@shared/translation/useT';
+import { SocialButtons } from '@features/auth/SocialButtons';
+import { setPendingSocial } from '@features/auth/pendingSocial';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -39,6 +41,19 @@ export default function SignIn() {
       setBusy(false);
     }
   };
+
+  // Google / Apple: kayıtlı değilse kayıt ekranının onay adımına jetonla geçilir.
+  const onSocial = (tok) =>
+    run(async () => {
+      try {
+        const res = await api.identityAuthSocial({ provider: tok.provider, idToken: tok.idToken, nonce: tok.nonce });
+        await finishAuth(unwrap(res));
+      } catch (e) {
+        if (apiErrorCode(e) !== 'AUTH_SOCIAL_NOT_REGISTERED') throw e;
+        setPendingSocial(tok);
+        router.replace('/sign-up');
+      }
+    });
 
   const submitPassword = () => {
     setFieldError({});
@@ -146,6 +161,7 @@ export default function SignIn() {
       ) : (
         <Button title={t('auth.sendCode')} onPress={sendCode} loading={busy} />
       )}
+      <SocialButtons disabled={busy} onToken={onSocial} onError={() => setError(t('auth.social.failed'))} />
       <View style={{ alignItems: 'center' }}>
         <Button
           title={t('auth.signIn.toSignUp')}

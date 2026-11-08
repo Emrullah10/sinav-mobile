@@ -1,8 +1,8 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "445bee2d2a4b00ffbb3e47e4223129fcec43ee3d",
-    "dirty": false
+    "sha": "0bbf4b59b36069c6b3e59a3738cca54d01a84476",
+    "dirty": true
   },
   "files": {
     "design-tokens/tokens.js": {
@@ -41,9 +41,9 @@
       "sourceSha256": "278dc1a64412e81d5301e50cfaeb766459efc5cfad4e531b96e18a0cc202e91a"
     },
     "client-sdk/src/identity.js": {
-      "sha256": "9585ca2a995c38a8cf8352d8468a59e35ce15ea5ee549f3a4700b9bec510775e",
+      "sha256": "9476d2dba373f4f105267e62e20ba4d1a850e0a4b80fe5534605fe8a4a4dbd31",
       "source": "packages/client-sdk/src/identity.js",
-      "sourceSha256": "49e1f1d9da0552f6adfa0c75eb8ef0d4beb58d6927c90af23db17acafa8ede59"
+      "sourceSha256": "ce6fbcde86470758779d4df1abc51e9bfefb03d21c526ce8080886916581dd76"
     },
     "client-sdk/src/learning.js": {
       "sha256": "d3de65cc6d3e96b5aecbbf92e13d2cc9efce111ba3ab83a4179b15c5c0d49a08",
@@ -81,9 +81,9 @@
       "sourceSha256": "f84bda9822c236640ac7b40a1d95e378d564802a38841c8ca9390563e589460d"
     },
     "i18n/keys/apiErrorsIdentityKeys.js": {
-      "sha256": "fe1dc15d92d021233d2bc5bb175e77b63850d204d4c868c9e49caf3331576db2",
+      "sha256": "18f776d6a2cb9b68ddeaa99ef352527de1f2b6803ecf9f3ed8c9aa65aed170f7",
       "source": "packages/i18n/keys/apiErrorsIdentityKeys.js",
-      "sourceSha256": "1a920923b700a79f761a203d6bb6091c6fdff65a7862180e64126cae7f9f7855"
+      "sourceSha256": "b0617668ecf0a91c7c1bcc787ccfe2184611b1624ff47c645812442f34716442"
     },
     "i18n/keys/apiErrorsLearningKeys.js": {
       "sha256": "13301e73cca6f086eb3a215edbfb08acb3e21af0d90537176790287a0a79da9a",
