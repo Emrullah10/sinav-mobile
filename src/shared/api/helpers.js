@@ -46,6 +46,16 @@ export const formatDate = (value, lang = 'tr', opts = { day: 'numeric', month: '
   return d.toLocaleDateString(lang === 'en' ? 'en-GB' : 'tr-TR', opts);
 };
 
+/** Puan: en çok 1 ondalık, dile göre ayraç (tr "57,2", en "57.2"); web ScoreBandCard ile aynı kural. */
+export const formatScore = (value, lang = 'tr') => {
+  const n = Number(value);
+  if (value == null || Number.isNaN(n)) return '-';
+  return n.toLocaleString(String(lang).startsWith('en') ? 'en-GB' : 'tr-TR', { maximumFractionDigits: 1 });
+};
+
+/** Hedef puan: ilerleme uçları düz sayı döndürür (target: 75), bazıları { score }. */
+export const targetScoreOf = (target) => (typeof target === 'number' ? target : (target?.score ?? null));
+
 /** Cihazın yerel bugünü 'YYYY-MM-DD' (oturum tarihleriyle dizgi karşılaştırması için). */
 export const todayKey = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

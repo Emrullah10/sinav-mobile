@@ -4,7 +4,7 @@ import { ArrowUp, Flag, Square, ThumbsDown, ThumbsUp } from 'lucide-react-native
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Banner, BubbleLoader, Button, Chip, ErrorState, IconButton, Sheet, Skeleton, Text, TextField, TopBar, useToast } from '@components';
+import { Banner, BubbleLoader, Button, Chip, ErrorState, IconButton, Sheet, Skeleton, Text, TextField, TopBar, useContentGutter, useToast } from '@components';
 import { api } from '@api';
 import { apiErrorCode, errorKind, errorText, newClientRef, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
@@ -106,6 +106,8 @@ function ChatBody({ code, starter, conv, initialMessages }) {
   const { t } = useT();
   const { colors, radius } = useTheme();
   const insets = useSafeAreaInsets();
+  // Tablette mesajlar ve yazma alanı diğer ekranlar gibi en fazla CONTENT_MAX genişlikte, ortada.
+  const gutter = useContentGutter();
   const toast = useToast();
   const haptics = useHaptics();
   const qc = useQueryClient();
@@ -283,7 +285,7 @@ function ChatBody({ code, starter, conv, initialMessages }) {
       <ScrollView
         ref={scroll}
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16, gap: 16, flexGrow: 1 }}
+        contentContainerStyle={{ padding: 16, paddingHorizontal: 16 + gutter, gap: 16, flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
         onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: true })}
       >
@@ -322,7 +324,7 @@ function ChatBody({ code, starter, conv, initialMessages }) {
 
       <View
         style={{
-          paddingHorizontal: 12,
+          paddingHorizontal: 12 + gutter,
           paddingTop: 8,
           paddingBottom: Math.max(insets.bottom, 8),
           gap: 8,

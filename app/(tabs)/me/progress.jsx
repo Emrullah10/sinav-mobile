@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Card, EmptyState, ProgressBar, QueryBoundary, Screen, Segmented, Text, TopBar } from '@components';
 import { api } from '@api';
-import { unwrap } from '@shared/api/helpers';
+import { formatScore, targetScoreOf, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
 export default function ProgressScreen() {
-  const { t } = useT();
+  const { t, language } = useT();
   const { colors } = useTheme();
   const [range, setRange] = useState(7);
   const query = useQuery({
@@ -33,11 +33,11 @@ export default function ProgressScreen() {
                 <Card elevation="e1" style={{ gap: 4 }}>
                   <Text variant="overline" color="tertiary">{t('progress.estimate')}</Text>
                   {d.estimate ? (
-                    <Text variant="numeric-xl">{t('today.estimate.range', { low: d.estimate.low, high: d.estimate.high })}</Text>
+                    <Text variant="numeric-xl">{t('today.estimate.range', { low: formatScore(d.estimate.low, language), high: formatScore(d.estimate.high, language) })}</Text>
                   ) : (
                     <Text variant="body-m" color="secondary">{t('today.estimate.none')}</Text>
                   )}
-                  {d.target ? <Text variant="body-s" color="secondary">{t('progress.target', { score: d.target.score })}</Text> : null}
+                  {targetScoreOf(d.target) != null ? <Text variant="body-s" color="secondary">{t('progress.target', { score: targetScoreOf(d.target) })}</Text> : null}
                 </Card>
                 <Card style={{ gap: 4 }}>
                   <Text variant="body-m">{t('progress.minutes', { n: d.totals.activeMinutes })}</Text>

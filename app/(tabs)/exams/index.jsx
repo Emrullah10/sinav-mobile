@@ -4,7 +4,7 @@ import { Lock } from 'lucide-react-native';
 import { View } from 'react-native';
 import { Badge, Card, EmptyState, ListRow, QueryBoundary, Screen, Text, TopBar } from '@components';
 import { api } from '@api';
-import { formatDate, unwrap } from '@shared/api/helpers';
+import { formatDate, formatScore, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { useT } from '@shared/translation/useT';
@@ -31,7 +31,7 @@ export default function ExamHome() {
           <View style={{ gap: 16 }}>
             {d.estimate ? (
               <Card elevation="e1">
-                <Text variant="body-m">{t('exam.estimate', { low: d.estimate.low, high: d.estimate.high })}</Text>
+                <Text variant="body-m">{t('exam.estimate', { low: formatScore(d.estimate.low, language), high: formatScore(d.estimate.high, language) })}</Text>
               </Card>
             ) : null}
             <View>
@@ -57,7 +57,7 @@ export default function ExamHome() {
                     {f.activeSittingCode ? (
                       <Text variant="label-m" color="accent">{t('exam.inProgress')}</Text>
                     ) : f.taken ? (
-                      <Text variant="caption" color="tertiary">{t('exam.taken', { score: f.bestScore ?? '-' })}</Text>
+                      <Text variant="caption" color="tertiary">{t('exam.taken', { score: formatScore(f.bestScore, language) })}</Text>
                     ) : null}
                   </Card>
                 ))
@@ -71,7 +71,7 @@ export default function ExamHome() {
                     key={h.code}
                     title={h.title}
                     subtitle={formatDate(h.submittedAt, language, { day: 'numeric', month: 'long' })}
-                    value={`${h.score}`}
+                    value={formatScore(h.score, language)}
                     trailing={h.isPersonalBest ? <Badge tone="accent" dot /> : null}
                     divider={i < d.history.length - 1}
                     onPress={() => router.push(deepLinks.examResult(h.code))}

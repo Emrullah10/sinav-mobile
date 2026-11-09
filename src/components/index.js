@@ -15,7 +15,7 @@ export { Markdown } from './Markdown';
 export { OptionBubble } from './OptionBubble';
 export { ProgressBar } from './ProgressBar';
 export { ProgressRing } from './ProgressRing';
-export { Screen } from './Screen';
+export { Screen, useContentGutter } from './Screen';
 export { Segmented } from './Segmented';
 export { Sheet } from './Sheet';
 export { Skeleton } from './Skeleton';

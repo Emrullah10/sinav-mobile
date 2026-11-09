@@ -113,6 +113,10 @@ export default function SessionPlayer() {
 
   const refreshItem = () => item.refetch();
   const act = async (fn) => {
+    // Gösterilen soruyu sabitle: cevaptan sonra oturum yenilenince currentPosition ilerler; konum ondan
+    // türetilirse ekran geri bildirimi göstermeden sonraki soruya atlar ve seçili/elenen şıklar oraya taşınırdı.
+    // İlerleme yalnız goTo ile (seçim ve son cevap orada sıfırlanır).
+    if (posOverride == null && pos != null) setPos(pos);
     setBusy(true);
     setMessage(null);
     try {

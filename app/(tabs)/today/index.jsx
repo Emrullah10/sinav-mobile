@@ -8,7 +8,7 @@ import {
   Screen, Sheet, Skeleton, Text, TopBar, useToast,
 } from '@components';
 import { api } from '@api';
-import { apiErrorCode, errorText, formatDate, unwrap } from '@shared/api/helpers';
+import { apiErrorCode, errorText, formatDate, formatScore, unwrap } from '@shared/api/helpers';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { errorKind } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
@@ -103,7 +103,7 @@ function StreakCard({ streak }) {
 }
 
 function EstimateCard({ data }) {
-  const { t } = useT();
+  const { t, language } = useT();
   const { estimate, enrollment } = data;
   return (
     <Card style={{ gap: 4 }}>
@@ -111,7 +111,7 @@ function EstimateCard({ data }) {
         {t('today.estimate.title')}
       </Text>
       {estimate ? (
-        <Text variant="numeric-l">{t('today.estimate.range', { low: estimate.low, high: estimate.high })}</Text>
+        <Text variant="numeric-l">{t('today.estimate.range', { low: formatScore(estimate.low, language), high: formatScore(estimate.high, language) })}</Text>
       ) : (
         <Text variant="body-m" color="secondary">
           {t('today.estimate.none')}

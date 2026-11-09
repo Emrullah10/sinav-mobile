@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { View } from 'react-native';
 import { Banner, Button, Card, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
-import { errorText, formatClock, unwrap } from '@shared/api/helpers';
+import { errorText, formatClock, formatScore, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { useT } from '@shared/translation/useT';
@@ -74,7 +74,7 @@ function Analysis({ code }) {
 
 export default function ExamResult() {
   const { id: code } = useLocalSearchParams();
-  const { t } = useT();
+  const { t, language } = useT();
   const query = useQuery({
     queryKey: queryKeys.learning.examResult(code),
     queryFn: async () => unwrap(await api.learningExamResultGet(code)),
@@ -90,11 +90,11 @@ export default function ExamResult() {
           <View style={{ gap: 16 }}>
             <Card elevation="e1" style={{ alignItems: 'center', gap: 4 }}>
               <Text variant="overline" color="tertiary">{r.title}</Text>
-              <Text variant="numeric-xl">{t('exam.result.score', { score: r.score, max: r.scoreMax })}</Text>
+              <Text variant="numeric-xl">{t('exam.result.score', { score: formatScore(r.score, language), max: formatScore(r.scoreMax, language) })}</Text>
               <Text variant="body-m" color="secondary">{t('exam.result.totals', { correct: r.correct, wrong: r.wrong, blank: r.blank })}</Text>
               {r.isPersonalBest ? <Text variant="label-m" color="success">{t('exam.result.best')}</Text> : null}
               {r.deltaFromPrevious != null ? (
-                <Text variant="caption" color="tertiary">{t('exam.result.delta', { n: `${r.deltaFromPrevious > 0 ? '+' : ''}${r.deltaFromPrevious}` })}</Text>
+                <Text variant="caption" color="tertiary">{t('exam.result.delta', { n: `${r.deltaFromPrevious > 0 ? '+' : ''}${formatScore(r.deltaFromPrevious, language)}` })}</Text>
               ) : null}
             </Card>
             {r.submitReason === 'timeout' ? <Banner tone="info" message={t('exam.result.timeout')} /> : null}
@@ -103,10 +103,10 @@ export default function ExamResult() {
             </Text>
             {r.target ? (
               <Text variant="body-m">
-                {r.target.gapPoints > 0 ? t('exam.result.target', { score: r.target.score, n: r.target.gapPoints }) : t('exam.result.targetMet')}
+                {r.target.gapPoints > 0 ? t('exam.result.target', { score: formatScore(r.target.score, language), n: formatScore(r.target.gapPoints, language) }) : t('exam.result.targetMet')}
               </Text>
             ) : null}
-            {r.estimate ? <Text variant="body-s" color="secondary">{t('exam.result.estimate', { low: r.estimate.low, high: r.estimate.high })}</Text> : null}
+            {r.estimate ? <Text variant="body-s" color="secondary">{t('exam.result.estimate', { low: formatScore(r.estimate.low, language), high: formatScore(r.estimate.high, language) })}</Text> : null}
 
             <View style={{ gap: 8 }}>
               <Text variant="heading-3">{t('exam.result.byType')}</Text>

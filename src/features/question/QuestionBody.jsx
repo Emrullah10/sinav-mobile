@@ -4,8 +4,12 @@ import { TapText } from '@features/lexicon/TapText';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 
-/** Basit biçim temizliği: gövdelerde markdown vurgusu varsa işaretleri at. */
-export const plain = (s) => (s == null ? '' : String(s).replace(/\*\*|__/g, ''));
+/**
+ * Basit biçim temizliği: gövdelerde markdown vurgusu varsa işaretleri at.
+ * Yalnız tam iki alt çizgi (__kalın__) silinir; 3+ alt çizgi sorudaki boşluk işaretidir (______), korunur.
+ */
+export const plain = (s) =>
+  s == null ? '' : String(s).replace(/\*\*/g, '').replace(/_{2,}/g, (m) => (m.length === 2 ? '' : m));
 
 /**
  * Dokun-çevir ayarı: null → kapalı (deneme sınavı, seviye tespiti).

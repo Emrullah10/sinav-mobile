@@ -4,7 +4,7 @@ import { BarChart3, CreditCard, FileText, LifeBuoy, MessageSquareWarning, Settin
 import { View } from 'react-native';
 import { Button, Card, ListRow, ProgressBar, Screen, Skeleton, Text, TopBar } from '@components';
 import { api } from '@api';
-import { unwrap } from '@shared/api/helpers';
+import { formatScore, targetScoreOf, unwrap } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
 import { signOut } from '@shared/auth/session';
 import { deepLinks } from '@shared/navigation/deepLinks';
@@ -15,7 +15,7 @@ import { useTheme } from '@theme';
 import { Alert } from 'react-native';
 
 export default function MeScreen() {
-  const { t } = useT();
+  const { t, language } = useT();
   const { colors } = useTheme();
   const user = useAuthStore((s) => s.user);
   const isGuest = useAuthStore((s) => s.isGuest);
@@ -63,9 +63,9 @@ export default function MeScreen() {
             ) : p ? (
               <>
                 {p.estimate ? (
-                  <Text variant="numeric-l">{t('today.estimate.range', { low: p.estimate.low, high: p.estimate.high })}</Text>
+                  <Text variant="numeric-l">{t('today.estimate.range', { low: formatScore(p.estimate.low, language), high: formatScore(p.estimate.high, language) })}</Text>
                 ) : null}
-                {p.target ? <ProgressBar value={p.estimate ? Math.min(1, p.estimate.point / p.target.score) : 0} /> : null}
+                {targetScoreOf(p.target) ? <ProgressBar value={p.estimate ? Math.min(1, p.estimate.point / targetScoreOf(p.target)) : 0} /> : null}
                 <Text variant="body-s" color="secondary">
                   {[t('progress.minutes', { n: p.totals.activeMinutes }), t('progress.questions', { n: p.totals.questionsAnswered }), t('progress.activeDays', { n: p.totals.activeDays })].join(' · ')}
                 </Text>

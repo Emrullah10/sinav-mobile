@@ -3,13 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { View } from 'react-native';
 import { Button, Card, ProgressBar, QueryBoundary, Screen, Text, TopBar } from '@components';
 import { api } from '@api';
-import { unwrap } from '@shared/api/helpers';
+import { formatScore, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
 
 export default function DiagnosticResult() {
   const { code } = useLocalSearchParams();
-  const { t } = useT();
+  const { t, language } = useT();
   const query = useQuery({
     queryKey: queryKeys.learning.diagnosticResult(code),
     queryFn: async () => unwrap(await api.learningDiagnosticResultGet(code)),
@@ -30,8 +30,8 @@ export default function DiagnosticResult() {
                 <Text variant="overline" color="tertiary">
                   {t('diag.result.estimate')}
                 </Text>
-                <Text variant="numeric-xl" accessibilityLabel={`${r.estimate.low} - ${r.estimate.high}`}>
-                  {t('diag.result.range', { low: r.estimate.low, high: r.estimate.high })}
+                <Text variant="numeric-xl" accessibilityLabel={`${formatScore(r.estimate.low, language)} - ${formatScore(r.estimate.high, language)}`}>
+                  {t('diag.result.range', { low: formatScore(r.estimate.low, language), high: formatScore(r.estimate.high, language) })}
                 </Text>
                 {r.estimate.confidence != null && r.estimate.confidence < 0.6 ? (
                   <Text variant="caption" color="tertiary">
@@ -42,7 +42,7 @@ export default function DiagnosticResult() {
               {r.target ? (
                 <Text variant="body-m" color="secondary">
                   {t('diag.result.target', { score: r.target.score, n: r.target.requiredCorrect })}
-                  {r.target.gapPoints > 0 ? `  ·  ${t('diag.result.gap', { n: r.target.gapPoints })}` : ''}
+                  {r.target.gapPoints > 0 ? `  ·  ${t('diag.result.gap', { n: formatScore(r.target.gapPoints, language) })}` : ''}
                 </Text>
               ) : null}
               <Text variant="body-m">
