@@ -30,32 +30,40 @@ const loadPlans = async () => {
     .map((pkg) => ({ kind: kindOf(P, pkg), pkg }))
     .filter((p) => p.kind)
     .sort((a, b) => PLAN_KINDS.indexOf(a.kind) - PLAN_KINDS.indexOf(b.kind));
-  const intro = plans.filter((p) => p.kind === 'monthly');
+  // Tanıtım teklifi (ücretsiz deneme ya da ilk dönemler indirimli) yalnız aboneliklerde olur.
+  const subs = plans.filter((p) => p.kind === 'monthly' || p.kind === 'annual');
   let eligible = {};
-  if (intro.length && Platform.OS === 'ios') {
+  if (subs.length && Platform.OS === 'ios') {
     try {
       eligible = await P.checkTrialOrIntroductoryPriceEligibility(
-        intro.map((p) => p.pkg.product.identifier),
+        subs.map((p) => p.pkg.product.identifier),
       );
     } catch (err) {
       report(err, { where: 'purchases.eligibility' });
     }
   }
   return plans.map((p) => {
-    const ip = p.pkg.product.introPrice;
-    let trial = false;
-    if (p.kind === 'monthly' && ip && ip.price === 0) {
-      trial =
-        Platform.OS === 'ios'
-          ? eligible[p.pkg.product.identifier]?.status ===
-            P.INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE
-          : true;
-    }
+    const ip = p.kind === 'exam' ? null : p.pkg.product.introPrice;
+    // Play yalnız kullanıcının hak ettiği teklifi döndürür; iOS'ta hak ayrıca sorulur.
+    const canUseIntro =
+      !!ip &&
+      (Platform.OS === 'ios'
+        ? eligible[p.pkg.product.identifier]?.status === P.INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE
+        : true);
+    const unit = String(ip?.periodUnit || 'DAY').toUpperCase();
+    const units = Number(ip?.periodNumberOfUnits) || 1;
+    const trial = canUseIntro && ip.price === 0;
+    // İndirimli dönem: toplam süre (ör. 3 × 1 ay) ve dönem başı fiyat. Mağaza bu fiyatı kendisi uygular.
+    const intro =
+      canUseIntro && ip.price > 0
+        ? { priceString: ip.priceString, unit, count: units * (Number(ip.cycles) || 1) }
+        : null;
     return {
       ...p,
       priceString: p.pkg.product.priceString,
       trial,
-      trialDays: trial ? (Number(ip.periodNumberOfUnits) || 1) * UNIT_DAYS[String(ip.periodUnit || 'DAY').toUpperCase()] : null,
+      trialDays: trial ? units * UNIT_DAYS[unit] : null,
+      intro,
     };
   });
 };

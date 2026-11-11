@@ -125,6 +125,14 @@ function Benefits() {
 
 const PERIOD_KEY = { monthly: 'pay.plan.monthlyPeriod', annual: 'pay.plan.annualPeriod', exam: 'pay.plan.examPeriod' };
 
+/** Tanıtım fiyatı etiketi: "İlk 3 ay ₺174,99" / "İlk yıl ₺1.249,99". */
+const introLabel = (t, intro) => {
+  const price = intro.priceString;
+  if (intro.unit === 'YEAR') return t('pay.intro.year', { price });
+  if (intro.unit === 'MONTH') return intro.count > 1 ? t('pay.intro.months', { n: intro.count, price }) : t('pay.intro.month', { price });
+  return price;
+};
+
 function Paywall() {
   const { t } = useT();
   const toast = useToast();
@@ -163,9 +171,17 @@ function Paywall() {
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Text variant="title" style={{ flex: 1 }}>{t(`pay.plan.${p.kind}`)}</Text>
                     {p.kind === 'exam' ? <Text variant="label-s" color="accent">{t('pay.recommended')}</Text> : null}
-                    {p.kind === 'monthly' && p.trial ? <Text variant="label-s" color="accent">{t('pay.trialBadge', { n: p.trialDays || 7 })}</Text> : null}
+                    {p.trial ? <Text variant="label-s" color="accent">{t('pay.trialBadge', { n: p.trialDays || 7 })}</Text> : null}
+                    {p.intro ? <Text variant="label-s" color="accent">{t('pay.intro.badge')}</Text> : null}
                   </View>
-                  <Text variant="numeric-m">{p.priceString}</Text>
+                  {p.intro ? (
+                    <>
+                      <Text variant="numeric-m">{introLabel(t, p.intro)}</Text>
+                      <Text variant="body-s" color="secondary">{t('pay.intro.then', { price: p.priceString })}</Text>
+                    </>
+                  ) : (
+                    <Text variant="numeric-m">{p.priceString}</Text>
+                  )}
                   <Text variant="caption" color="tertiary">{t(PERIOD_KEY[p.kind])}</Text>
                 </Card>
               ))}
@@ -178,7 +194,11 @@ function Paywall() {
                 disabled={busy || !current}
                 onPress={buy}
               />
-              <Text variant="caption" color="tertiary">{current?.kind === 'exam' ? t('pay.legal.exam') : t('pay.legal.renew', { store: t('pay.storeName') })}</Text>
+              <Text variant="caption" color="tertiary">
+                {current?.kind === 'exam'
+                  ? t('pay.legal.exam')
+                  : `${t('pay.legal.renew', { store: t('pay.storeName') })}${current?.intro ? ` ${t('pay.legal.intro')}` : ''}`}
+              </Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
                 <Button title={t('pay.restore')} variant="tertiary" size="sm" fullWidth={false} loading={restore.isPending} disabled={busy} onPress={doRestore} />
                 <Button title={t('me.legal.terms_of_use')} variant="tertiary" size="sm" fullWidth={false} onPress={() => router.push('/legal/terms_of_use')} />
