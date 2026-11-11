@@ -7,7 +7,7 @@
     "base": {
       "node": "24.0.0",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://odak.emrullahbozkurt.com",
+        "EXPO_PUBLIC_API_BASE_URL": "https://odaksinav.com.tr",
         "EXPO_PUBLIC_RC_IOS_KEY": "appl_kqmuwSGXzWixjgjFKyTNHjvjSXh",
         "EXPO_PUBLIC_RC_ANDROID_KEY": "goog_VhnrrotWeGydooYgFdiqnLNxhpb"
       }
@@ -26,7 +26,8 @@
       "channel": "preview",
       "env": {
         "APP_VARIANT": "production",
-        "EXPO_PUBLIC_APP_ENV": "preview"
+        "EXPO_PUBLIC_APP_ENV": "preview",
+        "EXPO_PUBLIC_API_BASE_URL": "https://staging-odak.emrullahbozkurt.com"
       }
     },
     "production": {

@@ -6,7 +6,7 @@ Her madde gerçek cihazda (EAS `preview` derlemesi, iOS TestFlight + Android int
 - [ ] App Store Connect: Paid Apps anlaşması/vergi/banka; abonelik grubu `ODAK Premium` → `odak_premium_monthly` (7 gün ücretsiz deneme teklifi), `odak_premium_annual`; yenilenmeyen abonelik `odak_exam_period`; fiyatlar 349 / 2490 / 1490 ₺
 - [ ] Play Console: ödeme profili; abonelik `odak_premium` → temel planlar `monthly` (7 gün deneme teklifi) ve `annual`; tek seferlik ürün `odak_exam_period`
 - [ ] RevenueCat: iOS+Android uygulamaları (`com.sinav.odak`), entitlement `premium`, offering paketleri `$rc_monthly`, `$rc_annual`, özel `exam_period`
-- [ ] RevenueCat webhook: URL `https://odak.emrullahbozkurt.com/api/sinav-service-billing/v1/public/revenuecat/webhook`, Authorization değeri = sunucudaki `REVENUECAT_WEBHOOK_AUTH`
+- [ ] RevenueCat webhook: URL `https://odaksinav.com.tr/api/sinav-service-billing/v1/public/revenuecat/webhook`, Authorization değeri = sunucudaki `REVENUECAT_WEBHOOK_AUTH`
 - [ ] Sunucu `~/services/sinav/env/.env`: `REVENUECAT_WEBHOOK_AUTH`, `REVENUECAT_SECRET_KEY` → `SKIP_GIT=1 SKIP_BUILD=1 SKIP_DB=1 SKIP_LANDING=1 bash scripts/update.sh`
 - [ ] EAS: `eas init` (projectId), `EXPO_OWNER`, `EAS_PROJECT_ID`, `EXPO_PUBLIC_RC_IOS_KEY`, `EXPO_PUBLIC_RC_ANDROID_KEY`, `EXPO_PUBLIC_SENTRY_DSN` (eas.json env ya da EAS secrets)
 - [ ] Marka görselleri `assets/` altına: icon.png (1024), android-icon-foreground/background/monochrome, splash-icon.png
