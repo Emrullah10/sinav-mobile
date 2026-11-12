@@ -27,6 +27,7 @@ export default {
   'auth.password': k('Şifre', 'Password'),
   'auth.code': k('Doğrulama kodu', 'Verification code'),
   'auth.codeHelp': k('E-postana gelen 6 haneli kod.', 'The 6-digit code we emailed you.'),
+  'auth.code.noAccountHint': k('Kod gelmediyse spam klasörüne bak. Hâlâ yoksa bu e-postayla hesabın olmayabilir; aşağıdan kayıt olabilirsin.', "No code? Check your spam folder. Still nothing? You may not have an account with this email; you can sign up below."),
   'auth.codeSent': k('Kodu {{email}} adresine gönderdik.', 'We sent a code to {{email}}.'),
   'auth.sendCode': k('Kod gönder', 'Send code'),
   'auth.resend': k('Kodu tekrar gönder', 'Resend code'),

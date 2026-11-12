@@ -8,6 +8,7 @@ export default {
   'apiErrors.AUTH_CONSENT_REQUIRED': { tr: 'Devam etmek için aydınlatma metnini ve kullanım koşullarını onayla.', en: 'Accept the privacy notice and terms to continue.' },
   'apiErrors.AUTH_EMAIL_INVALID': { tr: 'E-posta adresinde bir hata var. Kontrol et.', en: 'The email address looks invalid.' },
   'apiErrors.AUTH_PURPOSE_INVALID': { tr: 'İstek geçersiz.', en: 'Invalid request.' },
+  'apiErrors.AUTH_CODE_SEND_FAILED': { tr: 'Kod gönderilemedi. Biraz sonra tekrar dene.', en: 'Could not send the code. Try again shortly.' },
   'apiErrors.AUTH_CODE_RATE_LIMITED': { tr: 'Çok sık kod istedin. Biraz bekleyip tekrar dene.', en: 'Too many codes requested. Wait a moment.' },
   'apiErrors.AUTH_EMAIL_ALREADY_REGISTERED': { tr: 'Bu e-postayla hesabın var. Giriş yap.', en: 'An account exists for this email. Sign in.' },
   'apiErrors.AUTH_CODE_INVALID': { tr: 'Kod geçersiz ya da süresi dolmuş.', en: 'Code is invalid or expired.' },

@@ -157,6 +157,10 @@ export default function SignIn() {
             disabled={cooldown.left > 0}
             onPress={sendCode}
           />
+          {/* Hesabı olmayan adrese sunucu kod göndermez ama hesap sızdırmamak için "gönderildi" der: koşulsuz ipucu. */}
+          <Text variant="body-s" color="secondary" style={{ textAlign: 'center' }}>
+            {t('auth.code.noAccountHint')}
+          </Text>
         </>
       ) : (
         <Button title={t('auth.sendCode')} onPress={sendCode} loading={busy} />
