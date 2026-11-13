@@ -4,6 +4,7 @@ import { Minus, Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Banner, Button, IconButton, QueryBoundary, Screen, Text, TopBar } from '@components';
+import { backToWelcome } from '@shared/navigation/backToWelcome';
 import { api } from '@api';
 import { errorText, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
@@ -36,7 +37,7 @@ export default function Availability() {
 
   return (
     <Screen
-      header={<TopBar title={t('onb.step', { n: 2, total: 3 })} onBack={() => router.back()} />}
+      header={<TopBar title={t('onb.step', { n: 2, total: 3 })} onBack={() => (router.canGoBack() ? router.back() : backToWelcome())} />}
       edges={['bottom']}
       footer={<Button title={t('onb.save')} onPress={() => { setError(null); save.mutate(); }} loading={save.isPending} disabled={!days || total === 0} />}
     >

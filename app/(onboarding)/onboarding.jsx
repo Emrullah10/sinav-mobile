@@ -1,12 +1,13 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { BackHandler, View } from 'react-native';
 import { Banner, Button, Card, Chip, ListRow, QueryBoundary, Screen, Text, TextField, TopBar } from '@components';
 import { api } from '@api';
 import { errorText, formatDate, todayKey, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { onboardingRoute } from '@shared/navigation/onboardingRoute';
+import { backToWelcome } from '@shared/navigation/backToWelcome';
 import { useT } from '@shared/translation/useT';
 
 function TrackStep({ exams, trackKey, onPick }) {
@@ -39,6 +40,17 @@ export default function OnboardingStart() {
   const [dateChoice, setDateChoice] = useState('unknown'); // 'unknown' | 'custom' | oturum anahtarı
   const [customDate, setCustomDate] = useState('');
   const [error, setError] = useState(null);
+
+  // Android geri tuşu uygulamayı kapatmasın; karşılamaya dönsün.
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        backToWelcome();
+        return true;
+      });
+      return () => sub.remove();
+    }, []),
+  );
 
   const exams = useQuery({
     queryKey: queryKeys.content.exams(),
@@ -78,7 +90,7 @@ export default function OnboardingStart() {
 
   return (
     <Screen
-      header={<TopBar title={t('onb.step', { n: 1, total: 3 })} />}
+      header={<TopBar title={t('onb.step', { n: 1, total: 3 })} onBack={backToWelcome} />}
       edges={['bottom']}
       footer={
         <Button
