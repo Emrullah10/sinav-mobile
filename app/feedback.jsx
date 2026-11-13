@@ -95,7 +95,7 @@ export default function FeedbackScreen() {
 
   if (send.isSuccess) {
     return (
-      <Screen header={<TopBar title={t('feedback.title')} onClose={back} />} edges={['bottom']}>
+      <Screen header={<TopBar title={t('feedback.title')} onBack={back} />} edges={['bottom']}>
         <View style={{ gap: 16 }}>
           <Banner tone="success" title={t('feedback.sent.title')} message={t('feedback.sent.body')} />
           <Button title={t('feedback.sent.done')} onPress={back} />
@@ -105,7 +105,7 @@ export default function FeedbackScreen() {
   }
   return (
     <Screen
-      header={<TopBar title={t('feedback.title')} onClose={back} />}
+      header={<TopBar title={t('feedback.title')} onBack={back} />}
       edges={['bottom']}
       footer={
         <Button title={t('feedback.send')} disabled={!valid || recording || working} loading={send.isPending} onPress={() => send.mutate()} />
