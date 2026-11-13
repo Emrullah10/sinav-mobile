@@ -2,6 +2,7 @@ import { Flame, RotateCcw, Share2, Trophy } from 'lucide-react-native';
 import { Share, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Button, Card, Text } from '@components';
+import { formatPercent } from '@shared/api/helpers';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
 import { WordsToLearn } from './WordsToLearn';
@@ -17,7 +18,7 @@ const shareText = (play, label) => {
 
 /** Oyun sonu kartı: sonuç, gizli kelime + anlam, puan, istatistik/dağılım, sonraki adımlar. */
 export function ResultCard({ play, stats, onAgain, againBlocked, onHub }) {
-  const { t } = useT();
+  const { t, language } = useT();
   const { colors, radius } = useTheme();
   const won = play.status === 'won';
   const winRate = stats?.played ? Math.round((stats.won / stats.played) * 100) : 0;
@@ -51,7 +52,7 @@ export function ResultCard({ play, stats, onAgain, againBlocked, onHub }) {
             <View style={{ flexDirection: 'row' }}>
               {[
                 [t('games.stats.played'), String(stats.played)],
-                [t('games.stats.winRate'), `%${winRate}`],
+                [t('games.stats.winRate'), formatPercent(winRate, language)],
                 [t('games.stats.streak'), String(stats.currentStreak), true],
                 [t('games.stats.best'), String(stats.bestStreak)],
               ].map(([label, value, flame]) => (

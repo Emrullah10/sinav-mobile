@@ -62,8 +62,8 @@ export default function MeScreen() {
               <Skeleton height={48} />
             ) : p ? (
               <>
-                {p.estimate ? (
-                  <Text variant="numeric-l">{t('today.estimate.range', { low: formatScore(p.estimate.low, language), high: formatScore(p.estimate.high, language) })}</Text>
+                {p.estimate && !p.estimate.provisional ? (
+                  <Text variant="numeric-l">{t('today.estimate.range', { low: formatScore(Math.floor(p.estimate.low), language), high: formatScore(Math.ceil(p.estimate.high), language) })}</Text>
                 ) : null}
                 {targetScoreOf(p.target) ? <ProgressBar value={p.estimate ? Math.min(1, p.estimate.point / targetScoreOf(p.target)) : 0} /> : null}
                 <Text variant="body-s" color="secondary">

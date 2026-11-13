@@ -1,7 +1,7 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "494f4fde398b95a19e6a520d54cc9d4731e05dde",
+    "sha": "ed227cac18c5cf51dfe8849a1b1dd9e7d0197835",
     "dirty": true
   },
   "files": {
@@ -51,9 +51,9 @@
       "sourceSha256": "ce6fbcde86470758779d4df1abc51e9bfefb03d21c526ce8080886916581dd76"
     },
     "client-sdk/src/learning.js": {
-      "sha256": "d3de65cc6d3e96b5aecbbf92e13d2cc9efce111ba3ab83a4179b15c5c0d49a08",
+      "sha256": "15d1b7a5de3f26f2f6bf6a571bf638fb2141667fd138cd99ce991cde399691c4",
       "source": "packages/client-sdk/src/learning.js",
-      "sourceSha256": "11cbd1076a0304a645d7b4f027bc2aabc6e287ca9426bc7b77ada5d234517153"
+      "sourceSha256": "d2eb24bf0db5f4fcd7886b893b2559f9ddf4a4983286227dddf3edfa3cebdf7a"
     },
     "client-sdk/src/queryKeys.js": {
       "sha256": "3aaadbf972448fabb21bc2608a8df4b4c62906d23cad155b768b6e4ee5f599c5",

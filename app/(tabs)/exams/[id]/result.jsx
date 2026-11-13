@@ -3,13 +3,13 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { View } from 'react-native';
 import { Banner, Button, Card, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
-import { errorText, formatClock, formatScore, unwrap } from '@shared/api/helpers';
+import { errorText, formatClock, formatPercent, formatScore, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { useT } from '@shared/translation/useT';
 
 function Analysis({ code }) {
-  const { t } = useT();
+  const { t, language } = useT();
   const toast = useToast();
   const query = useQuery({
     queryKey: queryKeys.learning.examAnalysis(code),
@@ -41,7 +41,7 @@ function Analysis({ code }) {
                 <ListRow
                   key={f.typeKey}
                   title={f.name}
-                  subtitle={`%${Math.round(f.accuracy || 0)}`}
+                  subtitle={formatPercent(f.accuracy, language)}
                   chevron={false}
                   divider={i < a.focus.length - 1}
                   trailing={<Button title={t('exam.analysis.addToPlan')} size="sm" variant="secondary" fullWidth={false} onPress={() => add.mutate(f.typeKey)} />}

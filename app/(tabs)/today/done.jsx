@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { View } from 'react-native';
 import { Banner, Button, Card, QueryBoundary, Screen, Text, TopBar } from '@components';
 import { api } from '@api';
-import { formatDate, unwrap } from '@shared/api/helpers';
+import { formatDate, formatPercent, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
 
@@ -38,8 +38,8 @@ export default function DayDone() {
         {(d) => {
           const a = d.activity;
           const accuracy = a.questionsAnswered
-            ? `%${Math.round(a.accuracy <= 1 ? a.accuracy * 100 : a.accuracy)}`
-            : '-';
+            ? formatPercent(a.accuracy, language)
+            : '—';
           const tomorrow = d.tomorrow?.tasks || [];
           return (
             <View style={{ gap: 16 }}>

@@ -92,10 +92,10 @@ export default function Diagnostic() {
     try {
       await api.learningDiagnosticSkip();
       qc.invalidateQueries({ queryKey: queryKeys.learning.enrollment() });
+      // Başarıda busy kapatılmaz: ekran değişirken düğme durumunu güncellemek Android'de (Fabric) çökmeye yol açıyordu.
       router.replace('/plan-preview');
     } catch (e) {
       setError(errorText(t, e));
-    } finally {
       setBusy(false);
     }
   };

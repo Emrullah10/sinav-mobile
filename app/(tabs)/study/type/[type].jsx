@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { View } from 'react-native';
 import { Button, Card, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar } from '@components';
 import { api } from '@api';
-import { unwrap } from '@shared/api/helpers';
+import { formatPercent, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { PracticeSheet } from '@features/study/PracticeSheet';
@@ -12,7 +12,7 @@ import { useT } from '@shared/translation/useT';
 
 export default function QuestionTypeScreen() {
   const { type } = useLocalSearchParams();
-  const { t } = useT();
+  const { t, language } = useT();
   const sheet = useRef(null);
   const query = useQuery({
     queryKey: queryKeys.learning.questionType(type),
@@ -61,7 +61,7 @@ export default function QuestionTypeScreen() {
                     key={s.key}
                     title={s.name}
                     subtitle={t(`study.level.${s.level}`)}
-                    value={`%${Math.round(s.mastery || 0)}`}
+                    value={formatPercent(s.mastery || 0, language)}
                     divider={i < d.skills.length - 1}
                     onPress={() => router.push(`/study/skill/${s.key}`)}
                   />

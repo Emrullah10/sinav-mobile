@@ -12,7 +12,7 @@ export const createLearningApi = (http, { api = '/api' } = {}) => {
     learningSettingsGet: () => http.get(`${B}/learner-settings`),
     learningSettingsUpdate: (body) => http.patch(`${B}/learner-settings`, body),
     // ── Seviye tespiti ──
-    learningDiagnosticStart: () => http.post(`${B}/diagnostics`, {}),
+    learningDiagnosticStart: (body = {}) => http.post(`${B}/diagnostics`, body),
     learningDiagnosticSkip: () => http.post(`${B}/diagnostics/skip`, {}),
     learningDiagnosticGet: (code, params) => http.get(`${B}/diagnostics/${code}`, { params }),
     /** body: { position, selectedLabel|null, timeMs, clientRef (uuid) } */

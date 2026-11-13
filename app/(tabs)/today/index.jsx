@@ -8,7 +8,7 @@ import {
   Screen, Sheet, Skeleton, Text, TopBar, useToast,
 } from '@components';
 import { api } from '@api';
-import { apiErrorCode, errorText, formatDate, formatScore, unwrap } from '@shared/api/helpers';
+import { apiErrorCode, errorText, formatDate, formatPercent, formatScore, unwrap } from '@shared/api/helpers';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { errorKind } from '@shared/api/helpers';
 import { useAuthStore } from '@shared/auth/authStore';
@@ -23,14 +23,14 @@ import { ContinueCard } from '@features/reading/ContinueCard';
 const WEEKDAY_FORMAT = { weekday: 'short' };
 
 function GoalCard({ data }) {
-  const { t } = useT();
+  const { t, language } = useT();
   const { colors } = useTheme();
   const { goal } = data;
   const value = goal.minutes ? Math.min(1, goal.activeMinutes / goal.minutes) : 0;
   return (
     <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
       <ProgressRing value={value} size={96} tone={goal.met ? 'success' : 'accent'} accessibilityLabel={t('today.goal.title')}>
-        {goal.met ? <Check size={32} color={colors.success.fg} /> : <Text variant="numeric-m">{`${Math.round(value * 100)}%`}</Text>}
+        {goal.met ? <Check size={32} color={colors.success.fg} /> : <Text variant="numeric-m">{formatPercent(Math.floor(value * 100), language)}</Text>}
       </ProgressRing>
       <View style={{ flex: 1, gap: 2 }}>
         <Text variant="heading-3">{t('today.goal.title')}</Text>
@@ -110,8 +110,8 @@ function EstimateCard({ data }) {
       <Text variant="overline" color="tertiary">
         {t('today.estimate.title')}
       </Text>
-      {estimate ? (
-        <Text variant="numeric-l">{t('today.estimate.range', { low: formatScore(estimate.low, language), high: formatScore(estimate.high, language) })}</Text>
+      {estimate && !estimate.provisional ? (
+        <Text variant="numeric-l">{t('today.estimate.range', { low: formatScore(Math.floor(estimate.low), language), high: formatScore(Math.ceil(estimate.high), language) })}</Text>
       ) : (
         <Text variant="body-m" color="secondary">
           {t('today.estimate.none')}

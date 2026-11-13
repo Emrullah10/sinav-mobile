@@ -30,7 +30,7 @@ export function ProgressBar({
     success: colors.success.fg,
     reward: colors.reward.default,
   }[tone];
-  const clamped = Math.max(0, Math.min(1, value));
+  const clamped = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
   const x = useSharedValue(0);
   useEffect(() => {
     if (!indeterminate || reduced) return undefined;

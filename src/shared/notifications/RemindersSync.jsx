@@ -51,7 +51,8 @@ export function RemindersSync() {
       items: daily.data,
       channelName: t('wotd.channel'),
       titleOf: (w) => t(`wotd.title.${w.kind}`, { w: w.headword }),
-      bodyOf: (w) => [w.meaning, w.example?.en ? `“${w.example.en}”` : null].filter(Boolean).join(' · '),
+      // Biçim: "anlam" → örnek cümle
+      bodyOf: (w) => [w.meaning ? `"${w.meaning}"` : null, w.example?.en || null].filter(Boolean).join(' → '),
     }).catch((err) => report(err, { where: 'wordOfDay.schedule' }));
   }, [status, isGuest, wotdOn, p?.wordOfDayEnabled, daily.data, language]); // eslint-disable-line react-hooks/exhaustive-deps
 

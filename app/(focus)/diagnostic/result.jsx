@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { Button, Card, ProgressBar, QueryBoundary, Screen, Text, TopBar } from '@components';
 import { api } from '@api';
@@ -14,24 +15,56 @@ export default function DiagnosticResult() {
     queryKey: queryKeys.learning.diagnosticResult(code),
     queryFn: async () => unwrap(await api.learningDiagnosticResultGet(code)),
   });
+  const [retaking, setRetaking] = useState(false);
   const next = () => router.replace('/plan-preview');
+  const retake = async () => {
+    setRetaking(true);
+    try {
+      unwrap(await api.learningDiagnosticStart({ retake: true }));
+      router.replace('/diagnostic');
+    } finally {
+      setRetaking(false);
+    }
+  };
   return (
     <Screen
       header={<TopBar title={t('diag.result.title')} />}
       edges={['bottom']}
-      footer={<Button title={t('diag.result.plan')} onPress={next} />}
+      footer={
+        query.data?.insufficient ? (
+          <View style={{ gap: 8 }}>
+            <Button title={t('diag.result.retake')} onPress={retake} loading={retaking} />
+            <Button title={t('diag.result.continuePlan')} variant="tertiary" onPress={next} />
+          </View>
+        ) : (
+          <Button title={t('diag.result.plan')} onPress={next} />
+        )
+      }
     >
       <QueryBoundary query={query}>
         {(r) => {
           const names = Object.fromEntries(r.types.map((x) => [x.typeKey, x.name]));
+          if (r.insufficient) {
+            return (
+              <View style={{ gap: 12 }}>
+                <Text variant="heading-3">{t('diag.result.insufficientTitle')}</Text>
+                <Text variant="body-m" color="secondary">
+                  {t('diag.result.insufficientBody', { n: r.minAnswered, answered: r.totals.answered })}
+                </Text>
+                <Text variant="body-m">
+                  {t('diag.result.totals', { correct: r.totals.correct, wrong: r.totals.wrong, blank: r.totals.blank })}
+                </Text>
+              </View>
+            );
+          }
           return (
             <View style={{ gap: 16 }}>
               <Card elevation="e1" style={{ gap: 4, alignItems: 'center' }}>
                 <Text variant="overline" color="tertiary">
                   {t('diag.result.estimate')}
                 </Text>
-                <Text variant="numeric-xl" accessibilityLabel={`${formatScore(r.estimate.low, language)} - ${formatScore(r.estimate.high, language)}`}>
-                  {t('diag.result.range', { low: formatScore(r.estimate.low, language), high: formatScore(r.estimate.high, language) })}
+                <Text variant="numeric-xl" accessibilityLabel={`${formatScore(Math.floor(r.estimate.low), language)} - ${formatScore(Math.ceil(r.estimate.high), language)}`}>
+                  {t('diag.result.range', { low: formatScore(Math.floor(r.estimate.low), language), high: formatScore(Math.ceil(r.estimate.high), language) })}
                 </Text>
                 {r.estimate.confidence != null && r.estimate.confidence < 0.6 ? (
                   <Text variant="caption" color="tertiary">
@@ -74,10 +107,10 @@ export default function DiagnosticResult() {
                         {x.name}
                       </Text>
                       <Text variant="label-m" color="secondary">
-                        {t('diag.result.accuracy', { n: Math.round((x.estimatedAccuracy ?? 0) * 100) })}
+                        {t('diag.result.typeLine', { correct: x.correct, answered: x.answered })}
                       </Text>
                     </View>
-                    <ProgressBar value={x.estimatedAccuracy ?? 0} />
+                    <ProgressBar value={x.answered ? (x.estimatedAccuracy ?? 0) : 0} />
                   </View>
                 ))}
             </View>

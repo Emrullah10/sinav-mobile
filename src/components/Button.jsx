@@ -95,7 +95,10 @@ export function Button({
         style,
       ]}
     >
+      {/* collapsable={false}: opaklık 0↔1 değişince Fabric bu görünümü düzleştirip geri açıyor; ekran geçişiyle
+          aynı karede olursa Android 'child already has a parent' ile çöküyor (atla → plan önizleme). */}
       <View
+        collapsable={false}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -111,7 +114,7 @@ export function Button({
         {RightIcon ? <RightIcon size={s.icon} color={p.fg} strokeWidth={1.75} /> : null}
       </View>
       {loading ? (
-        <View style={{ position: 'absolute' }}>
+        <View collapsable={false} style={{ position: 'absolute' }}>
           <ActivityIndicator color={p.fg} />
         </View>
       ) : null}

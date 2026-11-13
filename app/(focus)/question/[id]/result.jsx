@@ -3,14 +3,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { View } from 'react-native';
 import { Button, Card, ListRow, QueryBoundary, Screen, Text, TopBar, useToast } from '@components';
 import { api } from '@api';
-import { errorText, formatClock, unwrap } from '@shared/api/helpers';
+import { errorText, formatClock, formatPercent, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { deepLinks } from '@shared/navigation/deepLinks';
 import { useT } from '@shared/translation/useT';
 
 export default function SessionResult() {
   const { id: code } = useLocalSearchParams();
-  const { t } = useT();
+  const { t, language } = useT();
   const toast = useToast();
   const query = useQuery({
     queryKey: queryKeys.learning.sessionResult(code),
@@ -36,7 +36,7 @@ export default function SessionResult() {
         {(r) => (
           <View style={{ gap: 16 }}>
             <Card elevation="e1" style={{ alignItems: 'center', gap: 4 }}>
-              <Text variant="numeric-xl">{`%${Math.round(r.totals.accuracy || 0)}`}</Text>
+              <Text variant="numeric-xl">{formatPercent(r.totals.accuracy, language)}</Text>
               <Text variant="body-m" color="secondary">
                 {t('session.result.totals', { correct: r.totals.correct, wrong: r.totals.wrong, blank: r.totals.blank })}
               </Text>

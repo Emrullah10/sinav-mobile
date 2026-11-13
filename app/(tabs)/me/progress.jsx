@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Card, EmptyState, ProgressBar, QueryBoundary, Screen, Segmented, Text, TopBar } from '@components';
 import { api } from '@api';
-import { formatScore, targetScoreOf, unwrap } from '@shared/api/helpers';
+import { formatPercent, formatScore, targetScoreOf, unwrap } from '@shared/api/helpers';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
 import { useTheme } from '@theme';
@@ -32,8 +32,8 @@ export default function ProgressScreen() {
               <View style={{ gap: 16 }}>
                 <Card elevation="e1" style={{ gap: 4 }}>
                   <Text variant="overline" color="tertiary">{t('progress.estimate')}</Text>
-                  {d.estimate ? (
-                    <Text variant="numeric-xl">{t('today.estimate.range', { low: formatScore(d.estimate.low, language), high: formatScore(d.estimate.high, language) })}</Text>
+                  {d.estimate && !d.estimate.provisional ? (
+                    <Text variant="numeric-xl">{t('today.estimate.range', { low: formatScore(Math.floor(d.estimate.low), language), high: formatScore(Math.ceil(d.estimate.high), language) })}</Text>
                   ) : (
                     <Text variant="body-m" color="secondary">{t('today.estimate.none')}</Text>
                   )}
@@ -71,7 +71,7 @@ export default function ProgressScreen() {
                     <View key={ty.key} style={{ gap: 4 }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text variant="body-m" style={{ flex: 1 }}>{ty.name}</Text>
-                        <Text variant="label-m" color="secondary">{`%${Math.round(ty.mastery || 0)}`}</Text>
+                        <Text variant="label-m" color="secondary">{formatPercent(ty.mastery || 0, language)}</Text>
                       </View>
                       <ProgressBar value={(ty.mastery || 0) / 100} />
                     </View>

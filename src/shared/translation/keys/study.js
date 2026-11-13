@@ -22,7 +22,7 @@ export default {
   'study.mistakes': k('Hata defterim', 'My mistakes'),
   'study.mistakesDue': k('{{open}} açık · {{due}} tekrar bekliyor', '{{open}} open · {{due}} due'),
   'study.bookmarks': k('Yer imlerim', 'Bookmarks'),
-  'study.mastery': k('Hâkimiyet %{{n}}', 'Mastery {{n}}%'),
+  'study.mastery': k('Ustalık %{{n}}', 'Mastery {{n}}%'),
   'study.level.new': k('Yeni', 'New'),
   'study.level.learning': k('Öğreniyor', 'Learning'),
   'study.level.developing': k('Gelişiyor', 'Developing'),

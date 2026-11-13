@@ -53,6 +53,18 @@ export const formatScore = (value, lang = 'tr') => {
   return n.toLocaleString(String(lang).startsWith('en') ? 'en-GB' : 'tr-TR', { maximumFractionDigits: 1 });
 };
 
+/** Yüzde (0–100 girdi): tr "%75", en "75%". Boş/geçersiz değer "—". */
+export const formatPercent = (value, lang = 'tr', digits = 0) => {
+  const n = Number(value);
+  if (value == null || value === '' || !Number.isFinite(n)) return '—';
+  const en = String(lang).startsWith('en');
+  const v = n.toLocaleString(en ? 'en-GB' : 'tr-TR', { maximumFractionDigits: digits });
+  return en ? `${v}%` : `%${v}`;
+};
+
+/** a/b oranı (0–1); payda 0 ya da sonsuz/NaN ise null. */
+export const safeRatio = (a, b) => (Number(b) > 0 && Number.isFinite(Number(a) / Number(b)) ? Number(a) / Number(b) : null);
+
 /** Hedef puan: ilerleme uçları düz sayı döndürür (target: 75), bazıları { score }. */
 export const targetScoreOf = (target) => (typeof target === 'number' ? target : (target?.score ?? null));
 

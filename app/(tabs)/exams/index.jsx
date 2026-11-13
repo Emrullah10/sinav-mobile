@@ -29,9 +29,9 @@ export default function ExamHome() {
       <QueryBoundary query={query}>
         {(d) => (
           <View style={{ gap: 16 }}>
-            {d.estimate ? (
+            {d.estimate && !d.estimate.provisional ? (
               <Card elevation="e1">
-                <Text variant="body-m">{t('exam.estimate', { low: formatScore(d.estimate.low, language), high: formatScore(d.estimate.high, language) })}</Text>
+                <Text variant="body-m">{t('exam.estimate', { low: formatScore(Math.floor(d.estimate.low), language), high: formatScore(Math.ceil(d.estimate.high), language) })}</Text>
               </Card>
             ) : null}
             <View>
