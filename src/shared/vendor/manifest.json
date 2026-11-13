@@ -1,7 +1,7 @@
 {
   "generatedBy": "scripts/sync-mobile.mjs",
   "monorepo": {
-    "sha": "0bbf4b59b36069c6b3e59a3738cca54d01a84476",
+    "sha": "494f4fde398b95a19e6a520d54cc9d4731e05dde",
     "dirty": true
   },
   "files": {
@@ -11,9 +11,9 @@
       "sourceSha256": "cd3f6bd0baddf8c438e723febe0c5436871440d60dae15d1904b80ee7e76ddf8"
     },
     "client-sdk/index.js": {
-      "sha256": "cb7c7f332cad9b79c8f0e7ac449d1660002afdf55af413f97a5e732b6efaf5dd",
+      "sha256": "d7a92008dbb46e32bf7ae5314f2f0de09f3684b19f02c1347613bc8162a4b2b9",
       "source": "packages/client-sdk/index.js",
-      "sourceSha256": "315b7030c3e9d7901fdb07f514466484c3a964cf96a3208701f2303a085c8105"
+      "sourceSha256": "f99d0f1f782c87085ff87a49c35cb8e9920a66cca1d2f8a1c209e4a16f478d25"
     },
     "client-sdk/src/billing.js": {
       "sha256": "bb9c370e14f2e91ab5d44f2a1fb618b884606d85377610196af1241e10a9791d",
@@ -26,14 +26,19 @@
       "sourceSha256": "73607503b807126b3fa1c770e115cd9de4e8f3afce47663bb81a299973dcbb74"
     },
     "client-sdk/src/deepLinks.js": {
-      "sha256": "1b9b179dc087ee32ff494ca8a8583ac45da588380cae5cf56e23c2ab2f4ed2a7",
+      "sha256": "cac0abf60d05eb0a57706a88c2d129c2da090ede19ce665a0a2ea13d4b5cd92e",
       "source": "packages/client-sdk/src/deepLinks.js",
-      "sourceSha256": "524be3b091d82ba14e6af3086181881da7a12dbed686c1e02cfac7005cda2ee7"
+      "sourceSha256": "36e1024d7c147c9acc6ffbdd1e5a080a4bc7b8f0e2f488533d92bb33a567b3a6"
     },
     "client-sdk/src/errors.js": {
       "sha256": "c621f67052d3ba62f258c3388bf1706758033c97ad14cf7b8340de829359d493",
       "source": "packages/client-sdk/src/errors.js",
       "sourceSha256": "8494ff28ce23fa621e26218a133fc1615d227592f99ec3d81639eb70ad56ef7b"
+    },
+    "client-sdk/src/games.js": {
+      "sha256": "5bf7c5abf74aa51d2474c91a61a99ac4ad4fc53f3783c318cae16bcbe941b91d",
+      "source": "packages/client-sdk/src/games.js",
+      "sourceSha256": "71a363af5d2f603b1ce34ee503322440efcd7a215499103ef807696cf0d85dbd"
     },
     "client-sdk/src/gateway.js": {
       "sha256": "253d44aa15181333f22c3424147ae85a6440250b67bdd99d7bbca12fe07cf892",
@@ -51,9 +56,9 @@
       "sourceSha256": "11cbd1076a0304a645d7b4f027bc2aabc6e287ca9426bc7b77ada5d234517153"
     },
     "client-sdk/src/queryKeys.js": {
-      "sha256": "6ee98fb0d60020d4b46c552f5d6f1aef355a5307aaf2a8b18c6140155c10834b",
+      "sha256": "3aaadbf972448fabb21bc2608a8df4b4c62906d23cad155b768b6e4ee5f599c5",
       "source": "packages/client-sdk/src/queryKeys.js",
-      "sourceSha256": "9a111a175d2181614e578fa5e46100efe7b237151cfb4e6f7ab4854981efdba5"
+      "sourceSha256": "c670a57256ca1de46256bea4a5d7e527d30f043651e0a1b5f8df7595cf2d098a"
     },
     "client-sdk/src/tutor.js": {
       "sha256": "f392a1bccf045bca83374ffa8352931781e11e1b69b657eb3ab1c937fe070907",
@@ -61,9 +66,9 @@
       "sourceSha256": "9211f9956f4c1b1fe65ac3bfb55b8ffb733fd91744c6c4ea777f8bd9aa6f9a71"
     },
     "i18n/index.js": {
-      "sha256": "eda8a5b6737e5cfa0e2702ab55b0db731c58689f71d9a33a9e5467bc2f79849f",
+      "sha256": "5f05999615d87a7a6089a8d2c99bce339fb4a2080e8acb9d5361fd2539702d83",
       "source": "packages/i18n/index.js",
-      "sourceSha256": "a14f25804ea341c36a5db8d030138ad2a488f0b5edd9ff1bafd6623c98bc006d"
+      "sourceSha256": "b3bf541ddceb77c45a485bf7202edc93569106de0545abc4c04e3ae0130fcb2e"
     },
     "i18n/keys/apiErrorsBillingKeys.js": {
       "sha256": "3345e6c4ede064cf628879dca247fbf0f779fb5caf96a85c258919eb46553aaa",
@@ -80,10 +85,15 @@
       "source": "packages/i18n/keys/apiErrorsContentKeys.js",
       "sourceSha256": "f84bda9822c236640ac7b40a1d95e378d564802a38841c8ca9390563e589460d"
     },
+    "i18n/keys/apiErrorsGamesKeys.js": {
+      "sha256": "d5c5383dc3f0881b37d31d988c5798ad2e372b420dbbfc16728006e53c1201c7",
+      "source": "packages/i18n/keys/apiErrorsGamesKeys.js",
+      "sourceSha256": "fac43e88fd77dbd2097c12b6c833899a5c86597b8744bc87ea483d2e0366f38d"
+    },
     "i18n/keys/apiErrorsIdentityKeys.js": {
-      "sha256": "18f776d6a2cb9b68ddeaa99ef352527de1f2b6803ecf9f3ed8c9aa65aed170f7",
+      "sha256": "b1405d30416e6f3d2e4afa9d35c01f0364e446fab5aa834058bab601f2f16af2",
       "source": "packages/i18n/keys/apiErrorsIdentityKeys.js",
-      "sourceSha256": "b0617668ecf0a91c7c1bcc787ccfe2184611b1624ff47c645812442f34716442"
+      "sourceSha256": "6c36d3f63a01e47d93e06049100093cd00dd7c41b1e2714e39c838f45e34a1e1"
     },
     "i18n/keys/apiErrorsLearningKeys.js": {
       "sha256": "13301e73cca6f086eb3a215edbfb08acb3e21af0d90537176790287a0a79da9a",
@@ -110,6 +120,11 @@
       "source": "packages/i18n/keys/enumsContentKeys.js",
       "sourceSha256": "1529632496f089cf154b85be9dbcc7f7d33ede49f5ca7fadf14e53389c2d20dc"
     },
+    "i18n/keys/enumsGamesKeys.js": {
+      "sha256": "b4de210684fb5bd79a6b6f3968162385cf9fa16dc65f70236c5b948c8145e28a",
+      "source": "packages/i18n/keys/enumsGamesKeys.js",
+      "sourceSha256": "3f35e3f45c9c4e318f7310e009d8f207ab8cd315faf9db3c42bc38326fadae60"
+    },
     "i18n/keys/enumsLearningKeys.js": {
       "sha256": "b5144e4dca918f4b0b2972a01c72420d029a273d41b4ada8ba50aaf162039d0b",
       "source": "packages/i18n/keys/enumsLearningKeys.js",
@@ -124,6 +139,26 @@
       "sha256": "03c7e5421355494fce48f8df9811d4bca6fcf22132d5fb7a37f91b46756b015b",
       "source": "packages/i18n/keys/feedbackKeys.js",
       "sourceSha256": "5a5b15e9ddaec90d925deb50f1c38bf8a9d19e0636d40fe9c951bab4fbc725be"
+    },
+    "i18n/keys/gamesBoardKeys.js": {
+      "sha256": "4fc8e53f2d6f9aa8a8de5e8fd39d2d498542398e6f6ecbf50bc126feded3b3d1",
+      "source": "packages/i18n/keys/gamesBoardKeys.js",
+      "sourceSha256": "deb39a1bf7f022d7b3e96f3c24f002fa2e736b843ae85660e2b037e026308fe6"
+    },
+    "i18n/keys/gamesCloseKeys.js": {
+      "sha256": "675e2f6064f5540da23a41cb605f3d83ce991d4e7f88c0a200a85e71b9b39ca7",
+      "source": "packages/i18n/keys/gamesCloseKeys.js",
+      "sourceSha256": "3f5f183776ffc8a181d90c421f727e36ec80f95d56f5bf45eb45bc8ab6c3ecab"
+    },
+    "i18n/keys/gamesHuntKeys.js": {
+      "sha256": "e2da8751c60c563f52f35d9630cd4ac43b2bff3a51092a2a7f1537a37e06c0f2",
+      "source": "packages/i18n/keys/gamesHuntKeys.js",
+      "sourceSha256": "3533dd1fffd7374bd451161ec5fed9673fdbf4536dda16eedba8df211596ff53"
+    },
+    "i18n/keys/gamesKeys.js": {
+      "sha256": "c76ef042a5bb42ce6bbd82bf6aa290ccebc8b750bf38ccf91bac53198b3a72d1",
+      "source": "packages/i18n/keys/gamesKeys.js",
+      "sourceSha256": "19c8b7d08b1b5623d8a8b673b581d671f6b933943d16bc281b4fa58f8dee2039"
     },
     "i18n/keys/helpKeys.js": {
       "sha256": "c5ca030c782bc578ab5b5f151fbafc197dec06eef600e9e025b93bb2539178b1",
@@ -145,15 +180,40 @@
       "source": "packages/modules/shared/domain/backgrounds.js",
       "sourceSha256": "3ecbeaeb760d588dc5a9049af2dfd5dc7ca87bd26dcb568d7de7634d8f190d25"
     },
+    "domain/games/board.js": {
+      "sha256": "39babe25bec6706155b2ee22545fdfa17fca9a9214bd240794907dcbc98d3d3d",
+      "source": "packages/modules/shared/domain/games/board.js",
+      "sourceSha256": "7aade389fbde324f9030983c6b535fb6e01b1a5d8d50eef460a2583c038b6425"
+    },
+    "domain/games/closeness.js": {
+      "sha256": "a944d6d1958c698d777b9f5c7ce4e1266516ac9899d01bd47ef97eb0d7d76f55",
+      "source": "packages/modules/shared/domain/games/closeness.js",
+      "sourceSha256": "47f23e3ce2ef1c6ab1ab2d6fe58981d7098a98c98db03c790ba495f5971add79"
+    },
+    "domain/games/letter-guess.js": {
+      "sha256": "b33d6b16431d2095541140a9c80a72cfc3e8d8d2057f398858a38e7c0e88558d",
+      "source": "packages/modules/shared/domain/games/letter-guess.js",
+      "sourceSha256": "85de6de10628f6e8fe77144a48f20f55a930e46cb79bdd24fd2a7366b361651d"
+    },
+    "domain/games/levels.js": {
+      "sha256": "f0afc213b33b6b7b9c19e52d03ec3df49e26402b4f2e5d3edea23bafa98adb30",
+      "source": "packages/modules/shared/domain/games/levels.js",
+      "sourceSha256": "cebe1db9d7c83fb622013af40e8d0339c6747491a6726047c5a750d8994e4576"
+    },
+    "domain/games/word-hunt.js": {
+      "sha256": "b21d8f3eafa0c9052658f5bf9938bd2b618ee296b919b745bdc1ae67b63a0cc3",
+      "source": "packages/modules/shared/domain/games/word-hunt.js",
+      "sourceSha256": "ae769535d90115a99c685211a835653395d9f6fde143e3dbae0f0820eec73ac3"
+    },
     "domain/hues.js": {
       "sha256": "50776c6150c201f24be6cb3d331de20dfc26af9face0401878555d80be0e714e",
       "source": "packages/modules/shared/domain/hues.js",
       "sourceSha256": "216373b72be5c201cc1b1c96f13e327c591c9cbb595baf843a6e4e02a49be2d2"
     },
     "domain/index.js": {
-      "sha256": "d4d108c9a8e9f0d01557bd46c327ad592ee0f1c0502e2cf21b61e0bd9189fc7f",
+      "sha256": "7df34a8397809fea2ca691d52d0c21f245f11ad41c12b735be71742c47317aab",
       "source": "packages/modules/shared/domain/index.js",
-      "sourceSha256": "acbf817c8b7ddf903d556cabbb778924b7ed33f042e1df60cb8524b55ed67481"
+      "sourceSha256": "dcc26b4e71e1982faa6a9aeaf371ecc0161d48e3f9aa3f0597c9c47063e4695f"
     },
     "domain/lexicon-text.js": {
       "sha256": "b2682974d3123fdebcc35f941164074bad44790ff7482c17a7ef077dc3260599",

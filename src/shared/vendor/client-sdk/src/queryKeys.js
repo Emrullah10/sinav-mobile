@@ -39,4 +39,7 @@ export const queryKeys = {
     translationPrompt: (params) => ['tutor', 'translationPrompt', params], evaluation: (code) => ['tutor', 'evaluation', code],
     cmsReports: (params) => ['tutor', 'cmsReports', params],
   },
+  games: {
+    hub: () => ['games', 'hub'], leaderboard: (game, mode, period) => ['games', 'leaderboard', game, mode, period], levels: (game) => ['games', 'levels', game], matches: () => ['games', 'matches'], match: (code) => ['games', 'match', String(code)], play: (code) => ['games', 'play', String(code)],
+  },
 };

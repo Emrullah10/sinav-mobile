@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { BookMarked, Bookmark, Layers, Shuffle } from 'lucide-react-native';
+import { BookMarked, Bookmark, Gamepad2, Layers, Shuffle } from 'lucide-react-native';
 import { useRef } from 'react';
 import { View } from 'react-native';
 import { Badge, Banner, Card, IconTile, ListRow, ProgressBar, QueryBoundary, Screen, Text, TopBar } from '@components';
@@ -77,6 +77,13 @@ export default function StudyHome() {
                 leading={<IconTile icon={Bookmark} hue={FEATURE_HUE.bookmarks} size={36} />}
                 title={t('study.bookmarks')}
                 onPress={() => router.push('/study/bookmarks')}
+                divider
+              />
+              <ListRow
+                leading={<IconTile icon={Gamepad2} hue="teal" size={36} />}
+                title={t('games.title')}
+                subtitle={t('games.subtitle')}
+                onPress={() => router.push(deepLinks.games)}
               />
             </View>
 

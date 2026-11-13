@@ -10,6 +10,7 @@ import { openDeepLink } from '@shared/navigation/deepLinks';
 import { queryKeys } from '@shared/vendor/client-sdk/index.js';
 import { useT } from '@shared/translation/useT';
 import { cancelDailyReminder, scheduleDailyReminder } from './reminders';
+import { registerPushToken } from './push';
 import { cancelWordOfDay, scheduleWordOfDay } from './wordOfDay';
 
 const localDay = () => {
@@ -69,6 +70,11 @@ export function RemindersSync() {
       : cancelDailyReminder();
     Promise.resolve(job).catch((err) => report(err, { where: 'reminders.schedule' }));
   }, [status, isGuest, p?.dailyReminderEnabled, p?.dailyReminderTime, language]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // İzin zaten verilmişse push token'ı yenile (token değişebilir); izin penceresi çevrimiçi maçta açılır.
+  useEffect(() => {
+    if (authed) registerPushToken({ ask: false, locale: language });
+  }, [authed, language]);
 
   useEffect(() => {
     const open = (response) => {

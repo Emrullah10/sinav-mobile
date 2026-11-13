@@ -25,4 +25,6 @@ export const deepLinks = {
   reader: (code) => `/read/${code}`,
   readerPdf: (code) => `/read/${code}/pdf`,
   readerQuiz: (code) => `/read/${code}/quiz`,
+  games: '/games',
+  game: (key) => `/games/${key}`,
 };
