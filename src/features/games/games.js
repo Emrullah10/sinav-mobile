@@ -9,3 +9,4 @@ export const GAMES = [
 ];
 
 export const bySlug = (slug) => GAMES.find((g) => g.slug === slug) || null;
+export const byKey = (key) => GAMES.find((g) => g.key === key) || null;
